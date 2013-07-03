@@ -8,33 +8,40 @@
 
 #include <stdarg.h>
 #include <getopt.h>
+#include <libio.h>
 
-#include "camio_prog_options.h"
+#include "m6_options.h"
 
-#include "../utils/camio_util.h"
-#include "../errors/camio_errors.h"
-#include "../types/camio_types.h"
+#include "../utils/m6_util.h"
+#include "../log/log.h"
 
 #include "../parsing/numeric_parser.h"
 #include "../parsing/bool_parser.h"
 
 
-camio_options_t opts = {0};
+extern m6_options_t opts;
+void m6_options_init()
+{
+    construct(Vector,&opts.opt_defs,sizeof(m6_options_opt_t),FREEOBJ);
+}
+
 
 
 void print_usage(const char* err_tx_fmt, ...){
     if(opts.short_description)
         printf("\n%s:\n\n", opts.short_description);
 
+    VectorIter* iter = create(VectorIter, &opts.opt_defs);
+    m6_bool has_next = true;
+    for (head(VectorIter,iter); has_next && !empty(Vector,&opts->opt_defs); (has_next = !next(VectorIter,iter)) ) {
+        m6_options_opt_t* opt_def = (m6_options_opt_t*)retreive(VectorIter,iter);
 
-    camio_options_opt_t* opt_def = NULL;
-    for (opt_def = opts.opt_def; opt_def ; opt_def = opt_def->next) {
         char* mode = NULL;
         switch(opt_def->mode){
-            case CAMIO_OPTION_FLAG:      mode = "Flag"; break;
-            case CAMIO_OPTION_REQUIRED:  mode = "Required"; break;
-            case CAMIO_OPTION_OPTIONAL:  mode = "Optional"; break;
-            case CAMIO_OPTION_UNLIMTED:  mode = "Unlimited"; break;
+            case M6_OPTION_FLAG:      mode = "Flag"; break;
+            case M6_OPTION_REQUIRED:  mode = "Required"; break;
+            case M6_OPTION_OPTIONAL:  mode = "Optional"; break;
+            case M6_OPTION_UNLIMTED:  mode = "Unlimited"; break;
         }
 
 
@@ -59,39 +66,55 @@ void print_usage(const char* err_tx_fmt, ...){
 
 
 
-int camio_options_tail(char* description){
+int m6_options_tail(char* description){
     eprintf_exit("");
     return 0;
 }
 
-int camio_options_short_description(char* description){
+int m6_options_short_description(char* description){
     opts.short_description = description;
     return 0;
 }
 
-int camio_options_long_description(char* description){
+int m6_options_long_description(char* description){
     opts.long_description= description;
     return 0;
 }
 
 
+static inline m6_word m6_options_add_init(
+        m6_options_opt_t* opt_def_new,
+        m6_options_mode_e mode,
+        char short_str,
+        const char* long_str,
+        const char* descr,
+        m6_types_e type,
+        void* default_value)
+{
 
-int is_list_type(int type){
-    return type == CAMIO_BOOLS   ||
-           type == CAMIO_INT64S  ||
-           type == CAMIO_STRINGS ||
-           type == CAMIO_UINT64S ;
-}
+    if(mode == M6_OPTION_FLAG){
+        m6_log_error( "Flag options must be used with type M6_BOOL\n");
+        return -1;
+    }
 
-
-int camio_options_add(camio_options_mode_e mode, char short_str, const char* long_str, const char* descr, camio_types_e type, ...){
+    if(mode == M6_OPTION_UNLIMTED){
+        if(!opts.unlimted_set){
+            if(is_list_type(type)){
+                opts.unlimted_set = 1;
+            }
+            else{
+                m6_log_error( "Unlimited options must be used with a list type variable eg m6_list(string)\n");
+                return -1;
+            }
+        }
+        else{
+            m6_log_error( "Unlimited options can only be used once!\n");
+            return -1;
+        }
+    }
 
     //Create a new opt def
-    camio_options_opt_t* opt_def_new = malloc(sizeof(camio_options_opt_t));
-    if(!opt_def_new){
-        eprintf_exit( "Could not allocate memory for option\n");
-    }
-    bzero(opt_def_new,sizeof(camio_options_opt_t));
+    bzero(opt_def_new,sizeof(m6_options_opt_t));
 
     opts.count++;
     opt_def_new->mode      = mode;
@@ -99,109 +122,72 @@ int camio_options_add(camio_options_mode_e mode, char short_str, const char* lon
     opt_def_new->long_str  = long_str;
     opt_def_new->descr     = descr;
     opt_def_new->type      = type;
+    opt_def_new->type      = default_value;
 
-    if(mode == CAMIO_OPTION_FLAG && type != CAMIO_BOOL){
-        eprintf_exit( "Flag options must be used with type CAMIO_BOOL\n");
+    return -1;
+
+}
+
+
+
+
+inline int m6_options_addb(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, const m6_bool* default_val)
+{
+    m6_options_opt_t opt_new = {0};
+    m6_word result = m6_options_add_init(&opt_new, mode, short_str, long_str, descr, default_val);
+    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){
+        m6_log_error("Could not append new binary option to options list\n");
+        return -1;
     }
-
-    if(mode == CAMIO_OPTION_UNLIMTED){
-        if(!opts.unlimted_set){
-            if(is_list_type(type)){
-                opts.unlimted_set = 1;
-            }
-            else{
-                eprintf_exit( "Unlimited options must be used with a list type variable eg camio_list(string)\n");
-            }
-        }
-        else{
-            eprintf_exit( "Unlimited options can only be used once!\n");
-        }
-    }
-
-    //Populate it
-    va_list argp;
-    va_start(argp,type);
-    switch(type){
-        case CAMIO_BOOL:
-            opt_def_new->var = va_arg(argp,int*);
-            *((int*)opt_def_new->var) = va_arg(argp,int);
-            break;
-        case CAMIO_STRING:
-            opt_def_new->var = va_arg(argp,char**);
-            *((char**)opt_def_new->var) = va_arg(argp,char*);
-            break;
-
-        case CAMIO_INT64:
-            opt_def_new->var = va_arg(argp,int64_t*);
-            *((int64_t*)opt_def_new->var) = va_arg(argp,int64_t);
-            break;
-
-        case CAMIO_UINT64:
-            opt_def_new->var = va_arg(argp,uint64_t*);
-            *((uint64_t*)opt_def_new->var) = va_arg(argp,uint64_t);
-            break;
-
-        case CAMIO_DOUBLE:
-            opt_def_new->var = va_arg(argp,double*);
-            *((double*)opt_def_new->var) = va_arg(argp,double);
-            break;
-
-        //List types
-
-        case CAMIO_BOOLS:
-            opt_def_new->var = va_arg(argp,camio_list_t(bool)*);
-            camio_list_init(bool,opt_def_new->var, 512);
-            camio_list_add(bool,opt_def_new->var,va_arg(argp,int));
-            break;
-
-        case CAMIO_STRINGS:
-            opt_def_new->var = va_arg(argp,camio_list_t(string)*);
-            camio_list_init(string,opt_def_new->var, 512);
-            camio_list_add(string,opt_def_new->var,va_arg(argp,char*));
-            break;
-
-        case CAMIO_INT64S:
-            opt_def_new->var = va_arg(argp,camio_list_t(int64)*);
-            camio_list_init(int64,opt_def_new->var, 512);
-            camio_list_add(int64,opt_def_new->var,va_arg(argp,int64_t));
-            break;
-
-        case CAMIO_UINT64S:
-            opt_def_new->var = va_arg(argp,camio_list_t(uint64)*);
-            camio_list_init(uint64,opt_def_new->var, 512);
-            camio_list_add(uint64,opt_def_new->var,va_arg(argp,uint64_t));
-            break;
-
-        case CAMIO_DOUBLES:
-            opt_def_new->var = va_arg(argp,camio_list_t(double)*);
-            camio_list_init(double,opt_def_new->var, 512);
-            camio_list_add(double,opt_def_new->var,va_arg(argp,double));
-            break;
-
-        default:
-            eprintf_exit( "Unknown type %lu for option %s\n", type, long_str);
-            break;
-    }
-
-    va_end(argp);
-
-    //And finally, add it to the end of the list
-    if(!opts.opt_def){
-        opts.opt_def = opt_def_new;
-    }
-    else{
-        //Traverse to the end of the list
-        camio_options_opt_t* opt_def_end = opts.opt_def;
-        while(opt_def_end && opt_def_end->next){
-            opt_def_end = opt_def_end->next;
-        }
-
-        opt_def_end->next = opt_def_new;
-    }
-
-
     return 0;
 }
+
+
+int m6_options_addi(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, const i64 default_val)
+{
+    m6_options_opt_t opt_new = {0};
+    m6_word result = m6_options_add_init(&opt_new, mode, short_str, long_str, descr, default_val);
+    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){
+        m6_log_error("Could not append new integer option to options list\n");
+        return -1;
+    }
+    return 0;
+}
+
+int m6_options_addu(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, const u64 default_val)
+{
+    m6_options_opt_t opt_new = {0};
+    m6_word result = m6_options_add_init(&opt_new, mode, short_str, long_str, descr, default_val);
+    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){
+        m6_log_error("Could not append new unsigned option to options list\n");
+        return -1;
+    }
+    return 0;
+}
+int m6_options_addf(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, const double default_val)
+{
+    m6_options_opt_t opt_new = {0};
+    m6_word result = m6_options_add_init(&opt_new, mode, short_str, long_str, descr, default_val);
+    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){
+        m6_log_error("Could not append new float option to options list\n");
+        return -1;
+    }
+    return 0;
+
+}
+
+int m6_options_adds(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, char** default_val)
+{
+    m6_options_opt_t opt_new = {0};
+    m6_word result = m6_options_add_init(&opt_new, mode, short_str, long_str, descr, default_val);
+    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){
+        m6_log_error("Could not append new string option to options list\n");
+        return -1;
+    }
+    return 0;
+}
+
+
 
 //int64_t  is_number_int64     = 0;
 //uint64_t is_number_uint64    = 0;
@@ -209,57 +195,59 @@ int camio_options_add(camio_options_mode_e mode, char short_str, const char* lon
 
 
 
-void parse_argument(camio_options_opt_t* opt_def) {
+void parse_argument(m6_options_opt_t* opt_def) {
     num_result_t num_result;
     switch (opt_def->type) {
-        case CAMIO_INT64:
-        case CAMIO_INT64S: {
+        case M6_INT64:{
+        //case M6_INT64S: {
             //Sanity check
             if (!optarg) { print_usage( "Option --%s (-%c) Expected argument of type INT64 but none found.\n", opt_def->long_str, opt_def->short_str); }
 
             //Get the number
             num_result = parse_number(optarg, 0);
-            if(num_result.type == CAMIO_UINT64){ num_result.type = CAMIO_INT64;  } //Type promote uint to int
-            if (num_result.type != CAMIO_INT64) { print_usage( "Option --%s (-%c) Expected argument of type INT64 but \"%s\" found\n", opt_def->long_str, opt_def->short_str, optarg);}
+            if(num_result.type == M6_UINT64){ num_result.type = M6_INT64;  } //Type promote uint to int
+            if (num_result.type != M6_INT64) { print_usage( "Option --%s (-%c) Expected argument of type INT64 but \"%s\" found\n", opt_def->long_str, opt_def->short_str, optarg);}
 
             //Assign it
-            if (opt_def->type == CAMIO_INT64) { *(int64_t*) opt_def->var = num_result.val_int;}
-            else { camio_list_add(int64, opt_def->var, num_result.val_int); }
+            //if (opt_def->type == M6_INT64)
+            { *(int64_t*) opt_def->var = num_result.val_int;}
+            //else { m6_list_add(int64, opt_def->var, num_result.val_int); }
             break;
         }
 
-        case CAMIO_UINT64:
-        case CAMIO_UINT64S: {
+        case M6_UINT64:{
+        //case M6_UINT64S: {
             //Sanity check
             if (!optarg) { print_usage( "Option  --%s (-%c) Expected argument of type UINT64 but none found.\n", opt_def->long_str, opt_def->short_str); }
 
             //Get the number
             num_result = parse_number(optarg, 0);
-            if (num_result.type != CAMIO_UINT64) { print_usage("Option  --%s (-%c) Expected argument of type UINT64 but \"%s\" found\n", opt_def->long_str, opt_def->short_str, optarg);}
+            if (num_result.type != M6_UINT64) { print_usage("Option  --%s (-%c) Expected argument of type UINT64 but \"%s\" found\n", opt_def->long_str, opt_def->short_str, optarg);}
 
             //Assign it
-            if (opt_def->type == CAMIO_UINT64) { *(uint64_t*) opt_def->var = num_result.val_uint;
-            } else { camio_list_add(uint64, opt_def->var, num_result.val_uint); }
+            //if (opt_def->type == M6_UINT64)
+            { *(uint64_t*) opt_def->var = num_result.val_uint; }
+            //} else { m6_list_add(uint64, opt_def->var, num_result.val_uint); }
             break;
         }
 
-        case CAMIO_DOUBLE:
-        case CAMIO_DOUBLES: {
+        case M6_DOUBLE:{
+        //case M6_DOUBLES: {
             //Sanity check
             if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type DOUBLE but none found.\n", opt_def->long_str, opt_def->short_str);}
 
             //Get the number
             num_result = parse_number(optarg, 0);
             double result = 0;
-            if(num_result.type == CAMIO_DOUBLE){
+            if(num_result.type == M6_DOUBLE){
                 result = num_result.val_dble;
             }
             //Type promote int to double
-            else if(num_result.type == CAMIO_UINT64){
+            else if(num_result.type == M6_UINT64){
                 result = (double)num_result.val_int;
             }
             //Type promote uint to double
-            else if(num_result.type == CAMIO_UINT64){
+            else if(num_result.type == M6_UINT64){
                 result = (double)num_result.val_uint;
             }
             //No Suitable type found
@@ -268,43 +256,45 @@ void parse_argument(camio_options_opt_t* opt_def) {
             }
 
             //Assign it
-            if (opt_def->type == CAMIO_DOUBLE) { *(double*) opt_def->var = result;}
-            else { camio_list_add(double, opt_def->var, num_result.val_dble); }
+            //if (opt_def->type == M6_DOUBLE)
+            { *(double*) opt_def->var = result;}
+            //else { m6_list_add(double, opt_def->var, num_result.val_dble); }
             break;
         }
 
-        case CAMIO_BOOL:
-        case CAMIO_BOOLS: {
+        case M6_BOOL:{
+        //case M6_BOOLS: {
             //Sanity check
             if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type BOOL but none found.\n", opt_def->long_str, opt_def->short_str);}
 
             //Get the number
             num_result = parse_bool(optarg, strlen(optarg), 0);
-            if (num_result.type != CAMIO_INT64) { print_usage("Option --%s (-%c) Expected argument of type BOOL but \"%s\" found\n", opt_def->long_str, opt_def->short_str,  optarg);}
+            if (num_result.type != M6_INT64) { print_usage("Option --%s (-%c) Expected argument of type BOOL but \"%s\" found\n", opt_def->long_str, opt_def->short_str,  optarg);}
 
             //Assign it
-            if (opt_def->type == CAMIO_BOOL) { *(int*) opt_def->var = (int) num_result.val_int;}
-            else {camio_list_add(bool, opt_def->var, (int)num_result.val_int);}
+            //if (opt_def->type == M6_BOOL)
+            { *(int*) opt_def->var = (int) num_result.val_int;}
+            //else {m6_list_add(bool, opt_def->var, (int)num_result.val_int);}
             break;
         }
 
-        case CAMIO_STRING:
-        case CAMIO_STRINGS: {
+        case M6_STRING:{
+        //case M6_STRINGS: {
             //Sanity check
             if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type STRING but none found.\n", opt_def->long_str, opt_def->short_str);}
 
             //Assign it
-            if (opt_def->type == CAMIO_STRING) {
+            //if (opt_def->type == M6_STRING) {
                 *(char**) opt_def->var = optarg;
-            }
-            else {
-                //Remove the default value
-                if(opt_def->found == 1){
-                    ((camio_list_t(string)*)opt_def->var)->count = 0;
-                }
-
-                camio_list_add(string, opt_def->var, optarg);
-            }
+            //}
+//            else {
+//                //Remove the default value
+//                if(opt_def->found == 1){
+//                    ((m6_list_t(string)*)opt_def->var)->count = 0;
+//                }
+//
+//                m6_list_add(string, opt_def->var, optarg);
+//            }
             break;
         }
 
@@ -316,11 +306,13 @@ void parse_argument(camio_options_opt_t* opt_def) {
 }
 
 //Search through the options, find the option with the matching character
-void process_option(const camio_options_t* opts, char c) {
+void process_option(const m6_options_t* opts, char c) {
 
     int done = 0;
-    camio_options_opt_t* opt_def = NULL;
-    for (opt_def = opts->opt_def; opt_def && !done; opt_def = opt_def->next) {
+    m6_options_opt_t* opt_def = NULL;
+    int i = 0;
+    for (; i < size(Vector,opts.opt_defs) ; i++) {
+        opt_def = (m6_options_opt_t*)(opts.opt_defs->mem)[i];
 
         if (opt_def->short_str == c) {
             done = 1; //Exit the loop when finished
@@ -330,7 +322,7 @@ void process_option(const camio_options_t* opts, char c) {
                 print_usage("Option --%s (-%c), only one instance expected but multiple found.\n", opt_def->long_str, opt_def->short_str);
             }
 
-            if (opt_def->mode == CAMIO_OPTION_FLAG) {
+            if (opt_def->mode == M6_OPTION_FLAG) {
                 *(int*)opt_def->var = ! (*(int*)opt_def->var); //invert the default value
                 continue;  //This is all handled by getopts
             }
@@ -343,17 +335,22 @@ void process_option(const camio_options_t* opts, char c) {
 
 
 //Fill in the getopts and getopts_long structures
-void generate_unix_opts(const camio_options_t* opts, char short_opts_str[1024], struct option* long_options) {
+void generate_unix_opts(const m6_options_t* opts, char short_opts_str[1024], struct option* long_options) {
     size_t i = 0;
-    camio_options_opt_t* opt_def = opts->opt_def;
+
     char* short_opts_ptr = short_opts_str;
-    for (; i < opts->count && opt_def && short_opts_ptr < &short_opts_str[1024]; i++) {
+
+    VectorIter* iter = create(VectorIter, &opts.opt_defs);
+    m6_bool has_next = true;
+    for (head(VectorIter,iter); has_next && !empty(Vector,&opts->opt_defs) && short_opts_ptr < &short_opts_str[1024]; (has_next = !next(VectorIter,iter)), i++ ) {
+        m6_options_opt_t* opt_def = (m6_options_opt_t*)retreive(VectorIter,iter);
+
         *short_opts_ptr = opt_def->short_str;
         short_opts_ptr++;
 
         long_options[i].name = opt_def->long_str;
 
-        if (opt_def->mode == CAMIO_OPTION_FLAG) {
+        if (opt_def->mode == M6_OPTION_FLAG) {
             long_options[i].name = opt_def->long_str;
             long_options[i].has_arg = no_argument;
             long_options[i].flag = opt_def->var;
@@ -367,7 +364,6 @@ void generate_unix_opts(const camio_options_t* opts, char short_opts_str[1024], 
             short_opts_ptr++;
         }
 
-        opt_def = opt_def->next;
 
     }
     long_options[i].flag = NULL;
@@ -376,8 +372,8 @@ void generate_unix_opts(const camio_options_t* opts, char short_opts_str[1024], 
     long_options[i].val = 0;
 }
 
-int camio_options_parse(int argc, char** argv){
-    camio_options_add(CAMIO_OPTION_FLAG, 'h', "help", "Print this help message\n", CAMIO_BOOL, &opts.help, 0);
+int m6_options_parse(int argc, char** argv){
+    m6_options_add(M6_OPTION_FLAG, 'h', "help", "Print this help message\n", M6_BOOL, &opts.help, 0);
 
     char short_opts_str[1024] = {0};
 
@@ -410,15 +406,17 @@ int camio_options_parse(int argc, char** argv){
 
     if (optind < argc){ //There are extra parameters
         //Look for an opt_def with type UNLIMITED
-        camio_options_opt_t* opt_def = NULL;
-        for (opt_def = opts.opt_def; opt_def ; opt_def = opt_def->next) {
-            if(opt_def->mode == CAMIO_OPTION_UNLIMTED){
+        m6_options_opt_t* opt_def = NULL;
+        int i = 0;
+        for (; i < size(Vector,opts.opt_defs) ; i++) {
+            opt_def = (m6_options_opt_t*)(opts.opt_defs->mem)[i];
+            if(opt_def->mode == M6_OPTION_UNLIMTED){
                 break;
             }
         }
 
         //None found
-        if(opt_def == NULL){
+        if(i >= size(Vector,opts.opt_defs)){
             print_usage("Unknown option %s\n", argv[optind]);
         }
 
@@ -432,9 +430,11 @@ int camio_options_parse(int argc, char** argv){
 
 
     //Check the constraints
-    camio_options_opt_t* opt_def = NULL;
-    for (opt_def = opts.opt_def; opt_def ; opt_def = opt_def->next) {
-        if(opt_def->mode == CAMIO_OPTION_REQUIRED && opt_def->found < 1){
+    m6_options_opt_t* opt_def = NULL;
+    int i;
+    for (i = 0; i < size(Vector,opts.opt_defs) ; i++) {
+        opt_def = (m6_options_opt_t*)(opts.opt_defs->mem)[i];
+        if(opt_def->mode == M6_OPTION_REQUIRED && opt_def->found < 1){
             print_usage("Option --%s (-%c) is required but not supplied\n", opt_def->long_str, opt_def->short_str);
         }
     }

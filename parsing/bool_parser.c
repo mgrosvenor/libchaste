@@ -1,6 +1,8 @@
 #include "bool_parser.h"
 #include "utils.h"
 
+
+
 num_result_t parse_bool(const char* c, size_t n, size_t i){
     num_result_t num_result;
     num_result.type =  CAMIO_NO_TYPE;

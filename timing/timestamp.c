@@ -8,7 +8,7 @@
 #include "timestamp.h"
 
 #include <time.h>
-#include "../deps/libbstring/bstraux.h"
+
 
 
 //Generates an ISO 8601 formatted timestamp with a few options to play with

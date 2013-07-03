@@ -8,7 +8,6 @@
 #include "numeric_parser.h"
 #include "utils.h"
 #include "ctype.h"
-#include "../errors/camio_errors.h"
 
 
 enum {
@@ -95,7 +94,7 @@ static inline uint64_t get_bin_prefix(char c){
 //static inline
 num_result_t parse_number(const char* c, size_t i){
     num_result_t num_result;
-    num_result.type = CAMIO_NO_TYPE;
+    num_result.type = M6_NO_TYPE;
     if( c[i] == '\0'){
         return num_result;
     }
@@ -268,29 +267,29 @@ num_result_t parse_number(const char* c, size_t i){
 
     switch(state){
         case STATE_NONE_FOUND:{
-            num_result.type     = CAMIO_NO_TYPE;
+            num_result.type     = M6_NO_TYPE;
             break;
         }
 
         case STATE_FINISHED_INT: {
-            num_result.type     = CAMIO_INT64;
+            num_result.type     = M6_INT64;
             num_result.val_int  = int_accumulator;
             break;
         }
         case STATE_FINISHED_UINT:{
             if(sign == -1){
                 int_accumulator     = uint_accumulator * sign;
-                num_result.type     = CAMIO_INT64;
+                num_result.type     = M6_INT64;
                 num_result.val_int  = int_accumulator;
                 break;
             }
 
-            num_result.type     = CAMIO_UINT64;
+            num_result.type     = M6_UINT64;
             num_result.val_uint = uint_accumulator;
             break;
         }
         case STATE_FINISHED_FLOAT:{
-            num_result.type     = CAMIO_DOUBLE;
+            num_result.type     = M6_DOUBLE;
             num_result.val_dble = float_accumulator * (double)sign;
             break;
         }

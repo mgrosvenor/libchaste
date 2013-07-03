@@ -9,10 +9,12 @@
 #define NUMERIC_PARSER_H_
 
 #include <stdint.h>
-#include "../types/camio_types.h"
+#include <unistd.h>
+
+#include "../types/types.h"
 
 typedef struct{
-    camio_types_e type;
+    m6_types_e type;
     union{
         uint64_t val_uint;
         int64_t  val_int;

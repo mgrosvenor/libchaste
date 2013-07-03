@@ -7,6 +7,7 @@
 
 #ifndef BOOL_PARSER_H_
 #define BOOL_PARSER_H_
+#include <stdint.h>
 
 #include "numeric_parser.h"
 
