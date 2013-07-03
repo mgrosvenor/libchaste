@@ -120,6 +120,10 @@ m6_word _m6_log_out_va_(
         const char* filename,
         const char* format, va_list args )
 {
+    if(level > m6_log_settings.log_level){
+        return 0; //Early exit for logs we don't want
+    }
+
     m6_str final_format = bfromcstralloc(512, ""); //This should keep reallocs to a minimum
 
     if(m6_log_settings.lvl_config[level].timestamp){

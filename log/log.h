@@ -67,10 +67,10 @@
 #endif
 
 typedef struct {
-    m6_colour_t color;
-    m6_bool source;
-    m6_bool timestamp;
-    char* text;
+    m6_colour_t color;  //Color for the log level
+    m6_bool source;     //Include the source filename and line
+    m6_bool timestamp;  //Include the timestamp
+    char* text;         //Short text such as "Warning" for each instance of this level
 } m6_log_level_setting_t;
 
 
@@ -83,24 +83,25 @@ typedef enum {
 } m6_log_output_e;
 
 typedef struct {
-    m6_bool use_color;
-    m6_log_output_e output_mode;
-    char* filename;
-    int fd;
-    m6_bool use_utc;
-    m6_bool incl_timezone;
-    m6_bool subsec_digits;
-    m6_log_level_setting_t lvl_config[M6_LOG_LVL_COUNT];
+    m6_word log_level;              //Current log level for contorling verbosity/output
+    m6_bool use_color;              //Use colors when printing to a terminal
+    m6_log_output_e output_mode;    //Where to output to
+    char* filename;                 //If outputing to a file, the file name, otherwise ignored
+    m6_bool use_utc;                //Use UTC time, otherwise use local time
+    m6_bool incl_timezone;          //Include the UTC timezone offset
+    m6_bool subsec_digits;          //How many sub-second digits to use
+    m6_log_level_setting_t lvl_config[M6_LOG_LVL_COUNT]; //Setting for each log level
+    int fd;                         //Private, the file descriptor of the output
 } m6_log_settings_t;
 
 
 //Only use this one in your code!
 //You can customize most of these settings after calling this "function" to initialize
-#define USE_M6_LOGGER(bool_use_color,enum_output_mode,str_filename) \
+#define USE_M6_LOGGER(word_level,bool_use_color,enum_output_mode,str_filename) \
 m6_log_settings_t m6_log_settings = { \
-    .fd = -1, \
-    .use_color   = bool_use_color, \
-    .output_mode = enum_output_mode, \
+    .log_level      = word_level, \
+    .use_color      = bool_use_color, \
+    .output_mode    = enum_output_mode, \
     .filename       = str_filename, \
     .use_utc        = false, \
     .incl_timezone  = false, \
@@ -113,7 +114,9 @@ m6_log_settings_t m6_log_settings = { \
         { .color = M6_TERM_COL_NONE,            .source = false, .timestamp = false, .text = "Debug"       }, /*DEBUG 1*/\
         { .color = M6_TERM_COL_NONE,            .source = true,  .timestamp = false, .text = "Debug"       }, /*DEBUG 2*/\
         { .color = M6_TERM_COL_NONE,            .source = true,  .timestamp = false, .text = NULL          }  /*DEBUG 3*/\
-}}
+    }, \
+    .fd = -1,  /*This is private, please don't play with it*/\
+}
 
 
 m6_word _m6_log_out_(m6_word this_log_lvll, m6_word line_num, const char* filename, const char* format, ... );
