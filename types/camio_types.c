@@ -48,9 +48,9 @@ camio_list_init_define(int64_t, int64);
 camio_list_add_define(double,double);
 camio_list_init_define(double, double);
 
-camio_list_add_define(camio_istream_t*,istream);
-camio_list_init_define(camio_istream_t*, istream);
-
-camio_list_add_define(camio_ostream_t*,ostream);
-camio_list_init_define(camio_ostream_t*, ostream);
+//camio_list_add_define(camio_istream_t*,istream);
+//camio_list_init_define(camio_istream_t*, istream);
+//
+//camio_list_add_define(camio_ostream_t*,ostream);
+//camio_list_init_define(camio_ostream_t*, ostream);
 
