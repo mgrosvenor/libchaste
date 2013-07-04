@@ -14,6 +14,7 @@ struct {
     m6_bool opt3;
     char*   opt4;
     double  opt5;
+    Vector  opt6;
 } options;
 
 
@@ -24,6 +25,7 @@ int main(int argc, char** argv)
     m6_opt_addb(M6_OPTION_OPTIONAL,'c',"third","This is the 3rd option", &options.opt3, true);
     m6_opt_adds(M6_OPTION_OPTIONAL,'d',"fourth","This is the 4th option", &options.opt4, "ha ha");
     m6_opt_addf(M6_OPTION_OPTIONAL,'e',"fifth","This is the 5th option", &options.opt5, 43.0);
+    m6_opt_addvs(M6_OPTION_OPTIONAL,'f',"sizth","This is the 5th option", &options.opt6, NULL);
     m6_opt_parse(argc,argv);
 
     printf("a=%lu, b=%li, c=%i, d=%s, e=%lf\n", options.opt1, options.opt2, options.opt3, options.opt4, options.opt5);

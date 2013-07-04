@@ -103,7 +103,7 @@ static inline m6_word m6_options_add_init(
         char* long_str,
         char* descr,
         m6_types_e type,
-        void* default_value)
+        void* result_out)
 {
 
     if(!opts.done_init){
@@ -118,7 +118,7 @@ static inline m6_word m6_options_add_init(
 
     if(mode == M6_OPTION_UNLIMTED){
         if(!opts.unlimted_set){
-            if(is_list_type(type)){
+            if(is_vector(type)){
                 opts.unlimted_set = 1;
             }
             else{
@@ -141,7 +141,7 @@ static inline m6_word m6_options_add_init(
     opt_def_new->long_str  = long_str;
     opt_def_new->descr     = descr;
     opt_def_new->type      = type;
-    opt_def_new->var       = default_value;
+    opt_def_new->var       = result_out;
 
     int i = 0;
     for(; i < size(Vector,&opts.opt_defs); i++){
@@ -169,10 +169,10 @@ static inline m6_word m6_options_add_init(
 
     }
 
-
     return 0;
 
 }
+
 
 //Define all the options parsers -- All of this code is duplicated just with different types -- Right now I'd kill for some C++ templates
 m6_opt_add_define(M6_BOOL,     m6_bool,    b, "boolean");
@@ -181,18 +181,27 @@ m6_opt_add_define(M6_INT64,    i64,        i, "integer");
 m6_opt_add_define(M6_STRING,   char*,      s, "string");
 m6_opt_add_define(M6_DOUBLE,   double,     f, "float");
 
-
-//int64_t  is_number_int64     = 0;
-//uint64_t is_number_uint64    = 0;
-//double   is_number_double    = 0;
-
+//Vector types
+m6_opt_add_define(M6_BOOLS,    m6_bool,    vb, "booleans");
+m6_opt_add_define(M6_UINT64S,  u64,        vu, "unsigneds");
+m6_opt_add_define(M6_INT64S,   i64,        vi, "integers");
+m6_opt_add_define(M6_STRINGS,  char*,      vs, "strings");
+m6_opt_add_define(M6_DOUBLES,  double,     vf, "floats");
 
 
 void parse_argument(m6_options_opt_t* opt_def) {
+
+    if(is_vector(opt_def->type)){
+        if(opt_def->found == 1){ //This is the first one found
+            pop_back(Vector,(Vector*)opt_def->var); //Remove the default value
+        }
+    }
+
+
     num_result_t num_result;
     switch (opt_def->type) {
-        case M6_INT64:{
-        //case M6_INT64S: {
+        case M6_INT64:
+        case M6_INT64S: {
             //Sanity check
             if (!optarg) { print_usage( "Option --%s (-%c) Expected argument of type INT64 but none found.\n", opt_def->long_str, opt_def->short_str); }
 
@@ -202,14 +211,17 @@ void parse_argument(m6_options_opt_t* opt_def) {
             if (num_result.type != M6_INT64) { print_usage( "Option --%s (-%c) Expected argument of type INT64 but \"%s\" found\n", opt_def->long_str, opt_def->short_str, optarg);}
 
             //Assign it
-            //if (opt_def->type == M6_INT64)
-            { *(int64_t*) opt_def->var = num_result.val_int;}
-            //else { m6_list_add(int64, opt_def->var, num_result.val_int); }
+            if (opt_def->type == M6_INT64) {
+                *(int64_t*) opt_def->var = num_result.val_int;
+            }
+            else {
+                push_back(Vector,opt_def->var, &num_result.val_int, STATIC);
+            }
             break;
         }
 
-        case M6_UINT64:{
-        //case M6_UINT64S: {
+        case M6_UINT64:
+        case M6_UINT64S: {
             //Sanity check
             if (!optarg) { print_usage( "Option  --%s (-%c) Expected argument of type UINT64 but none found.\n", opt_def->long_str, opt_def->short_str); }
 
@@ -218,14 +230,17 @@ void parse_argument(m6_options_opt_t* opt_def) {
             if (num_result.type != M6_UINT64) { print_usage("Option  --%s (-%c) Expected argument of type UINT64 but \"%s\" found\n", opt_def->long_str, opt_def->short_str, optarg);}
 
             //Assign it
-            //if (opt_def->type == M6_UINT64)
-            { *(uint64_t*) opt_def->var = num_result.val_uint; }
-            //} else { m6_list_add(uint64, opt_def->var, num_result.val_uint); }
+            if (opt_def->type == M6_UINT64){
+                *(uint64_t*) opt_def->var = num_result.val_uint;
+            }
+            else{
+                push_back(Vector,opt_def->var, &num_result.val_int, STATIC);
+            }
             break;
         }
 
-        case M6_DOUBLE:{
-        //case M6_DOUBLES: {
+        case M6_DOUBLE:
+        case M6_DOUBLES: {
             //Sanity check
             if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type DOUBLE but none found.\n", opt_def->long_str, opt_def->short_str);}
 
@@ -249,14 +264,18 @@ void parse_argument(m6_options_opt_t* opt_def) {
             }
 
             //Assign it
-            //if (opt_def->type == M6_DOUBLE)
-            { *(double*) opt_def->var = result;}
-            //else { m6_list_add(double, opt_def->var, num_result.val_dble); }
+            if (opt_def->type == M6_DOUBLE){
+                *(double*) opt_def->var = result;
+            }
+            else{
+                push_back(Vector,opt_def->var, &num_result.val_int, STATIC);
+            }
+
             break;
         }
 
-        case M6_BOOL:{
-        //case M6_BOOLS: {
+        case M6_BOOL:
+        case M6_BOOLS: {
             //Sanity check
             if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type BOOL but none found.\n", opt_def->long_str, opt_def->short_str);}
 
@@ -265,29 +284,29 @@ void parse_argument(m6_options_opt_t* opt_def) {
             if (num_result.type != M6_INT64) { print_usage("Option --%s (-%c) Expected argument of type BOOL but \"%s\" found\n", opt_def->long_str, opt_def->short_str,  optarg);}
 
             //Assign it
-            //if (opt_def->type == M6_BOOL)
-            { *(int*) opt_def->var = (int) num_result.val_int;}
-            //else {m6_list_add(bool, opt_def->var, (int)num_result.val_int);}
+            if (opt_def->type == M6_BOOL){
+                *(int*) opt_def->var = (int) num_result.val_int;
+            }
+            else{
+                push_back(Vector,opt_def->var, &num_result.val_int, STATIC);
+            }
+
             break;
         }
 
-        case M6_STRING:{
-        //case M6_STRINGS: {
+        case M6_STRING:
+        case M6_STRINGS: {
             //Sanity check
             if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type STRING but none found.\n", opt_def->long_str, opt_def->short_str);}
 
             //Assign it
-            //if (opt_def->type == M6_STRING) {
+            if (opt_def->type == M6_STRING) {
                 *(char**) opt_def->var = optarg;
-            //}
-//            else {
-//                //Remove the default value
-//                if(opt_def->found == 1){
-//                    ((m6_list_t(string)*)opt_def->var)->count = 0;
-//                }
-//
-//                m6_list_add(string, opt_def->var, optarg);
-//            }
+            }
+            else{
+                push_back(Vector,opt_def->var, &num_result.val_int, STATIC);
+            }
+
             break;
         }
 
@@ -311,7 +330,7 @@ void process_option(char c) {
             //done = 1; //Exit the loop when finished
 
             opt_def->found++; //We found an option of this type
-            if (opt_def->found > 1 && !is_list_type(opt_def->type)) {
+            if (opt_def->found > 1 && !is_vector(opt_def->type)) {
                 print_usage("Option --%s (-%c), only one instance expected but multiple found.\n", opt_def->long_str, opt_def->short_str);
             }
 

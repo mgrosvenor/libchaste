@@ -49,7 +49,7 @@ typedef enum {
     M6_DOUBLES,
 } m6_types_e;
 
-m6_word is_list_type(m6_word type);
+m6_word is_vector(m6_word type);
 
 
 #endif /* M6_TYPES_H_ */
