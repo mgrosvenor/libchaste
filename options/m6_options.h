@@ -35,30 +35,47 @@ typedef struct {
     char* long_description;
     Vector opt_defs;
     uint64_t count;
-    int help;
+    m6_bool help;
     int unlimted_set;
+    m6_bool done_init;
 } m6_options_t;
 
 
-int m6_options_addb(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, const m6_bool def);
-int m6_options_addi(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, const i64 def);
-int m6_options_addu(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, const u64 def);
-int m6_options_addf(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, const double def);
-int m6_options_adds(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, const char*);
+#define m6_options_add_declare(m6_type_name, c_type_name, short_name, long_name)\
+inline int m6_options_add##short_name(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, c_type_name* result_out, c_type_name default_val) \
+
+#define m6_options_add_define(m6_type_name, c_type_name, short_name, long_name)\
+m6_options_add_declare(6_type_name, c_type_name, short_name, long_name)\
+{\
+    m6_options_opt_t opt_new = {0};\
+    *result_out = default_val;\
+    m6_word result = m6_options_add_init(&opt_new, mode, short_str, long_str, descr, m6_type_name, result_out);\
+    if(result){\
+        return result;\
+    }\
+    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){\
+        m6_log_error("Could not append new"long_name"option to options list\n");\
+        return -1;\
+    }\
+    return result;\
+}
 
 
-int m6_options_init();
+//Declare all the options parsers
+m6_options_add_declare(M6_BOOL,     m6_bool,    b, "boolean");
+m6_options_add_declare(M6_UINT64,   u64,        u, "unsigned");
+m6_options_add_declare(M6_INT64,    i64,        i, "integer");
+m6_options_add_declare(M6_STRING,   char*,      s, "string");
+m6_options_add_declare(M6_DOUBLE,   double,     f, "float");
+
 
 #define USE_M6_OPTIONS \
-    m6_options_t opts = {0};\
-    m6_options_init()
-
+    m6_options_t opts = {0};
 
 int m6_options_name(char* description);
 int m6_options_tail(char* description);
 int m6_options_short_description(char* description);
 int m6_options_long_description(char* description);
-int m6_options_add(m6_options_mode_e mode, const char short_str, const char* long_str, const char* descr, m6_types_e type, ...);
 int m6_options_parse(int argc, char** argv);
 
 

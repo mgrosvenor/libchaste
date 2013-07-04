@@ -9,6 +9,7 @@
 #include <stdarg.h>
 #include <getopt.h>
 #include <libio.h>
+#include <stdio.h>
 
 #include "m6_options.h"
 
@@ -23,6 +24,7 @@ extern m6_options_t opts;
 void m6_options_init()
 {
     construct(Vector,&opts.opt_defs,sizeof(m6_options_opt_t),FREEOBJ);
+    opts.done_init = 1;
 }
 
 
@@ -31,10 +33,9 @@ void print_usage(const char* err_tx_fmt, ...){
     if(opts.short_description)
         printf("\n%s:\n\n", opts.short_description);
 
-    VectorIter* iter = create(VectorIter, &opts.opt_defs);
-    m6_bool has_next = true;
-    for (head(VectorIter,iter); has_next && !empty(Vector,&opts->opt_defs); (has_next = !next(VectorIter,iter)) ) {
-        m6_options_opt_t* opt_def = (m6_options_opt_t*)retreive(VectorIter,iter);
+    int i = 0;
+    for (; i < size(Vector,&opts.opt_defs); i++ ) {
+        m6_options_opt_t* opt_def = ((m6_options_opt_t*)opts.opt_defs.mem) + i;
 
         char* mode = NULL;
         switch(opt_def->mode){
@@ -44,8 +45,17 @@ void print_usage(const char* err_tx_fmt, ...){
             case M6_OPTION_UNLIMTED:  mode = "Unlimited"; break;
         }
 
+        char* type = NULL;
+        switch(opt_def->type){
+            case M6_BOOL:       type = "boolean";   break;
+            case M6_INT64:      type = "integer";   break;
+            case M6_UINT64:     type = "unsigned";  break;
+            case M6_DOUBLE:     type = "float";     break;
+            case M6_STRING:     type = "string";    break;
+        }
 
-        printf("%-9s -%c  --%-15s - %s\n", mode, opt_def->short_str, opt_def->long_str,  opt_def->descr);
+
+        printf("%-9s (%-9s) -%c  --%-15s - %s\n", mode, type, opt_def->short_str, opt_def->long_str,  opt_def->descr);
     }
 
     if(opts.long_description)
@@ -54,9 +64,7 @@ void print_usage(const char* err_tx_fmt, ...){
     if(err_tx_fmt){
         va_list args;
         va_start(args, err_tx_fmt);
-        fprintf (stderr, "Error: ");
-        vfprintf(stderr, err_tx_fmt, args);
-        fprintf (stderr, "\n");
+        m6_log_error_va(err_tx_fmt,args);
         va_end(args);
         exit(-1);
     }
@@ -67,7 +75,7 @@ void print_usage(const char* err_tx_fmt, ...){
 
 
 int m6_options_tail(char* description){
-    eprintf_exit("");
+    m6_log_fatal("Function unimplemented");
     return 0;
 }
 
@@ -92,8 +100,13 @@ static inline m6_word m6_options_add_init(
         void* default_value)
 {
 
-    if(mode == M6_OPTION_FLAG){
-        m6_log_error( "Flag options must be used with type M6_BOOL\n");
+    if(!opts.done_init){
+        m6_options_init();
+    }
+
+
+    if(mode == M6_OPTION_FLAG && type != M6_BOOL){
+        m6_log_error( "Flag options must be used with boleans only\n");
         return -1;
     }
 
@@ -122,71 +135,45 @@ static inline m6_word m6_options_add_init(
     opt_def_new->long_str  = long_str;
     opt_def_new->descr     = descr;
     opt_def_new->type      = type;
-    opt_def_new->type      = default_value;
+    opt_def_new->var       = default_value;
 
-    return -1;
+    int i = 0;
+    for(; i < size(Vector,&opts.opt_defs); i++){
+        m6_options_opt_t* opt_def = ((m6_options_opt_t*)opts.opt_defs.mem) + i;
+        if(opt_def->short_str == opt_def_new->short_str) {
 
-}
+            //Special case 'h' for help as we want it to stick around
+            //and its added implicitly so devs will get confused
+            const char* long_str = opt_def->short_str != 'h' ? opt_def_new->long_str : opt_def->long_str;
+            m6_log_fatal("Could not add option. \"%s\". The short name \"%c\" conflicts with an existing option's short name \"%c\" \n",
+                    long_str,
+                    opt_def_new->short_str,
+                    opt_def->short_str);
 
+            return -1;
+        }
+        if(!strcmp(opt_def->long_str, opt_def_new->long_str)) {
+            const char short_str = strcmp("help",opt_def->long_str) ? opt_def_new->short_str : opt_def->short_str;
+            m6_log_fatal("Could not add option. \"-%c\" . The long name \"%s\" conflicts with an existing option's long name \"%s\" \n",
+                    short_str,
+                    opt_def_new->long_str,
+                    opt_def->long_str);
+            return -1;
+        }
 
-
-
-inline int m6_options_addb(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, const m6_bool* default_val)
-{
-    m6_options_opt_t opt_new = {0};
-    m6_word result = m6_options_add_init(&opt_new, mode, short_str, long_str, descr, default_val);
-    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){
-        m6_log_error("Could not append new binary option to options list\n");
-        return -1;
     }
-    return 0;
-}
 
 
-int m6_options_addi(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, const i64 default_val)
-{
-    m6_options_opt_t opt_new = {0};
-    m6_word result = m6_options_add_init(&opt_new, mode, short_str, long_str, descr, default_val);
-    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){
-        m6_log_error("Could not append new integer option to options list\n");
-        return -1;
-    }
-    return 0;
-}
-
-int m6_options_addu(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, const u64 default_val)
-{
-    m6_options_opt_t opt_new = {0};
-    m6_word result = m6_options_add_init(&opt_new, mode, short_str, long_str, descr, default_val);
-    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){
-        m6_log_error("Could not append new unsigned option to options list\n");
-        return -1;
-    }
-    return 0;
-}
-int m6_options_addf(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, const double default_val)
-{
-    m6_options_opt_t opt_new = {0};
-    m6_word result = m6_options_add_init(&opt_new, mode, short_str, long_str, descr, default_val);
-    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){
-        m6_log_error("Could not append new float option to options list\n");
-        return -1;
-    }
     return 0;
 
 }
 
-int m6_options_adds(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, char** default_val)
-{
-    m6_options_opt_t opt_new = {0};
-    m6_word result = m6_options_add_init(&opt_new, mode, short_str, long_str, descr, default_val);
-    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){
-        m6_log_error("Could not append new string option to options list\n");
-        return -1;
-    }
-    return 0;
-}
-
+//Define all the options parsers -- All of this code is duplicated just with different types -- Right now I'd kill for some C++ templates
+m6_options_add_define(M6_BOOL,     m6_bool,    b, "boolean");
+m6_options_add_define(M6_UINT64,   u64,        u, "unsigned");
+m6_options_add_define(M6_INT64,    i64,        i, "integer");
+m6_options_add_define(M6_STRING,   char*,      s, "string");
+m6_options_add_define(M6_DOUBLE,   double,     f, "float");
 
 
 //int64_t  is_number_int64     = 0;
@@ -306,16 +293,16 @@ void parse_argument(m6_options_opt_t* opt_def) {
 }
 
 //Search through the options, find the option with the matching character
-void process_option(const m6_options_t* opts, char c) {
+void process_option(char c) {
 
-    int done = 0;
+    //int done = 0;
     m6_options_opt_t* opt_def = NULL;
     int i = 0;
-    for (; i < size(Vector,opts.opt_defs) ; i++) {
-        opt_def = (m6_options_opt_t*)(opts.opt_defs->mem)[i];
+    for (; i < size(Vector,&opts.opt_defs) ; i++) {
+        opt_def = ((m6_options_opt_t*)opts.opt_defs.mem) + i;
 
         if (opt_def->short_str == c) {
-            done = 1; //Exit the loop when finished
+            //done = 1; //Exit the loop when finished
 
             opt_def->found++; //We found an option of this type
             if (opt_def->found > 1 && !is_list_type(opt_def->type)) {
@@ -335,15 +322,15 @@ void process_option(const m6_options_t* opts, char c) {
 
 
 //Fill in the getopts and getopts_long structures
-void generate_unix_opts(const m6_options_t* opts, char short_opts_str[1024], struct option* long_options) {
+void generate_unix_opts(char short_opts_str[1024], struct option* long_options) {
     size_t i = 0;
 
     char* short_opts_ptr = short_opts_str;
 
     VectorIter* iter = create(VectorIter, &opts.opt_defs);
     m6_bool has_next = true;
-    for (head(VectorIter,iter); has_next && !empty(Vector,&opts->opt_defs) && short_opts_ptr < &short_opts_str[1024]; (has_next = !next(VectorIter,iter)), i++ ) {
-        m6_options_opt_t* opt_def = (m6_options_opt_t*)retreive(VectorIter,iter);
+    for (head(VectorIter,iter); has_next && !empty(Vector,&opts.opt_defs) && short_opts_ptr < &short_opts_str[1024]; (has_next = !next(VectorIter,iter)), i++ ) {
+        m6_options_opt_t* opt_def = (m6_options_opt_t*)retrieve(VectorIter,iter);
 
         *short_opts_ptr = opt_def->short_str;
         short_opts_ptr++;
@@ -373,7 +360,7 @@ void generate_unix_opts(const m6_options_t* opts, char short_opts_str[1024], str
 }
 
 int m6_options_parse(int argc, char** argv){
-    m6_options_add(M6_OPTION_FLAG, 'h', "help", "Print this help message\n", M6_BOOL, &opts.help, 0);
+    m6_options_addb(M6_OPTION_FLAG, 'h', "help", "Print this help message\n", &opts.help, 0);
 
     char short_opts_str[1024] = {0};
 
@@ -384,7 +371,7 @@ int m6_options_parse(int argc, char** argv){
     struct option* long_options = (struct option*)malloc((opts.count + 1) * sizeof(struct option) );
     bzero(long_options, (opts.count + 1) * sizeof(struct option));
 
-    generate_unix_opts(&opts, short_opts_str, long_options);
+    generate_unix_opts(short_opts_str, long_options);
 
     int option_index = 0;
     char c = getopt_long (argc, argv, short_opts_str, long_options, &option_index);
@@ -397,10 +384,10 @@ int m6_options_parse(int argc, char** argv){
 
         //Search through the options, find the option with the matching character
         if(c == '?'){
-            print_usage("Unknown option or missing argument \"%s\"\n", argv[optind -1]);
+            print_usage("Unknown option or option is missing an argument \"%s\"\n", argv[optind -1]);
         }
 
-        process_option(&opts, c);
+        process_option(c);
 
     }
 
@@ -408,15 +395,15 @@ int m6_options_parse(int argc, char** argv){
         //Look for an opt_def with type UNLIMITED
         m6_options_opt_t* opt_def = NULL;
         int i = 0;
-        for (; i < size(Vector,opts.opt_defs) ; i++) {
-            opt_def = (m6_options_opt_t*)(opts.opt_defs->mem)[i];
+        for (; i < size(Vector,&opts.opt_defs) ; i++) {
+            opt_def = ((m6_options_opt_t*)opts.opt_defs.mem) + i;
             if(opt_def->mode == M6_OPTION_UNLIMTED){
                 break;
             }
         }
 
         //None found
-        if(i >= size(Vector,opts.opt_defs)){
+        if(i >= size(Vector,&opts.opt_defs)){
             print_usage("Unknown option %s\n", argv[optind]);
         }
 
@@ -432,8 +419,8 @@ int m6_options_parse(int argc, char** argv){
     //Check the constraints
     m6_options_opt_t* opt_def = NULL;
     int i;
-    for (i = 0; i < size(Vector,opts.opt_defs) ; i++) {
-        opt_def = (m6_options_opt_t*)(opts.opt_defs->mem)[i];
+    for (i = 0; i < size(Vector,&opts.opt_defs) ; i++) {
+        opt_def = ((m6_options_opt_t*)opts.opt_defs.mem) + i;
         if(opt_def->mode == M6_OPTION_REQUIRED && opt_def->found < 1){
             print_usage("Option --%s (-%c) is required but not supplied\n", opt_def->long_str, opt_def->short_str);
         }

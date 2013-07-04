@@ -27,8 +27,8 @@
     const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
     (type *)( (char *)__mptr - offsetof(type,member) );})
 
-#ifndef __clang__
-    #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-#endif
+//#ifndef __clang__
+//    #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+//#endif
 
 #endif /* M6_UTIL_H_ */

@@ -12,6 +12,11 @@
 #ifndef M6_LOG_H_
 #define M6_LOG_H_
 
+
+m6_word _m6_log_out_(m6_word this_log_lvll, m6_word line_num, const char* filename, const char* format, ... );
+m6_word _m6_log_out_va_(m6_word this_log_lvll, m6_word line_num, const char* filename, const char* format, va_list args);
+
+
 #ifndef M6_LOG_BUILD_LVL
     #if NDEBUG
         #define M6_LOG_BUILD_LVL   M6_LOG_LVL_INFO    //Output binary to be capable up to "info" level release mode
@@ -23,47 +28,61 @@
 
 #if 1 //Always defined
     #define m6_log_fatal(format, args...) _m6_log_out_(M6_LOG_LVL_FATAL, __LINE__, __FILE__, format, ## args )
+    #define m6_log_fatal_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_FATAL, __LINE__, __FILE__, format, va_list )
 #else
     #define m6_log_fatal(format, args...)
+    #define m6_log_fatal_va(format, va_list)
 #endif
 
 
 #if M6_LOG_BUILD_LVL >= M6_LOG_LVL_ERROR
     #define m6_log_error(format, args...) _m6_log_out_(M6_LOG_LVL_ERROR, __LINE__, __FILE__, format, ## args )
+    #define m6_log_error_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_ERROR, __LINE__, __FILE__, format, va_list )
 #else
     #define m6_log_error(format, args...)
+    #define m6_log_error_va(format, va_list)
 #endif
 
 
 #if M6_LOG_BUILD_LVL >= M6_LOG_LVL_WARN
     #define m6_log_warn(format, args...) _m6_log_out_(M6_LOG_LVL_WARN, __LINE__, __FILE__, format, ## args )
+    #define m6_log_warn_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_WARN, __LINE__, __FILE__, format, va_list )
 #else
     #define m6_log_warn(format, args...)
+    #define m6_log_warn_va(format, va_list)
 #endif
 
 #if M6_LOG_BUILD_LVL >= M6_LOG_LVL_INFO
     #define m6_log_info(format, args...) _m6_log_out_(M6_LOG_LVL_INFO, __LINE__, __FILE__, format, ## args )
+    #define m6_log_info_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_INFO, __LINE__, __FILE__, format, va_list )
 #else
     #define m6_log_info(format, args...)
+    #define m6_log_info_va(format, va_list)
 #endif
 
 
 #if M6_LOG_BUILD_LVL >= M6_LOG_LVL_DEBUG1
     #define m6_log_debug1(format, args...) _m6_log_out_(M6_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, ## args )
+    #define m6_log_debug1_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, va_list )
 #else
     #define m6_log_debug1(format, args...)
+    #define m6_log_debug1_va(format, va_list)
 #endif
 
 #if M6_LOG_BUILD_LVL >= M6_LOG_LVL_DEBUG2
     #define m6_log_debug2(format, args...) _m6_log_out_(M6_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, ## args )
+    #define m6_log_debug2_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, va_list )
 #else
     #define m6_log_debug2(format, args...)
+    #define m6_log_debug2_va(format, va_list)
 #endif
 
 #if M6_LOG_BUILD_LVL >= M6_LOG_LVL_DEBUG3
     #define m6_log_debug3(format, args...) _m6_log_out_(M6_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, ## args )
+    #define m6_log_debug3_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, va_list )
 #else
     #define m6_log_debug3(format, args...)
+    #define m6_log_debug3_va(format, va_list)
 #endif
 
 typedef struct {
@@ -118,10 +137,7 @@ m6_log_settings_t m6_log_settings = { \
     .fd = -1,  /*This is private, please don't play with it*/\
 }
 
-
-m6_word _m6_log_out_(m6_word this_log_lvll, m6_word line_num, const char* filename, const char* format, ... );
-m6_word _m6_log_out_va_(m6_word this_log_lvll, m6_word line_num, const char* filename, const char* format, va_list args);
-
+#define USE_M6_LOGGER_DEFAULT USE_M6_LOGGER(M6_LOG_LVL_INFO,true,m6_log_tostderr,"")
 
 
 #endif /* M6_LOG_H_ */
