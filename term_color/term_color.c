@@ -27,9 +27,9 @@ int dprintf_color_va(int fd, m6_colour_t color, m6_str format, va_list va)
 
 
     //Format the text -- the bvformata is broken and I don't have time to figure out why
-    int size = snprintf(NULL,0,cstr(format),va);
+    const m6_word size = 2048;
     m6_str text = bfromcstralloc(size,"");
-    size = vsprintf(cstr(text),cstr(format),va); //XXX BUG! HACK!: Weird stuff happens here, the size changes! WTF??
+    vsnprintf(cstr(text),size,cstr(format),va);
     text->slen = size;
     bconcat(result,text);
     bstrFree(text);

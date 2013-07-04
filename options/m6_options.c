@@ -30,6 +30,7 @@ void m6_options_init()
 
 
 void print_usage(const char* err_tx_fmt, ...){
+
     if(opts.short_description)
         printf("\n%s:\n\n", opts.short_description);
 
@@ -62,7 +63,12 @@ void print_usage(const char* err_tx_fmt, ...){
         printf("%s\n\n", opts.long_description);
 
     if(err_tx_fmt){
+
         va_list args;
+
+        va_start(args, err_tx_fmt);
+        vprintf(err_tx_fmt,args);
+        va_end(args);
         va_start(args, err_tx_fmt);
         m6_log_error_va(err_tx_fmt,args);
         va_end(args);
@@ -94,8 +100,8 @@ static inline m6_word m6_options_add_init(
         m6_options_opt_t* opt_def_new,
         m6_options_mode_e mode,
         char short_str,
-        const char* long_str,
-        const char* descr,
+        char* long_str,
+        char* descr,
         m6_types_e type,
         void* default_value)
 {
@@ -145,7 +151,7 @@ static inline m6_word m6_options_add_init(
             //Special case 'h' for help as we want it to stick around
             //and its added implicitly so devs will get confused
             const char* long_str = opt_def->short_str != 'h' ? opt_def_new->long_str : opt_def->long_str;
-            m6_log_fatal("Could not add option. \"%s\". The short name \"%c\" conflicts with an existing option's short name \"%c\" \n",
+            m6_log_fatal("Could not add option. \"--%s\". The short name \"-%c\" conflicts with an existing option's short name \"-%c\" \n",
                     long_str,
                     opt_def_new->short_str,
                     opt_def->short_str);
@@ -154,7 +160,7 @@ static inline m6_word m6_options_add_init(
         }
         if(!strcmp(opt_def->long_str, opt_def_new->long_str)) {
             const char short_str = strcmp("help",opt_def->long_str) ? opt_def_new->short_str : opt_def->short_str;
-            m6_log_fatal("Could not add option. \"-%c\" . The long name \"%s\" conflicts with an existing option's long name \"%s\" \n",
+            m6_log_fatal("Could not add option. \"-%c\" . The long name \"--%s\" conflicts with an existing option's long name \"--%s\" \n",
                     short_str,
                     opt_def_new->long_str,
                     opt_def->long_str);
@@ -169,11 +175,11 @@ static inline m6_word m6_options_add_init(
 }
 
 //Define all the options parsers -- All of this code is duplicated just with different types -- Right now I'd kill for some C++ templates
-m6_options_add_define(M6_BOOL,     m6_bool,    b, "boolean");
-m6_options_add_define(M6_UINT64,   u64,        u, "unsigned");
-m6_options_add_define(M6_INT64,    i64,        i, "integer");
-m6_options_add_define(M6_STRING,   char*,      s, "string");
-m6_options_add_define(M6_DOUBLE,   double,     f, "float");
+m6_opt_add_define(M6_BOOL,     m6_bool,    b, "boolean");
+m6_opt_add_define(M6_UINT64,   u64,        u, "unsigned");
+m6_opt_add_define(M6_INT64,    i64,        i, "integer");
+m6_opt_add_define(M6_STRING,   char*,      s, "string");
+m6_opt_add_define(M6_DOUBLE,   double,     f, "float");
 
 
 //int64_t  is_number_int64     = 0;
@@ -359,8 +365,8 @@ void generate_unix_opts(char short_opts_str[1024], struct option* long_options) 
     long_options[i].val = 0;
 }
 
-int m6_options_parse(int argc, char** argv){
-    m6_options_addb(M6_OPTION_FLAG, 'h', "help", "Print this help message\n", &opts.help, 0);
+int m6_opt_parse(int argc, char** argv){
+    m6_opt_addb(M6_OPTION_FLAG, 'h', "help", "Print this help message\n", &opts.help, 0);
 
     char short_opts_str[1024] = {0};
 
@@ -404,7 +410,7 @@ int m6_options_parse(int argc, char** argv){
 
         //None found
         if(i >= size(Vector,&opts.opt_defs)){
-            print_usage("Unknown option %s\n", argv[optind]);
+            print_usage("Unknown option \"%s\"\n", argv[optind]);
         }
 
         //Parse the remaning options
@@ -422,6 +428,7 @@ int m6_options_parse(int argc, char** argv){
     for (i = 0; i < size(Vector,&opts.opt_defs) ; i++) {
         opt_def = ((m6_options_opt_t*)opts.opt_defs.mem) + i;
         if(opt_def->mode == M6_OPTION_REQUIRED && opt_def->found < 1){
+            printf("Option --%s (-%c) is required but not supplied\n", opt_def->long_str, opt_def->short_str);
             print_usage("Option --%s (-%c) is required but not supplied\n", opt_def->long_str, opt_def->short_str);
         }
     }

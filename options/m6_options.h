@@ -24,8 +24,8 @@ typedef struct m6_options_opt{
     m6_types_e type;
     void* var;
     char short_str;
-    const char* long_str;
-    const char* descr;
+    char* long_str;
+    char* descr;
     int found;
 } m6_options_opt_t;
 
@@ -41,11 +41,11 @@ typedef struct {
 } m6_options_t;
 
 
-#define m6_options_add_declare(m6_type_name, c_type_name, short_name, long_name)\
-inline int m6_options_add##short_name(m6_options_mode_e mode, char short_str, const char* long_str, const char* descr, c_type_name* result_out, c_type_name default_val) \
+#define m6_opt_add_declare(m6_type_name, c_type_name, short_name, long_name)\
+inline int m6_opt_add##short_name(m6_options_mode_e mode, char short_str, char* long_str, char* descr, c_type_name* result_out, c_type_name default_val) \
 
-#define m6_options_add_define(m6_type_name, c_type_name, short_name, long_name)\
-m6_options_add_declare(6_type_name, c_type_name, short_name, long_name)\
+#define m6_opt_add_define(m6_type_name, c_type_name, short_name, long_name)\
+m6_opt_add_declare(6_type_name, c_type_name, short_name, long_name)\
 {\
     m6_options_opt_t opt_new = {0};\
     *result_out = default_val;\
@@ -62,21 +62,21 @@ m6_options_add_declare(6_type_name, c_type_name, short_name, long_name)\
 
 
 //Declare all the options parsers
-m6_options_add_declare(M6_BOOL,     m6_bool,    b, "boolean");
-m6_options_add_declare(M6_UINT64,   u64,        u, "unsigned");
-m6_options_add_declare(M6_INT64,    i64,        i, "integer");
-m6_options_add_declare(M6_STRING,   char*,      s, "string");
-m6_options_add_declare(M6_DOUBLE,   double,     f, "float");
+m6_opt_add_declare(M6_BOOL,     m6_bool,    b, "boolean");
+m6_opt_add_declare(M6_UINT64,   u64,        u, "unsigned");
+m6_opt_add_declare(M6_INT64,    i64,        i, "integer");
+m6_opt_add_declare(M6_STRING,   char*,      s, "string");
+m6_opt_add_declare(M6_DOUBLE,   double,     f, "float");
 
 
 #define USE_M6_OPTIONS \
     m6_options_t opts = {0};
 
-int m6_options_name(char* description);
-int m6_options_tail(char* description);
-int m6_options_short_description(char* description);
-int m6_options_long_description(char* description);
-int m6_options_parse(int argc, char** argv);
+int m6_opt_name(char* description);
+int m6_opt_tail(char* description);
+int m6_opt_short_description(char* description);
+int m6_opt_long_description(char* description);
+int m6_opt_parse(int argc, char** argv);
 
 
 #endif /* M6_OPTIONS_H_ */
