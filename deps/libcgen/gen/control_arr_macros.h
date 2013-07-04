@@ -137,7 +137,7 @@ do{\
 	}\
 	T((SRC)) = (char *)H((SRC)) + (S((SRC)) * O((SRC)));\
 	if(T((SRC)) == H((SRC))) {\
-		T((SRC)) == (char *)H((SRC)) + O((SRC));\
+		T((SRC)) = (char *)H((SRC)) + O((SRC));\
 	}\
 }while(0)
 

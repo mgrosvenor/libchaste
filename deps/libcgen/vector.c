@@ -58,6 +58,19 @@ F_CLEAR(Vector) {
 	return SUCCESS;
 }
 
+F_EMPTY(Vector) {
+    CHECK_VARN(obj, EEMPTY);
+    CHECK_VARN(H(obj), EEMPTY);
+    return !S(obj);
+}
+
+F_SIZE(Vector) {
+    CHECK_VARN(obj,0);
+    CHECK_VARN(obj->mem,0);
+    return obj->size;
+}
+
+
 /*Vector* duplicate_Vector(Vector* src) {
 	Vector *dst;
 	size_t off;
