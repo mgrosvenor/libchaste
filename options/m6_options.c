@@ -53,6 +53,12 @@ void print_usage(const char* err_tx_fmt, ...){
             case M6_UINT64:     type = "unsigned";  break;
             case M6_DOUBLE:     type = "float";     break;
             case M6_STRING:     type = "string";    break;
+            case M6_BOOLS:      type = "booleans";  break;
+            case M6_INT64S:     type = "integers";  break;
+            case M6_UINT64S:    type = "unsigneds"; break;
+            case M6_DOUBLES:    type = "floats";    break;
+            case M6_STRINGS:    type = "strings";   break;
+            case M6_NO_TYPE:    type = "error";     break;
         }
 
 
@@ -96,7 +102,8 @@ int m6_options_long_description(char* description){
 }
 
 
-static inline m6_word m6_options_add_init(
+//Generic options addition code
+static inline m6_word m6_options_add_generic(
         m6_options_opt_t* opt_def_new,
         m6_options_mode_e mode,
         char short_str,
@@ -173,26 +180,127 @@ static inline m6_word m6_options_add_init(
 
 }
 
+//##########################################################################################################################
+//Define all the options parsers for non vector types, with initializers
+#define m6_opt_add_define_i(m6_type_name, c_type_name, short_name, long_name)\
+m6_opt_add_declare_i(m6_type_name, c_type_name, short_name, long_name)\
+{\
+    m6_options_opt_t opt_new = {0};\
+    *result_out = default_val;\
+    \
+    m6_word result = m6_options_add_generic(&opt_new, mode, short_str, long_str, descr, m6_type_name, result_out);\
+    if(result){ /*Catch errors inside add generic, it prints it's own message*/\
+        return result;\
+    }\
+    \
+    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){\
+        m6_log_error("Could not append new"long_name"option to options list\n");\
+        return -1;\
+    }\
+    \
+    return result;\
+}
 
-//Define all the options parsers -- All of this code is duplicated just with different types -- Right now I'd kill for some C++ templates
-m6_opt_add_define(M6_BOOL,     m6_bool,    b, "boolean");
-m6_opt_add_define(M6_UINT64,   u64,        u, "unsigned");
-m6_opt_add_define(M6_INT64,    i64,        i, "integer");
-m6_opt_add_define(M6_STRING,   char*,      s, "string");
-m6_opt_add_define(M6_DOUBLE,   double,     f, "float");
+m6_opt_add_define_i(M6_BOOL,     m6_bool,    b, "boolean");
+m6_opt_add_define_i(M6_UINT64,   u64,        u, "unsigned");
+m6_opt_add_define_i(M6_INT64,    i64,        i, "integer");
+m6_opt_add_define_i(M6_STRING,   char*,      s, "string");
+m6_opt_add_define_i(M6_DOUBLE,   double,     f, "float");
+//##########################################################################################################################
 
-//Vector types
-m6_opt_add_define(M6_BOOLS,    m6_bool,    vb, "booleans");
-m6_opt_add_define(M6_UINT64S,  u64,        vu, "unsigneds");
-m6_opt_add_define(M6_INT64S,   i64,        vi, "integers");
-m6_opt_add_define(M6_STRINGS,  char*,      vs, "strings");
-m6_opt_add_define(M6_DOUBLES,  double,     vf, "floats");
+//Define all the options parsers for non vector types, without initializers
+#define m6_opt_add_define_u(m6_type_name, c_type_name, short_name, long_name)\
+m6_opt_add_declare_u(m6_type_name, c_type_name, short_name, long_name)\
+{\
+    if(mode == M6_OPTION_OPTIONAL || mode == M6_OPTION_FLAG){\
+        m6_log_fatal("M6 options marked as \"optional\" or \"flag\" must have an initializer value. Use \"m6_opt_add_"#short_name"i()\" instead.\n");\
+        return -1; \
+    }\
+    \
+    m6_options_opt_t opt_new = {0};\
+    \
+    m6_word result = m6_options_add_generic(&opt_new, mode, short_str, long_str, descr, m6_type_name, result_out);\
+    if(result){ /*Catch errors inside add generic, it prints it's own message*/\
+        return result;\
+    }\
+    \
+    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){\
+        m6_log_error("Could not append new"long_name"option to options list\n");\
+        return -1;\
+    }\
+    \
+    return result;\
+}
+m6_opt_add_define_u(M6_BOOL,     m6_bool,    b, "boolean");
+m6_opt_add_define_u(M6_UINT64,   u64,        u, "unsigned");
+m6_opt_add_define_u(M6_INT64,    i64,        i, "integer");
+m6_opt_add_define_u(M6_STRING,   char*,      s, "string");
+m6_opt_add_define_u(M6_DOUBLE,   double,     f, "float");
+//##########################################################################################################################
+
+//Define all the options parsers for non vector types, with initializers
+#define m6_opt_add_define_VI(m6_type_name, c_type_name_default, short_name, long_name)\
+m6_opt_add_declare_VI(m6_type_name, c_type_name_default, short_name, long_name)\
+{\
+    m6_options_opt_t opt_new = {0};\
+    memset(result_out, 0, sizeof(Vector));\
+    construct(Vector, result_out, sizeof(c_type_name_default), FREEOBJ);\
+    push_back(Vector,result_out,&default_val,STATIC);\
+    \
+    m6_word result = m6_options_add_generic(&opt_new, mode, short_str, long_str, descr, m6_type_name, result_out);\
+    if(result){ /*Catch errors inside add generic, it prints it's own message*/\
+        return result;\
+    }\
+    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){\
+        m6_log_error("Could not append new vector of "long_name" option to options list\n");\
+        return -1;\
+    }\
+    \
+    return result;\
+}
+m6_opt_add_define_VI(M6_BOOLS,    m6_bool,    B, "booleans");
+m6_opt_add_define_VI(M6_UINT64S,  u64,        U, "unsigneds");
+m6_opt_add_define_VI(M6_INT64S,   i64,        I, "integers");
+m6_opt_add_define_VI(M6_STRINGS,  char*,      S, "strings");
+m6_opt_add_define_VI(M6_DOUBLES,  double,     F, "floats");
+//##########################################################################################################################
+
+//Define all the options parsers for non vector types, without initializers
+#define m6_opt_add_define_VU(m6_type_name, c_type_name, short_name, long_name)\
+m6_opt_add_declare_VU(m6_type_name, c_type_name, short_name, long_name)\
+{\
+    if(mode == M6_OPTION_OPTIONAL){\
+        m6_log_fatal("M6 vector options marked as \"optional\" must have an initializer value. Use \"m6_opt_add_"#short_name"U()\" instead.\n");\
+        return -1; \
+    }\
+    \
+    m6_options_opt_t opt_new = {0};\
+    memset(result_out, 0, sizeof(Vector));\
+    construct(Vector, result_out, sizeof(c_type_name), FREEOBJ);\
+    \
+    m6_word result = m6_options_add_generic(&opt_new, mode, short_str, long_str, descr, m6_type_name, result_out);\
+    if(result){ /*Catch errors inside add generic, it prints it's own message*/\
+        return result;\
+    }\
+    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){\
+        m6_log_error("Could not append new vector of "long_name" option to options list\n");\
+        return -1;\
+    }\
+    \
+    return result;\
+}
+m6_opt_add_define_VU(M6_BOOLS,    m6_bool,    B, "booleans");
+m6_opt_add_define_VU(M6_UINT64S,  u64,        U, "unsigneds");
+m6_opt_add_define_VU(M6_INT64S,   i64,        I, "integers");
+m6_opt_add_define_VU(M6_STRINGS,  char*,      S, "strings");
+m6_opt_add_define_VU(M6_DOUBLES,  double,     F, "floats");
+//##########################################################################################################################
 
 
 void parse_argument(m6_options_opt_t* opt_def) {
 
     if(is_vector(opt_def->type)){
-        if(opt_def->found == 1){ //This is the first one found
+        if(opt_def->found == 1 && size(Vector,(Vector*)opt_def->var) == 1 ){ //This is the first option found
             pop_back(Vector,(Vector*)opt_def->var); //Remove the default value
         }
     }
@@ -212,7 +320,7 @@ void parse_argument(m6_options_opt_t* opt_def) {
 
             //Assign it
             if (opt_def->type == M6_INT64) {
-                *(int64_t*) opt_def->var = num_result.val_int;
+                *((int64_t*)opt_def->var) = num_result.val_int;
             }
             else {
                 push_back(Vector,opt_def->var, &num_result.val_int, STATIC);
@@ -231,10 +339,10 @@ void parse_argument(m6_options_opt_t* opt_def) {
 
             //Assign it
             if (opt_def->type == M6_UINT64){
-                *(uint64_t*) opt_def->var = num_result.val_uint;
+                *((uint64_t*)opt_def->var) = num_result.val_uint;
             }
             else{
-                push_back(Vector,opt_def->var, &num_result.val_int, STATIC);
+                push_back(Vector,opt_def->var, &num_result.val_uint, STATIC);
             }
             break;
         }
@@ -268,7 +376,7 @@ void parse_argument(m6_options_opt_t* opt_def) {
                 *(double*) opt_def->var = result;
             }
             else{
-                push_back(Vector,opt_def->var, &num_result.val_int, STATIC);
+                push_back(Vector,opt_def->var, &result, STATIC);
             }
 
             break;
@@ -285,7 +393,7 @@ void parse_argument(m6_options_opt_t* opt_def) {
 
             //Assign it
             if (opt_def->type == M6_BOOL){
-                *(int*) opt_def->var = (int) num_result.val_int;
+                *((int*)opt_def->var) = (int) num_result.val_int;
             }
             else{
                 push_back(Vector,opt_def->var, &num_result.val_int, STATIC);
@@ -301,10 +409,10 @@ void parse_argument(m6_options_opt_t* opt_def) {
 
             //Assign it
             if (opt_def->type == M6_STRING) {
-                *(char**) opt_def->var = optarg;
+                * ((char**)opt_def->var) = optarg;
             }
             else{
-                push_back(Vector,opt_def->var, &num_result.val_int, STATIC);
+                push_back(Vector,opt_def->var, &optarg, STATIC);
             }
 
             break;
@@ -385,7 +493,7 @@ void generate_unix_opts(char short_opts_str[1024], struct option* long_options) 
 }
 
 int m6_opt_parse(int argc, char** argv){
-    m6_opt_addb(M6_OPTION_FLAG, 'h', "help", "Print this help message\n", &opts.help, 0);
+    m6_opt_addbi(M6_OPTION_FLAG, 'h', "help", "Print this help message\n", &opts.help, 0);
 
     char short_opts_str[1024] = {0};
 
