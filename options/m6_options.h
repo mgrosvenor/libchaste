@@ -77,6 +77,8 @@ m6_opt_add_declare_VU(M6_INT64S,   i64,        I, "integers");
 m6_opt_add_declare_VU(M6_STRINGS,  char*,      S, "strings");
 m6_opt_add_declare_VU(M6_DOUBLES,  double,     F, "floats");
 
+#define Vector_geti(type,vector,i) ((type*)vector.mem)[i]
+
 
 #define USE_M6_OPTIONS \
     m6_options_t opts = {0};
