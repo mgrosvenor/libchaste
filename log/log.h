@@ -115,7 +115,8 @@ typedef struct {
 
 
 //Only use this one in your code!
-//You can customize most of these settings after calling this "function" to initialize
+//You can customize most of these settings after calling this "function" to initialize the defaults
+//DON'T CHANGE THIS HEADER DIRECTLY!!
 #define USE_M6_LOGGER(word_level,bool_use_color,enum_output_mode,str_filename) \
 m6_log_settings_t m6_log_settings = { \
     .log_level      = word_level, \

@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 {
     m6_opt_adduu(M6_OPTION_REQUIRED,'a',"first","This is the 1st option", &options.opt1);
     m6_opt_addii(M6_OPTION_OPTIONAL,'b',"second","This is the 2nd option", &options.opt2, -42);
-    m6_opt_addbi(M6_OPTION_OPTIONAL,'c',"third","This is the 3rd option", &options.opt3, true);
+    m6_opt_addbi(M6_OPTION_FLAG,    'c',"third","This is the 3rd option", &options.opt3, false);
     m6_opt_addsi(M6_OPTION_OPTIONAL,'d',"fourth","This is the 4th option", &options.opt4, "init string");
     m6_opt_addfi(M6_OPTION_OPTIONAL,'e',"fifth","This is the 5th option", &options.opt5, 42.0);
     m6_opt_addSI(M6_OPTION_OPTIONAL,'f',"sixth","This is the 6th option", &options.opt6, "init strig vector");
