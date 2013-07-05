@@ -69,12 +69,7 @@ void print_usage(const char* err_tx_fmt, ...){
         printf("%s\n\n", opts.long_description);
 
     if(err_tx_fmt){
-
         va_list args;
-
-        va_start(args, err_tx_fmt);
-        vprintf(err_tx_fmt,args);
-        va_end(args);
         va_start(args, err_tx_fmt);
         m6_log_error_va(err_tx_fmt,args);
         va_end(args);
