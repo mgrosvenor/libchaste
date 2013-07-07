@@ -8,7 +8,7 @@
 #define M6_OPTIONS_H_
 
 #include "../types/types.h"
-
+#include "../log/log.h" //Include this here, so users don't have to
 
 typedef enum {
     M6_OPTION_REQUIRED,       //This option is required for the program to run
