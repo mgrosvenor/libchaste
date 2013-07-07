@@ -24,13 +24,21 @@ typedef struct {
 
 typedef struct {
     //Perf logging control
-    uint64_t event_count;
-    uint64_t event_index;
-    uint64_t max_events;
+    u64 event_count;
+    u64 event_index;
+    u64 max_events;
     m6_perf_event_t* events;
 
     //Output control
     int fd;
+
+    //Stop watch temps
+    u64 timer_start;
+    u64 timer_stop;
+
+    //Get tsc
+    u64 tsc;
+
 
 } m6_perf_t;
 
@@ -42,7 +50,10 @@ typedef struct {
         .event_index   = 0,                         \
         .max_events    = events_max,                \
         .events        = m6_perf_events,            \
-        .fd            = -1                         \
+        .fd            = -1,                        \
+        .timer_start   = ~0,                        \
+        .timer_stop    = ~0,                        \
+        .tsc           = ~0                         \
     }
 
 extern m6_perf_t m6_perf;
@@ -122,5 +133,35 @@ void m6_perf_finish_(m6_perf_output_e output, m6_perf_format_e format, char* fil
 #else
     #define m6_perf_finish(m6_perf_output, m6_perf_format, filename)
 #endif
+
+
+#define m6_perf_timer_start {                                                      \
+    DECLARE_ARGS(lo, hi);                                                          \
+    asm volatile("rdtsc" : EAX_EDX_RET(lo, hi));                                   \
+    m6_perf.timer_start = EAX_EDX_VAL(lo, hi);                                     \
+}
+
+
+#define m6_perf_timer_stop {                                                       \
+    DECLARE_ARGS(lo, hi);                                                          \
+    asm volatile("rdtsc" : EAX_EDX_RET(lo, hi));                                   \
+    m6_perf.timer_stop = EAX_EDX_VAL(lo, hi);                                      \
+}
+
+#define m6_perf_timer_reset {                                                      \
+    m6_perf.timer_start = ~0;                                                      \
+    m6_perf.timer_stop = ~0;                                                       \
+}
+
+
+#define m6_perf_sample_tsc {                                                       \
+    DECLARE_ARGS(lo, hi);                                                          \
+    asm volatile("rdtsc" : EAX_EDX_RET(lo, hi));                                   \
+    m6_perf.tsc = EAX_EDX_VAL(lo, hi);                                             \
+}
+
+inline u64 m6_perf_get_watch_ticks();
+inline u64 m6_perf_get_tsc_sample();
+
 
 #endif /* M6_PERF_H_ */

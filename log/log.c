@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -39,16 +40,14 @@ m6_word _m6_log_out_va_write(m6_word level, const bstring format, va_list args)
                 if(m6_log_settings.fd == -1){
                     m6_log_settings.fd = STDOUT_FILENO;
                 }
-                //Fall through to next case is intentional
-            }
+            }  //Fall through to next case is intentional
 
 
             case m6_log_tostderr:{
                 if(m6_log_settings.fd == -1){
                     m6_log_settings.fd = STDERR_FILENO;
                 }
-                //Fall through to next case is intentional
-            }
+            } //Fall through to next case is intentional
 
 
             case m6_log_tofile:{
@@ -60,11 +59,12 @@ m6_word _m6_log_out_va_write(m6_word level, const bstring format, va_list args)
 
                     if(m6_log_settings.fd == -1 ){
                         m6_str timestamp = generate_iso_timestamp(m6_log_settings.use_utc,m6_log_settings.subsec_digits, m6_log_settings.incl_timezone);
-                        dprintf(STDERR_FILENO, "[%s][Error][%s:%u]: Could not open file \"%s\", reverting to stderr\n",
+                        dprintf(STDERR_FILENO, "[%s][Error][%s:%u]: Could not open file \"%s\". Error returned is \"%s\", reverting to stderr\n",
                                 cstr(timestamp),
                                 __FILE__,
                                 __LINE__,
-                                m6_log_settings.filename );
+                                m6_log_settings.filename,
+                                strerror(errno));
                         bstrFree(timestamp);
                         m6_log_settings.fd = STDERR_FILENO;
                     }

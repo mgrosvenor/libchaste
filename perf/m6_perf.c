@@ -172,6 +172,21 @@ void m6_perf_finish_(m6_perf_output_e output, m6_perf_format_e format, char* fil
             m6_perf_write_event(event,format,output);
         }
 
-        m6_perf_close(output);
+        if(m6_perf.fd != STDERR_FILENO &&
+           m6_perf.fd != STDOUT_FILENO ){
+            m6_perf_close(output);
+        }
     }
 }
+
+
+inline u64 m6_perf_get_watch_ticks()
+{
+    return m6_perf.timer_stop - m6_perf.timer_start;
+}
+
+inline u64 m6_perf_get_tsc_sample()
+{
+    return m6_perf.tsc;
+}
+

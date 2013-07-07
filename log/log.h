@@ -18,7 +18,7 @@ m6_word _m6_log_out_va_(m6_word this_log_lvll, m6_word line_num, const char* fil
 
 
 #ifndef M6_LOG_BUILD_LVL
-    #if NDEBUG
+    #ifndef NDEBUG
         #define M6_LOG_BUILD_LVL   M6_LOG_LVL_INFO    //Output binary to be capable up to "info" level release mode
     #else
         #define M6_LOG_BUILD_LVL   M6_LOG_LVL_DEBUG3  //Output binary to be capable up to "debug3" level debug mode
@@ -138,7 +138,30 @@ m6_log_settings_t m6_log_settings = { \
     .fd = -1,  /*This is private, please don't play with it*/\
 }
 
-#define USE_M6_LOGGER_DEFAULT USE_M6_LOGGER(M6_LOG_LVL_INFO,true,m6_log_tostderr,"")
+
+//Simple, unobtrusive settings that any libm6 components can use.
+#define USE_M6_LOGGER_DEFAULT \
+m6_log_settings_t m6_log_settings = { \
+    .log_level      = M6_LOG_LVL_WARN, \
+    .use_color      = false, \
+    .output_mode    = M6_LOG_OUT_STDERR, \
+    .filename       = "", \
+    .use_utc        = false, \
+    .incl_timezone  = false, \
+    .subsec_digits  = 0, \
+    .lvl_config  = { \
+        { .color = M6_TERM_COL_NONE, .source = true,  .timestamp = false, .text = "Fatal Error" }, /*FATAL*/\
+        { .color = M6_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Error"       }, /*ERROR*/\
+        { .color = M6_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Warning"     }, /*WARNING*/\
+        { .color = M6_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Info"        }, /*INFO*/\
+        { .color = M6_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Debug"       }, /*DEBUG 1*/\
+        { .color = M6_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Debug"       }, /*DEBUG 2*/\
+        { .color = M6_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Debug"       }  /*DEBUG 3*/\
+    }, \
+    .fd = -1,  /*This is private, please don't play with it*/\
+}
+
+
 
 
 #endif /* M6_LOG_H_ */
