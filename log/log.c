@@ -11,7 +11,7 @@
 #include <fcntl.h>
 #include <syslog.h>
 
-#include "../deps/libbstring/bstraux.h"
+//#include "../deps/libbstring/bstraux.h"
 #include "../timing/timestamp.h"
 #include "../term_color/term_color.h"
 

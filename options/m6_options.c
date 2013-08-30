@@ -34,8 +34,8 @@ void print_usage(const char* err_tx_fmt, ...){
     if(opts.short_description)
         printf("\n%s:\n\n", opts.short_description);
 
-    int i = 0;
-    for (; i < size(Vector,&opts.opt_defs); i++ ) {
+
+    for (u64 i = 0; i < size(Vector,&opts.opt_defs); i++ ) {
         m6_options_opt_t* opt_def = ((m6_options_opt_t*)opts.opt_defs.mem) + i;
 
         char* mode = NULL;
@@ -82,6 +82,7 @@ void print_usage(const char* err_tx_fmt, ...){
 
 
 int m6_options_tail(char* description){
+    (void)description;
     m6_log_fatal("Function unimplemented");
     return 0;
 }
@@ -98,7 +99,7 @@ int m6_options_long_description(char* description){
 
 
 //Generic options addition code
-static inline m6_word m6_options_add_generic(
+static m6_word m6_options_add_generic(
         m6_options_opt_t* opt_def_new,
         m6_options_mode_e mode,
         char short_str,
@@ -145,8 +146,8 @@ static inline m6_word m6_options_add_generic(
     opt_def_new->type      = type;
     opt_def_new->var       = result_out;
 
-    int i = 0;
-    for(; i < size(Vector,&opts.opt_defs); i++){
+
+    for( u64 i = 0; i < size(Vector,&opts.opt_defs); i++){
         m6_options_opt_t* opt_def = ((m6_options_opt_t*)opts.opt_defs.mem) + i;
         if(opt_def->short_str == opt_def_new->short_str) {
 
@@ -180,7 +181,7 @@ static inline m6_word m6_options_add_generic(
 #define m6_opt_add_define_i(m6_type_name, c_type_name, short_name, long_name)\
 m6_opt_add_declare_i(m6_type_name, c_type_name, short_name, long_name)\
 {\
-    m6_options_opt_t opt_new = {0};\
+    m6_options_opt_t opt_new = (const struct m6_options_opt){0};\
     *result_out = default_val;\
     \
     m6_word result = m6_options_add_generic(&opt_new, mode, short_str, long_str, descr, m6_type_name, result_out);\
@@ -196,11 +197,11 @@ m6_opt_add_declare_i(m6_type_name, c_type_name, short_name, long_name)\
     return result;\
 }
 
-m6_opt_add_define_i(M6_BOOL,     m6_bool,    b, "boolean");
-m6_opt_add_define_i(M6_UINT64,   u64,        u, "unsigned");
-m6_opt_add_define_i(M6_INT64,    i64,        i, "integer");
-m6_opt_add_define_i(M6_STRING,   char*,      s, "string");
-m6_opt_add_define_i(M6_DOUBLE,   double,     f, "float");
+m6_opt_add_define_i(M6_BOOL,     m6_bool,    b, "boolean")
+m6_opt_add_define_i(M6_UINT64,   u64,        u, "unsigned")
+m6_opt_add_define_i(M6_INT64,    i64,        i, "integer")
+m6_opt_add_define_i(M6_STRING,   char*,      s, "string")
+m6_opt_add_define_i(M6_DOUBLE,   double,     f, "float")
 //##########################################################################################################################
 
 //Define all the options parsers for non vector types, without initializers
@@ -226,11 +227,11 @@ m6_opt_add_declare_u(m6_type_name, c_type_name, short_name, long_name)\
     \
     return result;\
 }
-m6_opt_add_define_u(M6_BOOL,     m6_bool,    b, "boolean");
-m6_opt_add_define_u(M6_UINT64,   u64,        u, "unsigned");
-m6_opt_add_define_u(M6_INT64,    i64,        i, "integer");
-m6_opt_add_define_u(M6_STRING,   char*,      s, "string");
-m6_opt_add_define_u(M6_DOUBLE,   double,     f, "float");
+m6_opt_add_define_u(M6_BOOL,     m6_bool,    b, "boolean")
+m6_opt_add_define_u(M6_UINT64,   u64,        u, "unsigned")
+m6_opt_add_define_u(M6_INT64,    i64,        i, "integer")
+m6_opt_add_define_u(M6_STRING,   char*,      s, "string")
+m6_opt_add_define_u(M6_DOUBLE,   double,     f, "float")
 //##########################################################################################################################
 
 //Define all the options parsers for non vector types, with initializers
@@ -253,11 +254,11 @@ m6_opt_add_declare_VI(m6_type_name, c_type_name_default, short_name, long_name)\
     \
     return result;\
 }
-m6_opt_add_define_VI(M6_BOOLS,    m6_bool,    B, "booleans");
-m6_opt_add_define_VI(M6_UINT64S,  u64,        U, "unsigneds");
-m6_opt_add_define_VI(M6_INT64S,   i64,        I, "integers");
-m6_opt_add_define_VI(M6_STRINGS,  char*,      S, "strings");
-m6_opt_add_define_VI(M6_DOUBLES,  double,     F, "floats");
+m6_opt_add_define_VI(M6_BOOLS,    m6_bool,    B, "booleans")
+m6_opt_add_define_VI(M6_UINT64S,  u64,        U, "unsigneds")
+m6_opt_add_define_VI(M6_INT64S,   i64,        I, "integers")
+m6_opt_add_define_VI(M6_STRINGS,  char*,      S, "strings")
+m6_opt_add_define_VI(M6_DOUBLES,  double,     F, "floats")
 //##########################################################################################################################
 
 //Define all the options parsers for non vector types, without initializers
@@ -284,11 +285,11 @@ m6_opt_add_declare_VU(m6_type_name, c_type_name, short_name, long_name)\
     \
     return result;\
 }
-m6_opt_add_define_VU(M6_BOOLS,    m6_bool,    B, "booleans");
-m6_opt_add_define_VU(M6_UINT64S,  u64,        U, "unsigneds");
-m6_opt_add_define_VU(M6_INT64S,   i64,        I, "integers");
-m6_opt_add_define_VU(M6_STRINGS,  char*,      S, "strings");
-m6_opt_add_define_VU(M6_DOUBLES,  double,     F, "floats");
+m6_opt_add_define_VU(M6_BOOLS,    m6_bool,    B, "booleans")
+m6_opt_add_define_VU(M6_UINT64S,  u64,        U, "unsigneds")
+m6_opt_add_define_VU(M6_INT64S,   i64,        I, "integers")
+m6_opt_add_define_VU(M6_STRINGS,  char*,      S, "strings")
+m6_opt_add_define_VU(M6_DOUBLES,  double,     F, "floats")
 //##########################################################################################################################
 
 
@@ -425,8 +426,7 @@ void process_option(char c) {
 
     //int done = 0;
     m6_options_opt_t* opt_def = NULL;
-    int i = 0;
-    for (; i < size(Vector,&opts.opt_defs) ; i++) {
+    for ( u64 i = 0; i < size(Vector,&opts.opt_defs) ; i++) {
         opt_def = ((m6_options_opt_t*)opts.opt_defs.mem) + i;
 
         if (opt_def->short_str == c) {
@@ -522,7 +522,7 @@ int m6_opt_parse(int argc, char** argv){
     if (optind < argc){ //There are extra parameters
         //Look for an opt_def with type UNLIMITED
         m6_options_opt_t* opt_def = NULL;
-        int i = 0;
+        u64 i = 0;
         for (; i < size(Vector,&opts.opt_defs) ; i++) {
             opt_def = ((m6_options_opt_t*)opts.opt_defs.mem) + i;
             if(opt_def->mode == M6_OPTION_UNLIMTED){
@@ -546,8 +546,7 @@ int m6_opt_parse(int argc, char** argv){
 
     //Check the constraints
     m6_options_opt_t* opt_def = NULL;
-    int i;
-    for (i = 0; i < size(Vector,&opts.opt_defs) ; i++) {
+    for (u64 i = 0; i < size(Vector,&opts.opt_defs) ; i++) {
         opt_def = ((m6_options_opt_t*)opts.opt_defs.mem) + i;
         if(opt_def->mode == M6_OPTION_REQUIRED && opt_def->found < 1){
             printf("Option --%s (-%c) is required but not supplied\n", opt_def->long_str, opt_def->short_str);

@@ -8,11 +8,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <unistd.h>
 
-#include "../deps/libbstring/bstrlib.h"
-#include "../deps/libbstring/bstraux.h"
-
+//#include "../deps/libbstring/bstrlib.h"
+//#include "../deps/libbstring/bstraux.h"
 #include "../deps/libcgen/vector.h"
+
 
 //Unsigned types, use these sparingly
 typedef uint8_t     u8;
@@ -33,7 +34,7 @@ typedef u8      m6_char;
 typedef i64     m6_word; //Singed int chosen specifically to avoid underrun and signed/unsigned comparisons
 typedef bool    m6_bool; //Give the compiler tons of freedom to decide what to do here
 typedef bstring m6_str;  //Please avoid using char*. M6 uses the bstring library instead. Use char* only when interacting with other APIs
-#define cstr(bstr) ((char*)(bstr->data))
+//#define cstr(bstr) ((char*)(bstr->data))
 
 typedef enum {
     M6_NO_TYPE = 0,

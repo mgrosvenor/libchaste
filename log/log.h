@@ -26,62 +26,72 @@ m6_word _m6_log_out_va_(m6_word this_log_lvll, m6_word line_num, const char* fil
 #endif
 
 
+
+//Helper macros to make C99 VAR_ARGS work properly. Yuck! Hacky!
+#define m6_log_fatal( /*format, args*/...)  m6_log_fatal_helper(__VA_ARGS__, "")
+#define m6_log_error( /*format, args*/...)  m6_log_error_helper(__VA_ARGS__, "")
+#define m6_log_warn( /*format, args*/...)   m6_log_warn_helper(__VA_ARGS__, "")
+#define m6_log_info( /*format, args*/...)   m6_log_info_helper(__VA_ARGS__, "")
+#define m6_log_debug1( /*format, args*/...) m6_log_debug1_helper(__VA_ARGS__, "")
+#define m6_log_debug2( /*format, args*/...) m6_log_debug2_helper(__VA_ARGS__, "")
+#define m6_log_debug3( /*format, args*/...) m6_log_debug3_helper(__VA_ARGS__, "")
+
 #if 1 //Always defined
-    #define m6_log_fatal(format, args...) _m6_log_out_(M6_LOG_LVL_FATAL, __LINE__, __FILE__, format, ## args )
-    #define m6_log_fatal_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_FATAL, __LINE__, __FILE__, format, va_list )
+    #define m6_log_fatal_helper(format, ...) _m6_log_out_(M6_LOG_LVL_FATAL, __LINE__, __FILE__, format, __VA_ARGS__ )
+    #define m6_log_fatal_va( format, va_list) _m6_log_out_va_(M6_LOG_LVL_FATAL, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_fatal(format, args...)
+    #define m6_log_fatal_helper( format, ...)
     #define m6_log_fatal_va(format, va_list)
 #endif
 
 
 #if M6_LOG_BUILD_LVL >= M6_LOG_LVL_ERROR
-    #define m6_log_error(format, args...) _m6_log_out_(M6_LOG_LVL_ERROR, __LINE__, __FILE__, format, ## args )
+    #define m6_log_error_helper(format, ...) _m6_log_out_(M6_LOG_LVL_ERROR, __LINE__, __FILE__, format, __VA_ARGS__, "" )
     #define m6_log_error_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_ERROR, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_error(format, args...)
+    #define m6_log_error_helper(format, ...)
     #define m6_log_error_va(format, va_list)
 #endif
 
 
 #if M6_LOG_BUILD_LVL >= M6_LOG_LVL_WARN
-    #define m6_log_warn(format, args...) _m6_log_out_(M6_LOG_LVL_WARN, __LINE__, __FILE__, format, ## args )
+    #define m6_log_warn_helper(format, ...) _m6_log_out_(M6_LOG_LVL_WARN, __LINE__, __FILE__, format, __VA_ARGS__, "" )
     #define m6_log_warn_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_WARN, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_warn(format, args...)
+    #define m6_log_warn_helper(format, ...)
     #define m6_log_warn_va(format, va_list)
 #endif
 
 #if M6_LOG_BUILD_LVL >= M6_LOG_LVL_INFO
-    #define m6_log_info(format, args...) _m6_log_out_(M6_LOG_LVL_INFO, __LINE__, __FILE__, format, ## args )
+    #define m6_log_info_helper(format, ...) _m6_log_out_(M6_LOG_LVL_INFO, __LINE__, __FILE__, format, __VA_ARGS__, "" )
     #define m6_log_info_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_INFO, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_info(format, args...)
+    #define m6_log_info_helper(format, ...)
     #define m6_log_info_va(format, va_list)
 #endif
 
 
 #if M6_LOG_BUILD_LVL >= M6_LOG_LVL_DEBUG1
-    #define m6_log_debug1(format, args...) _m6_log_out_(M6_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, ## args )
+    #define m6_log_debug1_helper(format, ...) _m6_log_out_(M6_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, __VA_ARGS__, "" )
     #define m6_log_debug1_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_debug1(format, args...)
+    #define m6_log_debug1_helper(format, ...)
     #define m6_log_debug1_va(format, va_list)
 #endif
 
 #if M6_LOG_BUILD_LVL >= M6_LOG_LVL_DEBUG2
-    #define m6_log_debug2(format, args...) _m6_log_out_(M6_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, ## args )
+    #define m6_log_debug2_helper(format, ...) _m6_log_out_(M6_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, __VA_ARGS__ , "" )
     #define m6_log_debug2_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_debug2(format, args...)
+    #define m6_log_debug2_helper(format, ...)
     #define m6_log_debug2_va(format, va_list)
 #endif
 
 #if M6_LOG_BUILD_LVL >= M6_LOG_LVL_DEBUG3
-    #define m6_log_debug3(format, args...) _m6_log_out_(M6_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, ## args )
+    #define m6_log_debug3_helper(format, ...) _m6_log_out_(M6_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, __VA_ARGS__ , "" )
     #define m6_log_debug3_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_debug3(format, args...)
+    #define m6_log_debug3_helper(format, ...)
     #define m6_log_debug3_va(format, va_list)
 #endif
 

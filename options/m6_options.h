@@ -43,7 +43,7 @@ typedef struct {
 
 //Declare all the options parsers for non vector types, with initializers
 #define m6_opt_add_declare_i(m6_type_name, c_type_name, short_name, long_name)\
-inline int m6_opt_add##short_name##i(m6_options_mode_e mode, char short_str, char* long_str, char* descr, c_type_name* result_out, c_type_name default_val)
+int m6_opt_add##short_name##i(m6_options_mode_e mode, char short_str, char* long_str, char* descr, c_type_name* result_out, c_type_name default_val)
 m6_opt_add_declare_i(M6_BOOL,     m6_bool,    b, "boolean");
 m6_opt_add_declare_i(M6_UINT64,   u64,        u, "unsigned");
 m6_opt_add_declare_i(M6_INT64,    i64,        i, "integer");
@@ -52,7 +52,7 @@ m6_opt_add_declare_i(M6_DOUBLE,   double,     f, "float");
 
 //Declare all the options parsers for non vector types, untantalized
 #define m6_opt_add_declare_u(m6_type_name, c_type_name, short_name, long_name)\
-inline int m6_opt_add##short_name##u(m6_options_mode_e mode, char short_str, char* long_str, char* descr, c_type_name* result_out)
+int m6_opt_add##short_name##u(m6_options_mode_e mode, char short_str, char* long_str, char* descr, c_type_name* result_out)
 m6_opt_add_declare_u(M6_BOOL,     m6_bool,    b, "boolean");
 m6_opt_add_declare_u(M6_UINT64,   u64,        u, "unsigned");
 m6_opt_add_declare_u(M6_INT64,    i64,        i, "integer");
@@ -61,7 +61,7 @@ m6_opt_add_declare_u(M6_DOUBLE,   double,     f, "float");
 
 //Declare all the options parsers for vector types, with initializers
 #define m6_opt_add_declare_VI(m6_type_name, c_type_name_default, short_name, long_name)\
-inline int m6_opt_add##short_name##I(m6_options_mode_e mode, char short_str, char* long_str, char* descr, Vector* result_out, c_type_name_default default_val)
+int m6_opt_add##short_name##I(m6_options_mode_e mode, char short_str, char* long_str, char* descr, Vector* result_out, c_type_name_default default_val)
 m6_opt_add_declare_VI(M6_BOOLS,    m6_bool,    B, "booleans");
 m6_opt_add_declare_VI(M6_UINT64S,  u64,        U, "unsigneds");
 m6_opt_add_declare_VI(M6_INT64S,   i64,        I, "integers");
@@ -70,7 +70,7 @@ m6_opt_add_declare_VI(M6_DOUBLES,  double,     F, "floats");
 
 //Declare all the options parsers for vector types, with uninitialized
 #define m6_opt_add_declare_VU(m6_type_name, c_type_name, short_name, long_name)\
-inline int m6_opt_add##short_name##U(m6_options_mode_e mode, char short_str, char* long_str, char* descr, Vector* result_out)
+int m6_opt_add##short_name##U(m6_options_mode_e mode, char short_str, char* long_str, char* descr, Vector* result_out)
 m6_opt_add_declare_VU(M6_BOOLS,    m6_bool,    B, "booleans");
 m6_opt_add_declare_VU(M6_UINT64S,  u64,        U, "unsigneds");
 m6_opt_add_declare_VU(M6_INT64S,   i64,        I, "integers");
@@ -81,7 +81,7 @@ m6_opt_add_declare_VU(M6_DOUBLES,  double,     F, "floats");
 
 
 #define USE_M6_OPTIONS \
-    m6_options_t opts = {0};
+    m6_options_t opts = { 0 }
 
 int m6_opt_name(char* description);
 int m6_opt_tail(char* description);

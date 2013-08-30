@@ -61,15 +61,15 @@ static int m6_perf_write_header_binary(){
 
 //Simple write out the raw binary event
 static int m6_perf_write_event_binary(const m6_perf_event_t* event){
-    return write(m6_perf.fd, &m6_perf.event_count, sizeof(m6_perf_event_t));
+    return write(m6_perf.fd, event, sizeof(m6_perf_event_t));
 }
 
 
 static int m6_perf_write_event_ascii(const m6_perf_event_t* event, m6_bool use_csv)
 {
     const char sep = use_csv ? ',' : ' ';
-    const char start_stop = event->event_id >= (1<<31) ? 'O' : 'A'; //"stArt", "stOp"
-    const uint64_t event_id = event->event_id >= (1<<31) ? event->event_id & ~(1<<31) : event->event_id;
+    const char start_stop = event->event_id >= (1ULL<<31) ? 'O' : 'A'; //"stArt", "stOp"
+    const uint64_t event_id = event->event_id >= (1ULL<<31) ? event->event_id & ~(1<<31) : event->event_id;
     return dprintf(m6_perf.fd,"%c%c%lu%c%u%c%lu\n",  start_stop, sep, event_id, sep, event->cond_id, sep, event->ts);
 }
 
@@ -166,8 +166,8 @@ void m6_perf_finish_(m6_perf_output_e output, m6_perf_format_e format, char* fil
         m6_perf_open_output(output,filename);
         m6_perf_write_header(format,output);
 
-        m6_word i = 0;
-        for(i = 0; i < MIN(m6_perf.event_index, m6_perf.max_events); i++ ){
+
+        for(u64 i = 0; i < MIN(m6_perf.event_index, m6_perf.max_events); i++ ){
             const m6_perf_event_t* event = m6_perf.events + i;
             m6_perf_write_event(event,format,output);
         }
