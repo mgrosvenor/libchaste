@@ -10,9 +10,17 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-//#include "../deps/libbstring/bstrlib.h"
-//#include "../deps/libbstring/bstraux.h"
+
 #include "../deps/libcgen/vector.h"
+
+//Please avoid using char*. M6 strings are a thin wrapper, that support easy concatenation and other functions
+typedef struct {
+    char* cstr; //Can be NULL or point to a const or non-const memory area
+    int is_const; //Can be -1 (unknown), 0 (can call free) or 1 (cannot call free)
+    int is_stack; //Can be -1 (unknown), 0 (not stack allocated) or 1 (stack allocated)
+    i64 slen; //A valid string len is always -1 (unknown), or < mlen
+    i64 mlen; //A valid memory len is always -1 (unknown), or > slen
+} m6_str;
 
 
 //Unsigned types, use these sparingly
@@ -33,7 +41,7 @@ typedef size_t  m6_machine; //Use this sparingly, only when it really matters th
 typedef u8      m6_char;
 typedef i64     m6_word; //Singed int chosen specifically to avoid underrun and signed/unsigned comparisons
 typedef bool    m6_bool; //Give the compiler tons of freedom to decide what to do here
-typedef bstring m6_str;  //Please avoid using char*. M6 uses the bstring library instead. Use char* only when interacting with other APIs
+typedef bstring m6_str;
 //#define cstr(bstr) ((char*)(bstr->data))
 
 typedef enum {
@@ -51,6 +59,9 @@ typedef enum {
 } m6_types_e;
 
 m6_word is_vector(m6_word type);
+
+
+
 
 
 #endif /* M6_TYPES_H_ */
