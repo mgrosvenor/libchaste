@@ -1,12 +1,12 @@
 /*
- * m6_util.h
+ * util.h
  *
  *  Created on: Nov 18, 2012
  *      Author: mgrosvenor
  */
 
-#ifndef M6_UTIL_H_
-#define M6_UTIL_H_
+#ifndef CH_UTIL_H_
+#define CH_UTIL_H_
 
 #define likely(x)       __builtin_expect((x),1)
 #define unlikely(x)     __builtin_expect((x),0)
@@ -31,4 +31,4 @@
 //    #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 //#endif
 
-#endif /* M6_UTIL_H_ */
+#endif /* UTIL_H_ */

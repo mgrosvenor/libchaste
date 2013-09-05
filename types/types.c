@@ -4,10 +4,10 @@
 
 #include "types.h"
 
-m6_word is_vector(m6_word type){
-    return type == M6_BOOLS   ||
-           type == M6_INT64S  ||
-           type == M6_STRINGS ||
-           type == M6_UINT64S ||
-           type == M6_DOUBLES;
+ch_word is_vector(ch_word type){
+    return type == CH_BOOLS   ||
+           type == CH_INT64S  ||
+           type == CH_STRINGS ||
+           type == CH_UINT64S ||
+           type == CH_DOUBLES;
 }

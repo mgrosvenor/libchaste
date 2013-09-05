@@ -1,0 +1,20 @@
+Requires: make, g++, ccache, python
+
+Installation:
+
+cake.conf needs to be installed as /etc/cake.conf  
+Currently cake is hard-coded to look up /etc/cake.conf and as such is not relocatable. I know, this is bad. 
+    cp cake.conf /etc/cake.conf
+
+cake needs to be installed in the executables path, typically /usr/bin/ but this is relocatable.
+    cp cake /usr/bin/cake
+
+A man page and README can be produced by executing 
+    ./create-documentation.sh
+    
+Copy the man page to somewhere useful and gzip it.  E.g, 
+    cp cake.1 /usr/share/man/man1/cake.1
+    gzip /usr/share/man/man1/cake.1
+
+
+

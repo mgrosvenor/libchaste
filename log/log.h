@@ -9,126 +9,126 @@
 #include "../term_color/term_color.h"
 #include "log_levels.h"
 
-#ifndef M6_LOG_H_
-#define M6_LOG_H_
+#ifndef CH_LOG_H_
+#define CH_LOG_H_
 
 
-m6_word _m6_log_out_(m6_word this_log_lvll, m6_word line_num, const char* filename, const char* format, ... );
-m6_word _m6_log_out_va_(m6_word this_log_lvll, m6_word line_num, const char* filename, const char* format, va_list args);
+ch_word _ch_log_out_(ch_word this_log_lvll, ch_word line_num, const char* filename, const char* format, ... );
+ch_word _ch_log_out_va_(ch_word this_log_lvll, ch_word line_num, const char* filename, const char* format, va_list args);
 
 
-#ifndef M6_LOG_BUILD_LVL
+#ifndef CH_LOG_BUILD_LVL
     #ifndef NDEBUG
-        #define M6_LOG_BUILD_LVL   M6_LOG_LVL_INFO    //Output binary to be capable up to "info" level release mode
+        #define CH_LOG_BUILD_LVL   CH_LOG_LVL_INFO    //Output binary to be capable up to "info" level release mode
     #else
-        #define M6_LOG_BUILD_LVL   M6_LOG_LVL_DEBUG3  //Output binary to be capable up to "debug3" level debug mode
+        #define CH_LOG_BUILD_LVL   CH_LOG_LVL_DEBUG3  //Output binary to be capable up to "debug3" level debug mode
     #endif
 #endif
 
 
 
 //Helper macros to make C99 VAR_ARGS work properly. Yuck! Hacky!
-#define m6_log_fatal( /*format, args*/...)  m6_log_fatal_helper(__VA_ARGS__, "")
-#define m6_log_error( /*format, args*/...)  m6_log_error_helper(__VA_ARGS__, "")
-#define m6_log_warn( /*format, args*/...)   m6_log_warn_helper(__VA_ARGS__, "")
-#define m6_log_info( /*format, args*/...)   m6_log_info_helper(__VA_ARGS__, "")
-#define m6_log_debug1( /*format, args*/...) m6_log_debug1_helper(__VA_ARGS__, "")
-#define m6_log_debug2( /*format, args*/...) m6_log_debug2_helper(__VA_ARGS__, "")
-#define m6_log_debug3( /*format, args*/...) m6_log_debug3_helper(__VA_ARGS__, "")
+#define ch_log_fatal( /*format, args*/...)  ch_log_fatal_helper(__VA_ARGS__, "")
+#define ch_log_error( /*format, args*/...)  ch_log_error_helper(__VA_ARGS__, "")
+#define ch_log_warn( /*format, args*/...)   ch_log_warn_helper(__VA_ARGS__, "")
+#define ch_log_info( /*format, args*/...)   ch_log_info_helper(__VA_ARGS__, "")
+#define ch_log_debug1( /*format, args*/...) ch_log_debug1_helper(__VA_ARGS__, "")
+#define ch_log_debug2( /*format, args*/...) ch_log_debug2_helper(__VA_ARGS__, "")
+#define ch_log_debug3( /*format, args*/...) ch_log_debug3_helper(__VA_ARGS__, "")
 
 #if 1 //Always defined
-    #define m6_log_fatal_helper(format, ...) _m6_log_out_(M6_LOG_LVL_FATAL, __LINE__, __FILE__, format, __VA_ARGS__ )
-    #define m6_log_fatal_va( format, va_list) _m6_log_out_va_(M6_LOG_LVL_FATAL, __LINE__, __FILE__, format, va_list )
+    #define ch_log_fatal_helper(format, ...) _ch_log_out_(CH_LOG_LVL_FATAL, __LINE__, __FILE__, format, __VA_ARGS__ )
+    #define ch_log_fatal_va( format, va_list) _ch_log_out_va_(CH_LOG_LVL_FATAL, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_fatal_helper( format, ...)
-    #define m6_log_fatal_va(format, va_list)
+    #define ch_log_fatal_helper( format, ...)
+    #define ch_log_fatal_va(format, va_list)
 #endif
 
 
-#if M6_LOG_BUILD_LVL >= M6_LOG_LVL_ERROR
-    #define m6_log_error_helper(format, ...) _m6_log_out_(M6_LOG_LVL_ERROR, __LINE__, __FILE__, format, __VA_ARGS__, "" )
-    #define m6_log_error_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_ERROR, __LINE__, __FILE__, format, va_list )
+#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_ERROR
+    #define ch_log_error_helper(format, ...) _ch_log_out_(CH_LOG_LVL_ERROR, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_log_error_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_ERROR, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_error_helper(format, ...)
-    #define m6_log_error_va(format, va_list)
+    #define ch_log_error_helper(format, ...)
+    #define ch_log_error_va(format, va_list)
 #endif
 
 
-#if M6_LOG_BUILD_LVL >= M6_LOG_LVL_WARN
-    #define m6_log_warn_helper(format, ...) _m6_log_out_(M6_LOG_LVL_WARN, __LINE__, __FILE__, format, __VA_ARGS__, "" )
-    #define m6_log_warn_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_WARN, __LINE__, __FILE__, format, va_list )
+#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_WARN
+    #define ch_log_warn_helper(format, ...) _ch_log_out_(CH_LOG_LVL_WARN, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_log_warn_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_WARN, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_warn_helper(format, ...)
-    #define m6_log_warn_va(format, va_list)
+    #define ch_log_warn_helper(format, ...)
+    #define ch_log_warn_va(format, va_list)
 #endif
 
-#if M6_LOG_BUILD_LVL >= M6_LOG_LVL_INFO
-    #define m6_log_info_helper(format, ...) _m6_log_out_(M6_LOG_LVL_INFO, __LINE__, __FILE__, format, __VA_ARGS__, "" )
-    #define m6_log_info_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_INFO, __LINE__, __FILE__, format, va_list )
+#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_INFO
+    #define ch_log_info_helper(format, ...) _ch_log_out_(CH_LOG_LVL_INFO, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_log_info_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_INFO, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_info_helper(format, ...)
-    #define m6_log_info_va(format, va_list)
+    #define ch_log_info_helper(format, ...)
+    #define ch_log_info_va(format, va_list)
 #endif
 
 
-#if M6_LOG_BUILD_LVL >= M6_LOG_LVL_DEBUG1
-    #define m6_log_debug1_helper(format, ...) _m6_log_out_(M6_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, __VA_ARGS__, "" )
-    #define m6_log_debug1_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, va_list )
+#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_DEBUG1
+    #define ch_log_debug1_helper(format, ...) _ch_log_out_(CH_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_log_debug1_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_debug1_helper(format, ...)
-    #define m6_log_debug1_va(format, va_list)
+    #define ch_log_debug1_helper(format, ...)
+    #define ch_log_debug1_va(format, va_list)
 #endif
 
-#if M6_LOG_BUILD_LVL >= M6_LOG_LVL_DEBUG2
-    #define m6_log_debug2_helper(format, ...) _m6_log_out_(M6_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, __VA_ARGS__ , "" )
-    #define m6_log_debug2_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, va_list )
+#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_DEBUG2
+    #define ch_log_debug2_helper(format, ...) _ch_log_out_(CH_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, __VA_ARGS__ , "" )
+    #define ch_log_debug2_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_debug2_helper(format, ...)
-    #define m6_log_debug2_va(format, va_list)
+    #define ch_log_debug2_helper(format, ...)
+    #define ch_log_debug2_va(format, va_list)
 #endif
 
-#if M6_LOG_BUILD_LVL >= M6_LOG_LVL_DEBUG3
-    #define m6_log_debug3_helper(format, ...) _m6_log_out_(M6_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, __VA_ARGS__ , "" )
-    #define m6_log_debug3_va(format, va_list) _m6_log_out_va_(M6_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, va_list )
+#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_DEBUG3
+    #define ch_log_debug3_helper(format, ...) _ch_log_out_(CH_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, __VA_ARGS__ , "" )
+    #define ch_log_debug3_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, va_list )
 #else
-    #define m6_log_debug3_helper(format, ...)
-    #define m6_log_debug3_va(format, va_list)
+    #define ch_log_debug3_helper(format, ...)
+    #define ch_log_debug3_va(format, va_list)
 #endif
 
 typedef struct {
-    m6_colour_t color;  //Color for the log level
-    m6_bool source;     //Include the source filename and line
-    m6_bool timestamp;  //Include the timestamp
+    ch_colour_t color;  //Color for the log level
+    ch_bool source;     //Include the source filename and line
+    ch_bool timestamp;  //Include the timestamp
     char* text;         //Short text such as "Warning" for each instance of this level
-} m6_log_level_setting_t;
+} ch_log_level_setting_t;
 
 
 typedef enum {
-    m6_log_tostdout,
-    m6_log_tostderr,
-    m6_log_tofile,
-    m6_log_tosyslog,
-    //m6_log_http, -- Not yet implemented
-} m6_log_output_e;
+    ch_log_tostdout,
+    ch_log_tostderr,
+    ch_log_tofile,
+    ch_log_tosyslog,
+    //ch_log_http, -- Not yet implemented
+} ch_log_output_e;
 
 typedef struct {
-    m6_word log_level;              //Current log level for contorling verbosity/output
-    m6_bool use_color;              //Use colors when printing to a terminal
-    m6_log_output_e output_mode;    //Where to output to
+    ch_word log_level;              //Current log level for contorling verbosity/output
+    ch_bool use_color;              //Use colors when printing to a terminal
+    ch_log_output_e output_mode;    //Where to output to
     char* filename;                 //If outputing to a file, the file name, otherwise ignored
-    m6_bool use_utc;                //Use UTC time, otherwise use local time
-    m6_bool incl_timezone;          //Include the UTC timezone offset
-    m6_bool subsec_digits;          //How many sub-second digits to use
-    m6_log_level_setting_t lvl_config[M6_LOG_LVL_COUNT]; //Setting for each log level
+    ch_bool use_utc;                //Use UTC time, otherwise use local time
+    ch_bool incl_timezone;          //Include the UTC timezone offset
+    ch_bool subsec_digits;          //How many sub-second digits to use
+    ch_log_level_setting_t lvl_config[CH_LOG_LVL_COUNT]; //Setting for each log level
     int fd;                         //Private, the file descriptor of the output
-} m6_log_settings_t;
+} ch_log_settings_t;
 
 
 //Only use this one in your code!
 //You can customize most of these settings after calling this "function" to initialize the defaults
 //DON'T CHANGE THIS HEADER DIRECTLY!!
-#define USE_M6_LOGGER(word_level,bool_use_color,enum_output_mode,str_filename) \
-m6_log_settings_t m6_log_settings = { \
+#define USE_CH_LOGGER(word_level,bool_use_color,enum_output_mode,str_filename) \
+ch_log_settings_t ch_log_settings = { \
     .log_level      = word_level, \
     .use_color      = bool_use_color, \
     .output_mode    = enum_output_mode, \
@@ -137,36 +137,36 @@ m6_log_settings_t m6_log_settings = { \
     .incl_timezone  = false, \
     .subsec_digits  = 0, \
     .lvl_config  = { \
-        { .color = M6_TERM_COL_BRIGHT_RED,      .source = true,  .timestamp = true,  .text = "Fatal Error" }, /*FATAL*/\
-        { .color = M6_TERM_COL_EMPH_RED,        .source = false, .timestamp = true,  .text = "Error"       }, /*ERROR*/\
-        { .color = M6_TERM_COL_BRIGHT_YELLOW,   .source = false, .timestamp = true,  .text = "Warning"     }, /*WARNING*/\
-        { .color = M6_TERM_COL_BRIGHT_GREEN,    .source = false, .timestamp = true,  .text = "Info"        }, /*INFO*/\
-        { .color = M6_TERM_COL_NONE,            .source = false, .timestamp = false, .text = "Debug"       }, /*DEBUG 1*/\
-        { .color = M6_TERM_COL_NONE,            .source = true,  .timestamp = false, .text = "Debug"       }, /*DEBUG 2*/\
-        { .color = M6_TERM_COL_NONE,            .source = true,  .timestamp = false, .text = NULL          }  /*DEBUG 3*/\
+        { .color = CH_TERM_COL_BRIGHT_RED,      .source = true,  .timestamp = true,  .text = "Fatal Error" }, /*FATAL*/\
+        { .color = CH_TERM_COL_EMPH_RED,        .source = false, .timestamp = true,  .text = "Error"       }, /*ERROR*/\
+        { .color = CH_TERM_COL_BRIGHT_YELLOW,   .source = false, .timestamp = true,  .text = "Warning"     }, /*WARNING*/\
+        { .color = CH_TERM_COL_BRIGHT_GREEN,    .source = false, .timestamp = true,  .text = "Info"        }, /*INFO*/\
+        { .color = CH_TERM_COL_NONE,            .source = false, .timestamp = false, .text = "Debug"       }, /*DEBUG 1*/\
+        { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = false, .text = "Debug"       }, /*DEBUG 2*/\
+        { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = false, .text = NULL          }  /*DEBUG 3*/\
     }, \
     .fd = -1,  /*This is private, please don't play with it*/\
 }
 
 
-//Simple, unobtrusive settings that any libm6 components can use.
-#define USE_M6_LOGGER_DEFAULT \
-m6_log_settings_t m6_log_settings = { \
-    .log_level      = M6_LOG_LVL_WARN, \
+//Simple, unobtrusive settings that any libch components can use.
+#define USE_CH_LOGGER_DEFAULT \
+ch_log_settings_t ch_log_settings = { \
+    .log_level      = CH_LOG_LVL_WARN, \
     .use_color      = false, \
-    .output_mode    = M6_LOG_OUT_STDERR, \
+    .output_mode    = CH_LOG_OUT_STDERR, \
     .filename       = "", \
     .use_utc        = false, \
     .incl_timezone  = false, \
     .subsec_digits  = 0, \
     .lvl_config  = { \
-        { .color = M6_TERM_COL_NONE, .source = true,  .timestamp = false, .text = "Fatal Error" }, /*FATAL*/\
-        { .color = M6_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Error"       }, /*ERROR*/\
-        { .color = M6_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Warning"     }, /*WARNING*/\
-        { .color = M6_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Info"        }, /*INFO*/\
-        { .color = M6_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Debug"       }, /*DEBUG 1*/\
-        { .color = M6_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Debug"       }, /*DEBUG 2*/\
-        { .color = M6_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Debug"       }  /*DEBUG 3*/\
+        { .color = CH_TERM_COL_NONE, .source = true,  .timestamp = false, .text = "Fatal Error" }, /*FATAL*/\
+        { .color = CH_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Error"       }, /*ERROR*/\
+        { .color = CH_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Warning"     }, /*WARNING*/\
+        { .color = CH_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Info"        }, /*INFO*/\
+        { .color = CH_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Debug"       }, /*DEBUG 1*/\
+        { .color = CH_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Debug"       }, /*DEBUG 2*/\
+        { .color = CH_TERM_COL_NONE, .source = false, .timestamp = false, .text = "Debug"       }  /*DEBUG 3*/\
     }, \
     .fd = -1,  /*This is private, please don't play with it*/\
 }
@@ -174,4 +174,4 @@ m6_log_settings_t m6_log_settings = { \
 
 
 
-#endif /* M6_LOG_H_ */
+#endif /* CH_LOG_H_ */

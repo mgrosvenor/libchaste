@@ -13,7 +13,7 @@
 
 //Generates an ISO 8601 formatted timestamp with a few options to play with
 //See https://en.wikipedia.org/wiki/ISO_8601
-m6_str generate_iso_timestamp(m6_bool use_gmt, m6_word subseconds, m6_bool incl_tz_offset)
+ch_str generate_iso_timestamp(ch_bool use_gmt, ch_word subseconds, ch_bool incl_tz_offset)
 {
     //Grab the time from the realtime clock and get it into a time_t for formatting
     struct timespec ts;
@@ -31,23 +31,23 @@ m6_str generate_iso_timestamp(m6_bool use_gmt, m6_word subseconds, m6_bool incl_
     }
 
     //Create a string containing the timestamp major part
-    m6_str time_major = bStrfTime("%Y%m%dT%H%M%S",timeinfo);
+    ch_str time_major = bStrfTime("%Y%m%dT%H%M%S",timeinfo);
 
 
     //Create the subseconds timestamp component with variable accuracy
-    m6_str time_minor = NULL;
+    ch_str time_minor = NULL;
     if(subseconds > 0){
         time_minor = bformat(".%li", ts.tv_nsec);
         bassignmidstr(time_minor,time_minor,0,subseconds +1);
     }
 
     //Add the timezone offset to GMT
-    m6_str time_offset = bfromcstr("");
+    ch_str time_offset = bfromcstr("");
     if(incl_tz_offset){
         time_offset = bStrfTime("%z",timeinfo);
     }
 
-    m6_str iso_time_out = bfromcstr("");
+    ch_str iso_time_out = bfromcstr("");
     bconcat(iso_time_out, time_major);
     bstrFree(time_major); //Now done with time major
 

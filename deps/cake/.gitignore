@@ -1,0 +1,26 @@
+# Lines that start with '#' are comments.
+# These are the files that git will ignore
+
+# Build files
+*.[oa]
+bin/
+
+# Text editor backups
+*~
+
+# The dependencies
+deps/
+
+# Any locally built rpms or debs
+*.rpm
+*.deb
+
+# All hidden files except the .gitignore file
+\.*
+!.gitignore
+
+# Ignore auto-generated files
+vgcore.*
+
+#Python precompiled files
+*.pyc

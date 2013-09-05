@@ -8,8 +8,8 @@
 #ifndef LIBM6_H_
 #define LIBM6_H_
 
-#include "options/m6_options.h"
-#include "perf/m6_perf.h"
+#include "options/options.h"
+#include "perf/perf.h"
 #include "log/log.h"
 //#include "deps/libbstring/bstraux.h"
 //#include "deps/libbstring/bstrlib.h"

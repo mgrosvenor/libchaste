@@ -14,7 +14,7 @@
 #include "../types/types.h"
 
 typedef struct{
-    m6_types_e type;
+    ch_types_e type;
     union{
         uint64_t val_uint;
         int64_t  val_int;

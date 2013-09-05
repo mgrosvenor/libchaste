@@ -165,7 +165,7 @@ int8_t push_back_Vector(Vector *vec, void *obj, size_t objsize, int flag) {
 	CHECK_VARN(vec,EINVAL);
 	CHECK_VARN(obj,EINVAL);
 	if(objsize != O(vec)) {
-		flag = 0;
+		(void)flag;
 		return EINVAL;
 	}
 	ARR_PUSH_BACK(Vector,vec,obj,objsize);
@@ -176,7 +176,7 @@ int8_t push_front_Vector(Vector *vec, void *obj, size_t objsize, int flag) {
 	CHECK_VARN(vec,EINVAL);
 	CHECK_VARN(obj,EINVAL);
 	if(objsize != O(vec)) {
-		flag = 0;
+		(void)flag;
 		return EINVAL;
 	}
 
