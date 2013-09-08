@@ -10,14 +10,14 @@
 
 typedef struct { ch_word x; ch_word y; } test_t;
 
-declare_ch_array(test_t);
-declare_ch_array(int);
-declare_ch_array(short);
-declare_ch_array(long);
-declare_ch_array(char);
-declare_ch_array(float);
-declare_ch_array(double);
-declare_ch_array(i64);
+declare_ch_array_list(test_t);
+declare_ch_array_list(int);
+declare_ch_array_list(short);
+declare_ch_array_list(long);
+declare_ch_array_list(char);
+declare_ch_array_list(float);
+declare_ch_array_list(double);
+declare_ch_array_list(i64);
 
 
 

@@ -7,7 +7,7 @@
 
 #define TYPE int
 
-#define ch_array_t(TYPE) ch_array_##TYPE##_t
+#define ch_array_list_t(TYPE) ch_array_list_##TYPE##_t
 
 ch_word cmp(i64 lhs, i64 rhs)
 {
@@ -23,7 +23,7 @@ ch_word cmp(i64 lhs, i64 rhs)
 }
 
 
-void dump_array(ch_array_i64_t* al)
+void dump_array(ch_array_list_i64_t* al)
 {
     printf("There are %li items in the list\n", al->count);
     for(i64* i = al->first; i < al->end; i = al->next(al, i)){
@@ -35,7 +35,7 @@ void dump_array(ch_array_i64_t* al)
 
 void test1()
 {
-    ch_array_i64_t* al1 = ch_array_i64_new(0,cmp);
+    ch_array_list_i64_t* al1 = ch_array_list_i64_new(0,cmp);
     dump_array(al1);
     al1->delete(al1);
 }
@@ -44,7 +44,7 @@ void test1()
 
 void test2()
 {
-    ch_array_i64_t* al = ch_array_i64_new(1,cmp);
+    ch_array_list_i64_t* al = ch_array_list_i64_new(1,cmp);
     al->push_back(al,0xFF);
     dump_array(al);
     al->delete(al);
@@ -53,7 +53,7 @@ void test2()
 
 void test3()
 {
-    ch_array_i64_t* al = ch_array_i64_new(10,cmp);
+    ch_array_list_i64_t* al = ch_array_list_i64_new(10,cmp);
     for(int i = 0; i < 11; i++){
         al->push_back(al,0xFF - i);
     }
@@ -64,7 +64,7 @@ void test3()
 
 void test4()
 {
-    ch_array_i64_t* al = ch_array_i64_new(10,cmp);
+    ch_array_list_i64_t* al = ch_array_list_i64_new(10,cmp);
     for(int i = 0; i < 15; i++){
         al->push_back(al,0xFF - i);
     }
@@ -78,7 +78,7 @@ void test4()
 
 void test5()
 {
-    ch_array_i64_t* al = ch_array_i64_new(10,cmp);
+    ch_array_list_i64_t* al = ch_array_list_i64_new(10,cmp);
     for(int i = 0; i < 10; i++){
         al->push_back(al,0xFF - i);
     }
@@ -94,7 +94,7 @@ void test5()
 
 void test6()
 {
-    ch_array_i64_t* al = ch_array_i64_new(10,cmp);
+    ch_array_list_i64_t* al = ch_array_list_i64_new(10,cmp);
     for(int i = 0; i < 11; i++){
         al->push_front(al,0xFF - i);
     }
@@ -105,7 +105,7 @@ void test6()
 
 void test7()
 {
-    ch_array_i64_t* al = ch_array_i64_new(10,cmp);
+    ch_array_list_i64_t* al = ch_array_list_i64_new(10,cmp);
     for(int i = 0; i < 11; i++){
         al->push_front(al,0xFF - i);
     }
@@ -119,7 +119,7 @@ void test7()
 
 void test8()
 {
-    ch_array_i64_t* al = ch_array_i64_new(10,cmp);
+    ch_array_list_i64_t* al = ch_array_list_i64_new(10,cmp);
     for(int i = 0; i < 10; i++){
         al->push_back(al,0xFF - i);
     }
@@ -135,7 +135,7 @@ void test8()
 
 void test9()
 {
-    ch_array_i64_t* al = ch_array_i64_new(100,cmp);
+    ch_array_list_i64_t* al = ch_array_list_i64_new(100,cmp);
     al->push_back(al,4);
     al->push_back(al,1);
     al->push_back(al,3);
@@ -193,21 +193,34 @@ void test9()
     al->delete(al);
 }
 
+void test10()
+{
+    ch_array_list_i64_t* al = ch_array_list_i64_new(0,cmp);
+    for(int i = 0; i < 10; i++){
+        al->push_back(al,0xFF - i);
+    }
+
+    dump_array(al);
+    al->delete(al);
+}
+
+
 
 int main(int argc, char** argv)
 {
     (void)argc;
     (void)argv;
 
-//    printf("test 1\n"); test1();
-//    printf("test 2\n"); test2();
-//    printf("test 3\n"); test3();
-//    printf("test 4\n"); test4();
-//    printf("test 5\n"); test5();
-//    printf("test 6\n"); test6();
-//    printf("test 7\n"); test7();
-//    printf("test 8\n"); test8();
+    printf("test 1\n"); test1();
+    printf("test 2\n"); test2();
+    printf("test 3\n"); test3();
+    printf("test 4\n"); test4();
+    printf("test 5\n"); test5();
+    printf("test 6\n"); test6();
+    printf("test 7\n"); test7();
+    printf("test 8\n"); test8();
     printf("test 9\n"); test9();
+    printf("test 10\n"); test10();
 
 
 
