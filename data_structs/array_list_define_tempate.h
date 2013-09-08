@@ -12,14 +12,15 @@
 #include "../types/types.h"
 #include "../utils/util.h"
 
+#define _LAST(a) (a + this->_array_backing_count -1)
+
 #define define_ch_array(TYPE) \
 \
-/*Resize the array*/\
 static void _resize_##TYPE(ch_array_##TYPE##_t* this, ch_word new_size)\
 {\
     this->_array_backing = (TYPE*)realloc(this->_array_backing, new_size * sizeof(TYPE));\
     if(!this->_array_backing){\
-        printf("Could not allocate memory for backing store\n");\
+        printf("Could not allocate memory for backing storen");\
         return;\
     }\
 \
@@ -108,16 +109,154 @@ static TYPE* _find_##TYPE(ch_array_##TYPE##_t* this, TYPE* begin, TYPE* end, TYP
     return NULL;\
 }\
 \
-/*sort TYPEo order given the comparitor function*/\
-static void _sort_##TYPE(ch_array_##TYPE##_t* this)\
+\
+\
+/* Merge two sorted arrays into out. */\
+static inline TYPE* _merge_##TYPE(TYPE* out, TYPE* lhs_lo, TYPE* lhs_hi, TYPE* rhs_lo, TYPE* rhs_hi, ch_word (*cmp)(TYPE lhs, TYPE rhs), ch_word dir)\
 {\
-    (void)this;\
+\
+    TYPE* lhs_ptr = lhs_lo;\
+    TYPE* rhs_ptr = rhs_lo;\
+\
+    while(1){\
+\
+        while(lhs_ptr <= lhs_hi &&  dir * cmp(*lhs_ptr,*rhs_ptr) <= 0){\
+            lhs_ptr++;\
+        }\
+\
+        const ch_word lhs_cpy_count = lhs_ptr - lhs_lo;\
+        const ch_word lhs_cpy_bytes  = lhs_cpy_count * sizeof(TYPE);\
+        memcpy(out,lhs_lo,lhs_cpy_bytes);\
+        lhs_lo = lhs_ptr;\
+        out += lhs_cpy_count;\
+\
+        if(lhs_lo > lhs_hi){\
+            break;\
+        }\
+\
+        while(rhs_ptr <= rhs_hi && dir * cmp(*rhs_ptr,*lhs_ptr) <= 0){\
+            rhs_ptr++;\
+        }\
+\
+        const ch_word rhs_cpy_count = rhs_ptr - rhs_lo;\
+        const ch_word rhs_cpy_bytes  = rhs_cpy_count * sizeof(TYPE);\
+        memcpy(out,rhs_lo,rhs_cpy_bytes);\
+        rhs_lo = rhs_ptr;\
+        out += rhs_cpy_count;\
+\
+        if(rhs_lo > rhs_hi){\
+            break;\
+        }\
+    }\
+\
+\
+\
+    if(lhs_lo <= lhs_hi){\
+        const ch_word lhs_cpy_count = lhs_hi - lhs_lo + 1;\
+        const ch_word lhs_cpy_bytes  = lhs_cpy_count * sizeof(TYPE);\
+        memcpy(out,lhs_lo,lhs_cpy_bytes);\
+        out += lhs_cpy_count;\
+    }\
+\
+    if(rhs_lo <= rhs_hi){\
+        const ch_word rhs_cpy_count = rhs_hi - rhs_lo + 1;\
+        const ch_word rhs_cpy_bytes  = rhs_cpy_count * sizeof(TYPE);\
+        memcpy(out,rhs_lo,rhs_cpy_bytes);\
+        out += rhs_cpy_count;\
+    }\
+\
+    return out;\
+\
 }\
 \
-/*sort TYPEo reverse order given the comparitor function*/\
+\
+\
+/*sort into order given the comparitor function dir -1 = down, 1 = up*/\
+static void _sort_dir_##TYPE(ch_array_##TYPE##_t* this, ch_word dir)\
+{\
+    if(this->_array_backing_count <= 1){\
+        return; /*Nothing to do here. */\
+    }\
+\
+    /* Grab some temporary auxilary storage */\
+    TYPE* aux1 = (TYPE*)malloc(this->_array_backing_count * sizeof(TYPE));\
+    if(!aux1){\
+        printf("Could not allocate memory for new array structure. Giving up\n");\
+        return;\
+    }\
+    TYPE* dst = aux1;\
+    TYPE* src = this->_array_backing;\
+\
+    ch_word chunk_size = 1;\
+    while(chunk_size <= this->_array_backing_count){\
+        TYPE* dst_ptr = dst;\
+        TYPE* lhs_lo  = src;\
+        TYPE* lhs_hi  = lhs_lo + chunk_size - 1;\
+        TYPE* rhs_lo  = lhs_hi + 1;\
+        TYPE* rhs_hi  = rhs_lo + chunk_size - 1;\
+\
+        while(1){\
+            if(lhs_lo > _LAST(src)){\
+                break;\
+            }\
+\
+            if(rhs_lo <= _LAST(src) && rhs_hi > _LAST(src)){\
+                rhs_hi = _LAST(src);\
+            }\
+\
+            if(lhs_lo <= _LAST(src) && lhs_hi > _LAST(src)){\
+                lhs_hi = _LAST(src);\
+            }\
+\
+\
+            /* There is no right hand side, so just copy the lhs bytes */\
+            if(rhs_lo > _LAST(src)){\
+                const ch_word lhs_cpy_count = lhs_hi - lhs_lo + 1;\
+                const ch_word lhs_cpy_bytes  = lhs_cpy_count * sizeof(TYPE);\
+                memcpy(dst_ptr,lhs_lo, lhs_cpy_bytes );\
+                break;\
+            }\
+\
+            dst_ptr = _merge_##TYPE(dst_ptr,lhs_lo, lhs_hi, rhs_lo, rhs_hi, this->_cmp, dir);\
+\
+            lhs_lo = rhs_hi + 1;\
+            lhs_hi = lhs_lo + chunk_size -1;\
+            rhs_lo = lhs_hi + 1;\
+            rhs_hi = rhs_lo + chunk_size - 1;\
+        }\
+\
+        chunk_size *= 2;\
+        if(dst == aux1){\
+            src = aux1;\
+            dst = this->_array_backing;\
+        }\
+        else{\
+            src = this->_array_backing;\
+            dst = aux1;\
+        }\
+    }\
+\
+\
+    if(dst == this->_array_backing){\
+        memcpy(dst, src, this->_array_backing_count * sizeof(TYPE));\
+    }\
+\
+    free(aux1);\
+\
+}\
+\
+\
+/*sort into reverse order given the comparitor function*/\
+static void _sort_##TYPE(ch_array_##TYPE##_t* this)\
+{\
+    _sort_dir_##TYPE(this,1);\
+}\
+\
+\
+/*sort into reverse order given the comparitor function*/\
 static void _sort_reverse_##TYPE(ch_array_##TYPE##_t* this)\
 {\
-    (void)this;\
+    _sort_dir_##TYPE(this,-1);\
 }\
 \
 \
@@ -126,44 +265,24 @@ static TYPE* _insert_before_##TYPE(ch_array_##TYPE##_t* this, TYPE* ptr, TYPE va
 {\
 \
     if(unlikely(ptr < this->_array_backing)){\
-        printf("ptr supplied is out of range. Too small.\n");\
+        printf("ptr supplied is out of range. Too small.n");\
         return NULL;\
     }\
 \
     /* NB: It's ok to insert before count + 1. This essentially inserts at count which is the last item. */\
     if(unlikely(ptr > this->_array_backing + this->_array_backing_count + 1)){\
-        printf("ptr supplied is out of range. Too big.\n");\
+        printf("ptr supplied is out of range. Too big.n");\
         return NULL;\
     }\
 \
     if(unlikely(this->_array_backing_count >= this->_array_backing_size)){\
-        printf("Array list is full!\n");\
+        printf("Array list is full!n");\
         return NULL;\
 \
     }\
 \
     if(likely(this->_array_backing_count  && ptr <= this->_array_backing + this->_array_backing_count )){\
-\
-\
-        printf("ptr:%p[%li], first:%p[%li], last:%p[%li], end:%p:[%li]\n",\
-                (void*)ptr, ptr - this->first,\
-                (void*)this->first, this->first - this->first,\
-                (void*)this->last, this->last - this->first,\
-                (void*)this->end, this->end - this->first );\
-\
-\
-        printf("Moving %lu\n", this->_array_backing + this->_array_backing_count - ptr);\
-\
         memmove(ptr + 1,ptr , (this->_array_backing + this->_array_backing_count - ptr) * sizeof(TYPE));\
-    }\
-    else{\
-        printf("ptr:%p[%li], first:%p[%li], last:%p[%li], end:%p:[%li]\n",\
-                (void*)ptr, ptr - this->first,\
-                (void*)this->first, this->first - this->first,\
-                (void*)this->last, this->last - this->first,\
-                (void*)this->end, this->end - this->first );\
-\
-        printf("Not moving\n");\
     }\
 \
     *ptr = value;\
@@ -212,17 +331,17 @@ static TYPE* _remove_##TYPE(ch_array_##TYPE##_t* this, TYPE* ptr)\
 {\
 \
     if(unlikely(this->first == this->end)){\
-        printf("Array list is empty\n");\
+        printf("Array list is emptyn");\
         return NULL;\
     }\
 \
     if(unlikely(ptr < this->_array_backing)){\
-        printf("ptr supplied is out of range. Too small.\n");\
+        printf("ptr supplied is out of range. Too small.n");\
         return NULL;\
     }\
 \
     if(unlikely(ptr > this->_array_backing + this->_array_backing_count)){\
-        printf("ptr supplied is out of range. Too big.\n");\
+        printf("ptr supplied is out of range. Too big.n");\
         return NULL;\
     }\
 \
@@ -265,47 +384,46 @@ static void _delete_##TYPE(ch_array_##TYPE##_t* this)\
     free(this);\
 }\
 \
-\
 ch_array_##TYPE##_t* ch_array_##TYPE##_new(ch_word size, ch_word (*cmp)(TYPE lhs, TYPE rhs) )\
 {\
 \
     ch_array_##TYPE##_t* result = (ch_array_##TYPE##_t*)calloc(1,sizeof(ch_array_##TYPE##_t));\
     if(!result){\
-        printf("Could not allocate memory for new array structure. Giving up\n");\
+        printf("Could not allocate memory for new array structure. Giving upn");\
         return NULL;\
     }\
 \
     result->_array_backing       = calloc(size,sizeof(TYPE));\
     if(!result->_array_backing){\
-        printf("Could not allocate memory for new array backing. Giving up\n");\
+        printf("Could not allocate memory for new array backing. Giving upn");\
         free(result);\
         return NULL;\
     }\
 \
     /*We have memory to play with, now do all the other assignments*/\
-    result->_array_backing_size  	= size;\
-    result->_array_backing_count 	= 0;\
-    result->_cmp                 	= cmp;\
-    result->first				 	= result->_array_backing;\
-    result->last				 	= result->_array_backing;\
-    result->end				     	= result->_array_backing;\
-    result->size            		= result->_array_backing_size;\
-    result->count           		= result->_array_backing_count;\
-    result->resize          		= _resize_##TYPE;\
-    result->off             		= _off_##TYPE;\
+    result->_array_backing_size     = size;\
+    result->_array_backing_count    = 0;\
+    result->_cmp                    = cmp;\
+    result->first                   = result->_array_backing;\
+    result->last                    = result->_array_backing;\
+    result->end                     = result->_array_backing;\
+    result->size                    = result->_array_backing_size;\
+    result->count                   = result->_array_backing_count;\
+    result->resize                  = _resize_##TYPE;\
+    result->off                     = _off_##TYPE;\
     result->next                    = _next_##TYPE;\
     result->prev                    = _prev_##TYPE;\
     result->forward                 = _forward_##TYPE;\
     result->back                    = _back_##TYPE;\
-    result->find            		= _find_##TYPE;\
-    result->sort           		 	= _sort_##TYPE;\
-    result->sort_reverse    		= _sort_reverse_##TYPE;\
-    result->push_front      		= _push_front_##TYPE;\
-    result->push_back       		= _push_back_##TYPE;\
-    result->insert_after    		= _insert_after_##TYPE;\
-    result->insert_before   		= _insert_before_##TYPE;\
+    result->find                    = _find_##TYPE;\
+    result->sort                    = _sort_##TYPE;\
+    result->sort_reverse            = _sort_reverse_##TYPE;\
+    result->push_front              = _push_front_##TYPE;\
+    result->push_back               = _push_back_##TYPE;\
+    result->insert_after            = _insert_after_##TYPE;\
+    result->insert_before           = _insert_before_##TYPE;\
     result->remove                  = _remove_##TYPE;\
-    result->delete          		= _delete_##TYPE;\
+    result->delete                  = _delete_##TYPE;\
 \
     return result;\
 }

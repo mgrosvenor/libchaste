@@ -17,6 +17,7 @@ declare_ch_array(long);
 declare_ch_array(char);
 declare_ch_array(float);
 declare_ch_array(double);
+declare_ch_array(i64);
 
 
 
