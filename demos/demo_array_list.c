@@ -11,7 +11,15 @@
 
 ch_word cmp(double lhs, double rhs)
 {
-    return lhs == rhs;
+    if(lhs < rhs){
+        return -1;
+    }
+
+    if(lhs > rhs){
+        return 1;
+    }
+
+    return 0;
 }
 
 
@@ -124,19 +132,82 @@ void test8()
     al->delete(al);
 }
 
+
+void test9()
+{
+    ch_array_double_t* al = ch_array_double_new(100,cmp);
+    al->push_back(al,4);
+    al->push_back(al,1);
+    al->push_back(al,3);
+    al->push_back(al,6);
+    al->push_back(al,5);
+    al->push_back(al,8);
+    al->push_back(al,4);
+    al->push_back(al,1);
+    al->push_back(al,3);
+    al->push_back(al,6);
+    al->push_back(al,5);
+    al->push_back(al,8);
+    al->push_back(al,4);
+    al->push_back(al,1);
+    al->push_back(al,3);
+    al->push_back(al,6);
+    al->push_back(al,5);
+    al->push_back(al,8);
+    al->push_back(al,4);
+    al->push_back(al,1);
+    al->push_back(al,3);
+    al->push_back(al,6);
+    al->push_back(al,5);
+    al->push_back(al,8);
+    al->push_back(al,4);
+    al->push_back(al,1);
+    al->push_back(al,3);
+    al->push_back(al,6);
+    al->push_back(al,5);
+    al->push_back(al,8);
+    al->push_back(al,4);
+    al->push_back(al,1);
+    al->push_back(al,3);
+    al->push_back(al,6);
+    al->push_back(al,5);
+    al->push_back(al,8);
+    al->push_back(al,4);
+    al->push_back(al,1);
+    al->push_back(al,3);
+    al->push_back(al,6);
+    al->push_back(al,5);
+    al->push_back(al,8);
+    al->push_back(al,4);
+    al->push_back(al,1);
+    al->push_back(al,3);
+    al->push_back(al,6);
+    al->push_back(al,5);
+    al->push_back(al,8);
+
+
+
+    dump_array(al);
+    al->sort_reverse(al);
+    dump_array(al);
+    al->delete(al);
+}
+
+
 int main(int argc, char** argv)
 {
     (void)argc;
     (void)argv;
 
-    printf("test 1\n"); test1();
-    printf("test 2\n"); test2();
-    printf("test 3\n"); test3();
-    printf("test 4\n"); test4();
-    printf("test 5\n"); test5();
-    printf("test 6\n"); test6();
-    printf("test 7\n"); test7();
-    printf("test 8\n"); test8();
+//    printf("test 1\n"); test1();
+//    printf("test 2\n"); test2();
+//    printf("test 3\n"); test3();
+//    printf("test 4\n"); test4();
+//    printf("test 5\n"); test5();
+//    printf("test 6\n"); test6();
+//    printf("test 7\n"); test7();
+//    printf("test 8\n"); test8();
+    printf("test 9\n"); test9();
 
 
 
