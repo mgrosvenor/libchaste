@@ -30,17 +30,17 @@ struct ch_array_list_##TYPE{\
     TYPE* (*forward)(ch_array_list_##TYPE##_t* this, TYPE* ptr, ch_word amount);  /*Step forwards by amount*/ \
     TYPE* (*back)(ch_array_list_##TYPE##_t* this, TYPE* ptr, ch_word amount);  /*Step backwards by amount*/ \
 \
-    TYPE*(*find)(ch_array_list_##TYPE##_t* this, TYPE* begin, TYPE* end, TYPE value); /*find the given value using the comparitor function*/\
-    void(*sort)(ch_array_list_##TYPE##_t* this); /*sort into order given the comparitor function*/\
-    void(*sort_reverse)(ch_array_list_##TYPE##_t* this); /*sort into reverse order given the comparitor function*/\
+    TYPE* (*find)(ch_array_list_##TYPE##_t* this, TYPE* begin, TYPE* end, TYPE value); /*find the given value using the comparitor function*/\
+    void (*sort)(ch_array_list_##TYPE##_t* this); /*sort into order given the comparitor function*/\
+    void (*sort_reverse)(ch_array_list_##TYPE##_t* this); /*sort into reverse order given the comparitor function*/\
 \
-    TYPE*(*push_front)(ch_array_list_##TYPE##_t* this, TYPE value); /* Put an element at the front of the array list values, [WARN: In general this is very expensive for an array] */\
-    TYPE*(*push_back)(ch_array_list_##TYPE##_t* this, TYPE value); /* Put an elemenet at the back of the arary values*/\
-    TYPE*(*insert_after)(ch_array_list_##TYPE##_t* this, TYPE* ptr, TYPE value); /* Insert an element after the element given by ptr*/\
-    TYPE*(*insert_before)(ch_array_list_##TYPE##_t* this, TYPE* ptr, TYPE value); /* Insert an element before the element giver by ptr [WARN: In general this is very expensive for an array] */\
-    TYPE*(*remove)(ch_array_list_##TYPE##_t* this, TYPE* ptr); /*Remove the given ptr [WARN: In general this is very expensive] */\
+    TYPE* (*push_front)(ch_array_list_##TYPE##_t* this, TYPE value); /* Put an element at the front of the array list values, [WARN: In general this is very expensive for an array] */\
+    TYPE* (*push_back)(ch_array_list_##TYPE##_t* this, TYPE value); /* Put an elemenet at the back of the arary values*/\
+    TYPE* (*insert_after)(ch_array_list_##TYPE##_t* this, TYPE* ptr, TYPE value); /* Insert an element after the element given by ptr*/\
+    TYPE* (*insert_before)(ch_array_list_##TYPE##_t* this, TYPE* ptr, TYPE value); /* Insert an element before the element giver by ptr [WARN: In general this is very expensive for an array] */\
+    TYPE* (*remove)(ch_array_list_##TYPE##_t* this, TYPE* ptr); /*Remove the given ptr [WARN: In general this is very expensive] */\
 \
-    void(*delete)(ch_array_list_##TYPE##_t* this); /*Free the resources associated with this array, assumes that individual items have been freed*/ \
+    void (*delete)(ch_array_list_##TYPE##_t* this); /*Free the resources associated with this array, assumes that individual items have been freed*/ \
 \
     void (*from_carray)(ch_array_list_##TYPE##_t* this, TYPE* carray, ch_word size); /*Assign at most size elements from the C array*/\
 \

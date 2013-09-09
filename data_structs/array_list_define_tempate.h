@@ -51,6 +51,10 @@ ch_word _eq_##TYPE(ch_array_list_##TYPE##_t* this, ch_array_list_##TYPE##_t* tha
         return 0; \
     }\
 \
+    if(this->_array_backing_size != that->_array_backing_size){\
+        return 0; \
+    }\
+\
     TYPE* i = this->first; \
     TYPE* j = that->first; \
     for(; i < this->end && j < this->end; i = this->next(this, i), j = that->next(that, j)){\
@@ -355,8 +359,7 @@ static TYPE* _push_back_##TYPE(ch_array_list_##TYPE##_t* this, TYPE value)\
 {\
     /* Pushing onto the end is equivalent to inserting at the tail */\
     TYPE* ptr = this->_array_backing_size == 0 ? NULL : this->end; \
-    _insert_before_##TYPE(this, ptr, value);\
-    return NULL;\
+    return _insert_before_##TYPE(this, ptr, value);\
 }\
 \
 \
@@ -374,21 +377,22 @@ static TYPE* _remove_##TYPE(ch_array_list_##TYPE##_t* this, TYPE* ptr)\
         return NULL;\
     }\
 \
-    if(unlikely(ptr > this->_array_backing + this->_array_backing_count)){\
+    if(unlikely(ptr > this->last)){\
         printf("ptr supplied is out of range. Too big.\n");\
         return NULL;\
     }\
 \
-    /*Slow path*/\
+    /*Slow (but likely), keep the fast path fast*/\
     if(unlikely(ptr != this->last)){\
 /*\
-        printf("ptr:%p[%li], first:%p[%li], last:%p[%li], end:%p:[%li]",\
+        printf("ptr:%p[%li], first:%p[%li], last:%p[%li], end:%p:[%li] (%lu)\n",\
                 (void*)ptr, ptr - this->first,\
-                (void*)this->first, this->last - this->first,\
+                (void*)this->first, this->first - this->first,\
                 (void*)this->last, this->last - this->first,\
-                (void*)this->end, this->end - this->first );\
+                (void*)this->end, this->end - this->first,\
+                (this->last) - (ptr));\
 */\
-        memmove(ptr, ptr + 1, (this->last) - (ptr + 1) );\
+        memmove(ptr, ptr + 1, (this->last) - (ptr) );\
     }\
 \
     this->_array_backing_count--;\
@@ -399,6 +403,7 @@ static TYPE* _remove_##TYPE(ch_array_list_##TYPE##_t* this, TYPE* ptr)\
         this->last  = this->_array_backing;\
         this->first = this->_array_backing;\
         this->end   = this->_array_backing;\
+        ptr = NULL;\
     }\
     else{\
         this->last--;\
@@ -418,6 +423,17 @@ static void _delete_##TYPE(ch_array_list_##TYPE##_t* this)\
     free(this);\
 }\
 \
+\
+/*Assign at most size elements from the C array*/\
+static void _from_carray_##TYPE(ch_array_list_##TYPE##_t* this, TYPE* carray, ch_word size)\
+{\
+    /* Very inneficient, but this will do for now*/\
+    for(ch_word i = 0; i < size; size++){\
+        this->push_back(this,carray[i]);\
+    }\
+}\
+\
+\
 ch_array_list_##TYPE##_t* ch_array_list_##TYPE##_new(ch_word size, ch_word (*cmp)(TYPE lhs, TYPE rhs) )\
 {\
 \
@@ -427,11 +443,16 @@ ch_array_list_##TYPE##_t* ch_array_list_##TYPE##_new(ch_word size, ch_word (*cmp
         return NULL;\
     }\
 \
-    result->_array_backing       = calloc(size,sizeof(TYPE));\
-    if(!result->_array_backing){\
-        printf("Could not allocate memory for new array backing. Giving upn");\
-        free(result);\
-        return NULL;\
+    if(size > 0){\
+        result->_array_backing       = calloc(size,sizeof(TYPE));\
+        if(!result->_array_backing){\
+            printf("Could not allocate memory for new array backing. Giving upn");\
+            free(result);\
+            return NULL;\
+        }\
+    }\
+    else{\
+        result->_array_backing = NULL;\
     }\
 \
     /*We have memory to play with, now do all the other assignments*/\
@@ -458,6 +479,7 @@ ch_array_list_##TYPE##_t* ch_array_list_##TYPE##_new(ch_word size, ch_word (*cmp
     result->insert_after            = _insert_after_##TYPE;\
     result->insert_before           = _insert_before_##TYPE;\
     result->remove                  = _remove_##TYPE;\
+    result->from_carray             = _from_carray_##TYPE;\
     result->delete                  = _delete_##TYPE;\
 \
     return result;\
