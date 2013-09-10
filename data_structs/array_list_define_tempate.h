@@ -51,10 +51,6 @@ ch_word _eq_##TYPE(ch_array_list_##TYPE##_t* this, ch_array_list_##TYPE##_t* tha
         return 0; \
     }\
 \
-    if(this->_array_backing_size != that->_array_backing_size){\
-        return 0; \
-    }\
-\
     TYPE* i = this->first; \
     TYPE* j = that->first; \
     for(; i < this->end && j < this->end; i = this->next(this, i), j = that->next(that, j)){\
@@ -425,12 +421,20 @@ static void _delete_##TYPE(ch_array_list_##TYPE##_t* this)\
 \
 \
 /*Assign at most size elements from the C array*/\
-static void _from_carray_##TYPE(ch_array_list_##TYPE##_t* this, TYPE* carray, ch_word size)\
+static TYPE* _push_back_carray_##TYPE(ch_array_list_##TYPE##_t* this, TYPE* carray, ch_word count)\
 {\
-    /* Very inneficient, but this will do for now*/\
-    for(ch_word i = 0; i < size; size++){\
-        this->push_back(this,carray[i]);\
+    if(this->_array_backing_size - this->_array_backing_count < count){\
+        const ch_word new_size = this->_array_backing_size ? this->_array_backing_size * 2 : next_pow2(count);\
+        _resize_##TYPE(this,new_size);\
     }\
+\
+    memcpy(this->end, carray, count * sizeof(TYPE) );\
+    this->_array_backing_count += count;\
+    this->count = this->_array_backing_count;\
+    this->last += count;\
+    this->end = this->last + 1;\
+\
+    return this->last;\
 }\
 \
 \
@@ -479,7 +483,7 @@ ch_array_list_##TYPE##_t* ch_array_list_##TYPE##_new(ch_word size, ch_word (*cmp
     result->insert_after            = _insert_after_##TYPE;\
     result->insert_before           = _insert_before_##TYPE;\
     result->remove                  = _remove_##TYPE;\
-    result->from_carray             = _from_carray_##TYPE;\
+    result->push_back_carray        = _push_back_carray_##TYPE;\
     result->delete                  = _delete_##TYPE;\
 \
     return result;\

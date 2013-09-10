@@ -31,4 +31,6 @@
 //    #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 //#endif
 
+ch_word next_pow2(ch_word v);
+
 #endif /* UTIL_H_ */

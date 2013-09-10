@@ -42,7 +42,7 @@ struct ch_array_list_##TYPE{\
 \
     void (*delete)(ch_array_list_##TYPE##_t* this); /*Free the resources associated with this array, assumes that individual items have been freed*/ \
 \
-    void (*from_carray)(ch_array_list_##TYPE##_t* this, TYPE* carray, ch_word size); /*Assign at most size elements from the C array*/\
+    TYPE* (*push_back_carray)(ch_array_list_##TYPE##_t* this, TYPE* carray, ch_word count); /*Push back count elements the C array to the back array-list*/\
 \
      /* Members prefixed with "_" are nominally "private" Don't touch my privates!*/\
     ch_word (*_cmp)(TYPE lhs, TYPE rhs); /* Comparator function for find and sort operations */\
