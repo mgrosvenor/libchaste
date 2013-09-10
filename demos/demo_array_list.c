@@ -468,6 +468,40 @@ static ch_word test14_i64(i64* test_data)
 }
 
 
+static ch_word test15_i64(i64* test_data, i64* test_result)
+{
+    ch_word result = 1;
+    /* Test the initial conditions and equality of new (empty) array lists*/
+    ch_array_list_i64_t* al1 = ch_array_list_i64_new(0,cmp_i64);
+    ch_array_list_i64_t* al2 = ch_array_list_i64_new(0,cmp_i64);
+
+    for(ch_word i = 0; i < 10; i++){
+        al1->push_back_carray(al1,test_data, 15);
+        al1->sort_reverse(al1);
+    }
+
+    al2->push_back_carray(al2,test_result, 150);
+
+    CH_ASSERT(al2 != al1);
+    CH_ASSERT(al1->_array_backing != NULL);
+    CH_ASSERT(al1->first == al1->_array_backing);
+    CH_ASSERT(al1->last == al1->last);
+    CH_ASSERT(al1->end == al1->last + 1);
+    CH_ASSERT(al1->_array_backing_count == 150);
+    CH_ASSERT(al1->_array_backing_size == 256);
+    CH_ASSERT(al1->_cmp == cmp_i64);
+    CH_ASSERT(al1->count == 150);
+    CH_ASSERT(al1->size == 256);
+
+    CH_ASSERT(al1->eq(al1,al2));
+    CH_ASSERT(al1->eq(al2,al1));
+
+    al1->delete(al1);
+    al2->delete(al2);
+    return result;
+}
+
+
 
 int main(int argc, char** argv)
 {
@@ -476,7 +510,7 @@ int main(int argc, char** argv)
 
     i64 test_array[15] = {8,5,1,3,4,6,7,9,7,1,6,1,0,1,6};
     i64 test_array_sorted[150] = {0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,9,9};
-
+    i64 test_array_rsorted[150] = {9,9,9,9,9,9,9,9,9,9,8,8,8,8,8,8,8,8,8,8,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0};
     printf("CH Data Structures: Array List Test 01: ");  printf("%s", test1_i64(test_array) ? "PASS\n" : "FAIL\n");
     printf("CH Data Structures: Array List Test 02: ");  printf("%s", test2_i64(test_array) ? "PASS\n" : "FAIL\n");
     printf("CH Data Structures: Array List Test 03: ");  printf("%s", test3_i64(test_array) ? "PASS\n" : "FAIL\n");
@@ -491,6 +525,7 @@ int main(int argc, char** argv)
     printf("CH Data Structures: Array List Test 12: ");  printf("%s", test12_i64(test_array) ? "PASS\n" : "FAIL\n");
     printf("CH Data Structures: Array List Test 13: ");  printf("%s", test13_i64(test_array) ? "PASS\n" : "FAIL\n");
     printf("CH Data Structures: Array List Test 14: ");  printf("%s", test14_i64(test_array) ? "PASS\n" : "FAIL\n");
+    printf("CH Data Structures: Array List Test 15: ");  printf("%s", test15_i64(test_array, test_array_rsorted) ? "PASS\n" : "FAIL\n");
 
     return 0;
 }
