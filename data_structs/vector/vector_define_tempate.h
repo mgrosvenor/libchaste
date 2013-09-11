@@ -1,10 +1,10 @@
-// CamIO 2: array.c
+// CamIO 2: vector.c
 // Copyright (C) 2013: Matthew P. Grosvenor (matthew.grosvenor@cl.cam.ac.uk)
 // Licensed under BSD 3 Clause, please see LICENSE for more details.
 
 
-#ifndef ARRAY_LIST_DEFINE_TEMPLATE_H_
-#define ARRAY_LIST_DEFINE_TEMPLATE_H_
+#ifndef VECTOR_DEFINE_TEMPLATE_H_
+#define VECTOR_DEFINE_TEMPLATE_H_
 
 #include <stdlib.h>
 #include <string.h>
@@ -47,7 +47,7 @@ static void _resize_##TYPE(ch_vector_##TYPE##_t* this, ch_word new_size)\
 }\
 \
 \
-/*Check for equality between two array lists*/\
+/*Check for equality between two vector lists*/\
 static ch_word _eq_##TYPE(ch_vector_##TYPE##_t* this, ch_vector_##TYPE##_t* that)\
 {\
 \
@@ -142,7 +142,7 @@ static TYPE* _find_##TYPE(ch_vector_##TYPE##_t* this, TYPE* begin, TYPE* end, TY
 \
 \
 \
-/* Merge two sorted arrays into out. */\
+/* Merge two sorted vectors into out. */\
 static inline TYPE* _merge_##TYPE(TYPE* out, TYPE* lhs_lo, TYPE* lhs_hi, TYPE* rhs_lo, TYPE* rhs_hi, ch_word (*cmp)(TYPE lhs, TYPE rhs), ch_word dir)\
 {\
 \
@@ -212,7 +212,7 @@ static void _sort_dir_##TYPE(ch_vector_##TYPE##_t* this, ch_word dir)\
     /* Grab some temporary auxilary storage */\
     TYPE* aux1 = (TYPE*)malloc(this->_array_backing_count * sizeof(TYPE));\
     if(!aux1){\
-        printf("Could not allocate memory for new array structure. Giving up\n");\
+        printf("Could not allocate memory for new vector structure. Giving up\n");\
         return;\
     }\
     TYPE* dst = aux1;\
@@ -291,11 +291,11 @@ static void _sort_reverse_##TYPE(ch_vector_##TYPE##_t* this)\
 }\
 \
 \
-/* Insert an element before the element giver by ptr [WARN: In general this is very expensive for an array] */\
+/* Insert an element before the element giver by ptr [WARN: In general this is very expensive for an vector] */\
 static TYPE* _insert_before_##TYPE(ch_vector_##TYPE##_t* this, TYPE* ptr, TYPE value)\
 {\
 \
-    /*If the backing memory is full, grow the array*/\
+    /*If the backing memory is full, grow the vector*/\
     if(unlikely(this->_array_backing_count == this->_array_backing_size)){\
         const ch_word ptr_idx = ptr ? ptr - this->_array_backing: 0;\
         const ch_word new_size = this->_array_backing_size ? this->_array_backing_size * 2 : 1;\
@@ -337,7 +337,7 @@ static TYPE* _insert_before_##TYPE(ch_vector_##TYPE##_t* this, TYPE* ptr, TYPE v
     return ptr;\
 }\
 \
-/* Insert an element after the element given by ptr* [WARN: In general this is very expensive for an array] */\
+/* Insert an element after the element given by ptr* [WARN: In general this is very expensive for an vector] */\
 static TYPE* _insert_after_##TYPE(ch_vector_##TYPE##_t* this, TYPE* ptr, TYPE value)\
 {\
     /*Inserting after is the equivalent to inserting before, the value after the current */\
@@ -346,7 +346,8 @@ static TYPE* _insert_after_##TYPE(ch_vector_##TYPE##_t* this, TYPE* ptr, TYPE va
 }\
 \
 \
-/* Put an element at the front of the array values, [WARN: In general this is very expensive for an array] */\
+\
+/* Put an element at the front of the vector values, [WARN: In general this is very expensive for an vector] */\
 static TYPE* _push_front_##TYPE(ch_vector_##TYPE##_t* this, TYPE value)\
 {\
     /* Pushing onto the front is equivalent to inserting at the head */\
@@ -413,6 +414,17 @@ static TYPE* _remove_##TYPE(ch_vector_##TYPE##_t* this, TYPE* ptr)\
     return ptr;\
 }\
 \
+/* Put an element at the front of the vector values, [WARN: In general this is very expensive for an vector] */\
+void _pop_front_##TYPE(ch_vector_##TYPE##_t* this)\
+{\
+    _remove_##TYPE(this,this->first);\
+}\
+\
+/* Put an element at the front of the vector values, [WARN: In general this is very expensive for an vector] */\
+void _pop_back_##TYPE(ch_vector_##TYPE##_t* this)\
+{\
+    _remove_##TYPE(this,this->last);\
+}\
 \
 static void _delete_##TYPE(ch_vector_##TYPE##_t* this)\
 {\
@@ -424,15 +436,15 @@ static void _delete_##TYPE(ch_vector_##TYPE##_t* this)\
 }\
 \
 \
-/*Assign at most size elements from the C array*/\
-static TYPE* _push_back_carray_##TYPE(ch_vector_##TYPE##_t* this, TYPE* carray, ch_word count)\
+/*Assign at most size elements from the C vector*/\
+static TYPE* _push_back_cvector_##TYPE(ch_vector_##TYPE##_t* this, TYPE* cvector, ch_word count)\
 {\
     if(this->_array_backing_size - this->_array_backing_count < count){\
         const ch_word new_size = this->_array_backing_size ? this->_array_backing_size * 2 : next_pow2(count);\
         _resize_##TYPE(this,new_size);\
     }\
 \
-    memcpy(this->end, carray, count * sizeof(TYPE) );\
+    memcpy(this->end, cvector, count * sizeof(TYPE) );\
     this->_array_backing_count += count;\
     this->count = this->_array_backing_count;\
     this->last += count;\
@@ -447,14 +459,14 @@ ch_vector_##TYPE##_t* ch_vector_##TYPE##_new(ch_word size, ch_word (*cmp)(TYPE l
 \
     ch_vector_##TYPE##_t* result = (ch_vector_##TYPE##_t*)calloc(1,sizeof(ch_vector_##TYPE##_t));\
     if(!result){\
-        printf("Could not allocate memory for new array structure. Giving up\n");\
+        printf("Could not allocate memory for new vector structure. Giving up\n");\
         return NULL;\
     }\
 \
     if(size > 0){\
         result->_array_backing       = calloc(size,sizeof(TYPE));\
         if(!result->_array_backing){\
-            printf("Could not allocate memory for new array backing. Giving upn");\
+            printf("Could not allocate memory for new vector backing. Giving upn");\
             free(result);\
             return NULL;\
         }\
@@ -483,15 +495,17 @@ ch_vector_##TYPE##_t* ch_vector_##TYPE##_new(ch_word size, ch_word (*cmp)(TYPE l
     result->sort                    = _sort_##TYPE;\
     result->sort_reverse            = _sort_reverse_##TYPE;\
     result->push_front              = _push_front_##TYPE;\
+    result->pop_front               = _pop_front_##TYPE;\
     result->push_back               = _push_back_##TYPE;\
+    result->pop_front               = _pop_front_##TYPE;\
     result->insert_after            = _insert_after_##TYPE;\
     result->insert_before           = _insert_before_##TYPE;\
     result->remove                  = _remove_##TYPE;\
-    result->push_back_carray        = _push_back_carray_##TYPE;\
+    result->push_back_carray        = _push_back_cvector_##TYPE;\
     result->delete                  = _delete_##TYPE;\
 \
     return result;\
 }
 
-#endif /* ARRAY_LIST_DEFINE_TEMPLATE_H_ */
+#endif /* VECTOR_DEFINE_TEMPLATE_H_ */
 
