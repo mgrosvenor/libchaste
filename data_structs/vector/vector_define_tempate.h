@@ -1,19 +1,10 @@
-// CamIO 2: vector.c
-// Copyright (C) 2013: Matthew P. Grosvenor (matthew.grosvenor@cl.cam.ac.uk)
-// Licensed under BSD 3 Clause, please see LICENSE for more details.
-
-
-#ifndef VECTOR_DEFINE_TEMPLATE_H_
-#define VECTOR_DEFINE_TEMPLATE_H_
+#include "vector_std.h"
 
 #include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
-#include "vector_std.h"
-//#include "../log/log.h"
-
-#include "../..//types/types.h"
+#include "../../types/types.h"
 #include "../../utils/util.h"
 
 #define _LAST(a) (a + this->_array_backing_count -1)
@@ -22,25 +13,20 @@
 \
 static void _resize_##TYPE(ch_vector_##TYPE##_t* this, ch_word new_size)\
 {\
-    this->_array_backing = (TYPE*)realloc(this->_array_backing, new_size * sizeof(TYPE));\
-    if(!this->_array_backing){\
-        printf("Could not allocate memory for backing storen");\
-        return;\
-    }\
+    this->_array_backing->resize(this->_array_backing,new_size);\
 \
-    this->_array_backing_size  = new_size;\
     this->_array_backing_count = MIN(new_size, this->_array_backing_count);\
     this->count                = this->_array_backing_count;\
     this->size                 = new_size;\
 \
     if(new_size == 0){\
-        this->first          = this->_array_backing;\
-        this->last           = this->_array_backing;\
-        this->end            = this->_array_backing;\
+        this->first          = NULL;\
+        this->last           = NULL;\
+        this->end            = NULL;\
     }\
     else{\
-        this->first            = this->_array_backing;\
-        this->end              = this->_array_backing + this->_array_backing_count;\
+        this->first            = this->_array_backing->first;\
+        this->end              = this->first + this->_array_backing_count;\
         this->last             = this->end - 1;\
     }\
 \
@@ -52,11 +38,11 @@ static ch_word _eq_##TYPE(ch_vector_##TYPE##_t* this, ch_vector_##TYPE##_t* that
 {\
 \
     if(this->_array_backing_count != that->_array_backing_count){\
-        return 0; \
+        return 0;\
     }\
 \
-    TYPE* i = this->first; \
-    TYPE* j = that->first; \
+    TYPE* i = this->first;\
+    TYPE* j = that->first;\
     for(; i < this->end && j < that->end; i = this->next(this, i), j = that->next(that, j)){\
         if( this->_cmp(*i,*j) ){\
             return 0;\
@@ -67,31 +53,17 @@ static ch_word _eq_##TYPE(ch_vector_##TYPE##_t* this, ch_vector_##TYPE##_t* that
 }\
 \
 \
-/*Take an index an fix it so that negative indexs are legal */\
-static inline ch_word range_fix_##TYPE(ch_vector_##TYPE##_t* this, ch_word idx)\
-{\
-    idx = idx < 0 ? idx + this->_array_backing_size : idx;\
-\
-    if(idx >= 0 && idx < this->_array_backing_count && idx < this->_array_backing_size){\
-        return idx;\
-    }\
-\
-    printf("Index (%li) is out of the valid range [%li,%li]", idx, -1 * this->_array_backing_size, this->_array_backing_size - 1 );\
-    return -1;\
-\
-}\
-\
 \
 /*Return the element at a given offset, with bounds checking*/\
 static TYPE* _off_##TYPE(ch_vector_##TYPE##_t* this, ch_word idx)\
 {\
 \
-    idx = range_fix_##TYPE(this, idx);\
-    if(idx >= 0){\
-        return &this->_array_backing[idx];\
+    if(idx >= this->_array_backing_count){\
+        printf("Index (%li) is out of the valid range [%li,%li]", idx, -1 * this->_array_backing_count, this->_array_backing_count - 1 );\
+        return NULL;\
     }\
 \
-    return NULL;\
+    return this->_array_backing->off(this->_array_backing,idx);\
 \
 }\
 \
@@ -131,13 +103,7 @@ static TYPE* _prev_##TYPE(ch_vector_##TYPE##_t* this, TYPE* ptr)\
 /*find the given value using the comparitor function*/\
 static TYPE* _find_##TYPE(ch_vector_##TYPE##_t* this, TYPE* begin, TYPE* end, TYPE value)\
 {\
-    for(TYPE* it = begin; it != end; it++){\
-        if(this->_cmp(*it,value) == 0 ){\
-            return it;\
-        }\
-    }\
-\
-    return NULL;\
+    return this->_array_backing->find(this->_array_backing, begin, end, value);\
 }\
 \
 \
@@ -216,7 +182,7 @@ static void _sort_dir_##TYPE(ch_vector_##TYPE##_t* this, ch_word dir)\
         return;\
     }\
     TYPE* dst = aux1;\
-    TYPE* src = this->_array_backing;\
+    TYPE* src = this->_array_backing->first;\
 \
     ch_word chunk_size = 1;\
     while(chunk_size <= this->_array_backing_count){\
@@ -259,16 +225,16 @@ static void _sort_dir_##TYPE(ch_vector_##TYPE##_t* this, ch_word dir)\
         chunk_size *= 2;\
         if(dst == aux1){\
             src = aux1;\
-            dst = this->_array_backing;\
+            dst = this->_array_backing->first;\
         }\
         else{\
-            src = this->_array_backing;\
+            src = this->_array_backing->first;\
             dst = aux1;\
         }\
     }\
 \
 \
-    if(dst == this->_array_backing){\
+    if(dst == this->_array_backing->first){\
         memcpy(dst, src, this->_array_backing_count * sizeof(TYPE));\
     }\
 \
@@ -296,11 +262,11 @@ static TYPE* _insert_before_##TYPE(ch_vector_##TYPE##_t* this, TYPE* ptr, TYPE v
 {\
 \
     /*If the backing memory is full, grow the vector*/\
-    if(unlikely(this->_array_backing_count == this->_array_backing_size)){\
-        const ch_word ptr_idx = ptr ? ptr - this->_array_backing: 0;\
-        const ch_word new_size = this->_array_backing_size ? this->_array_backing_size * 2 : 1;\
+    if(unlikely(this->_array_backing_count == this->_array_backing->size)){\
+        const ch_word ptr_idx = ptr ? ptr - this->_array_backing->first: 0;\
+        const ch_word new_size = this->_array_backing->size ? this->_array_backing->size * 2 : 1;\
         _resize_##TYPE(this,new_size);\
-        ptr = this->_array_backing + ptr_idx;\
+        ptr = this->_array_backing->first + ptr_idx;\
     }\
 \
     if(unlikely(ptr < this->first)){\
@@ -315,15 +281,15 @@ static TYPE* _insert_before_##TYPE(ch_vector_##TYPE##_t* this, TYPE* ptr, TYPE v
     }\
 \
     /* Optimise for the push_back case*/\
-    if(unlikely(this->_array_backing_count  && ptr <= this->_array_backing + this->_array_backing_count )){\
-        memmove(ptr + 1,ptr , (this->_array_backing + this->_array_backing_count - ptr) * sizeof(TYPE));\
+    if(unlikely(this->_array_backing_count  && ptr <= this->_array_backing->first + this->_array_backing_count )){\
+        memmove(ptr + 1,ptr , (this->_array_backing->first + this->_array_backing_count - ptr) * sizeof(TYPE));\
     }\
 \
     *ptr = value;\
 \
     if(unlikely(this->_array_backing_count == 0)){\
-        this->first = this->_array_backing;\
-        this->last  = this->_array_backing;\
+        this->first = this->_array_backing->first;\
+        this->last  = this->first;\
         this->end   = this->last + 1;\
     }\
     else{\
@@ -341,7 +307,7 @@ static TYPE* _insert_before_##TYPE(ch_vector_##TYPE##_t* this, TYPE* ptr, TYPE v
 static TYPE* _insert_after_##TYPE(ch_vector_##TYPE##_t* this, TYPE* ptr, TYPE value)\
 {\
     /*Inserting after is the equivalent to inserting before, the value after the current */\
-    ptr = this->_array_backing_size == 0 ? NULL : ptr + 1; \
+    ptr = this->_array_backing->size == 0 ? NULL : ptr + 1;\
     return _insert_before_##TYPE(this,ptr,value);\
 }\
 \
@@ -351,7 +317,7 @@ static TYPE* _insert_after_##TYPE(ch_vector_##TYPE##_t* this, TYPE* ptr, TYPE va
 static TYPE* _push_front_##TYPE(ch_vector_##TYPE##_t* this, TYPE value)\
 {\
     /* Pushing onto the front is equivalent to inserting at the head */\
-    TYPE* ptr = this->_array_backing_size == 0 ? NULL : this->first; \
+    TYPE* ptr = this->_array_backing->size == 0 ? NULL : this->first;\
     return _insert_before_##TYPE(this, ptr, value);\
 }\
 \
@@ -359,7 +325,7 @@ static TYPE* _push_front_##TYPE(ch_vector_##TYPE##_t* this, TYPE value)\
 static TYPE* _push_back_##TYPE(ch_vector_##TYPE##_t* this, TYPE value)\
 {\
     /* Pushing onto the end is equivalent to inserting at the tail */\
-    TYPE* ptr = this->_array_backing_size == 0 ? NULL : this->end; \
+    TYPE* ptr = this->_array_backing->size == 0 ? NULL : this->end;\
     return _insert_before_##TYPE(this, ptr, value);\
 }\
 \
@@ -373,7 +339,7 @@ static TYPE* _remove_##TYPE(ch_vector_##TYPE##_t* this, TYPE* ptr)\
         return NULL;\
     }\
 \
-    if(unlikely(ptr < this->_array_backing)){\
+    if(unlikely(ptr < this->_array_backing->first)){\
         printf("ptr supplied is out of range. Too small.\n");\
         return NULL;\
     }\
@@ -401,9 +367,9 @@ static TYPE* _remove_##TYPE(ch_vector_##TYPE##_t* this, TYPE* ptr)\
 \
 \
     if(unlikely(this->_array_backing_count == 0)){\
-        this->last  = this->_array_backing;\
-        this->first = this->_array_backing;\
-        this->end   = this->_array_backing;\
+        this->first = this->_array_backing->first;\
+        this->last = this->first;\
+        this->end  = this->last;\
         ptr = NULL;\
     }\
     else{\
@@ -429,7 +395,7 @@ void _pop_back_##TYPE(ch_vector_##TYPE##_t* this)\
 static void _delete_##TYPE(ch_vector_##TYPE##_t* this)\
 {\
     if(this->_array_backing){\
-        free(this->_array_backing);\
+        this->_array_backing->delete(this->_array_backing);\
     }\
 \
     free(this);\
@@ -437,10 +403,10 @@ static void _delete_##TYPE(ch_vector_##TYPE##_t* this)\
 \
 \
 /*Assign at most size elements from the C vector*/\
-static TYPE* _push_back_cvector_##TYPE(ch_vector_##TYPE##_t* this, TYPE* cvector, ch_word count)\
+static TYPE* _push_back_carray_##TYPE(ch_vector_##TYPE##_t* this, TYPE* cvector, ch_word count)\
 {\
-    if(this->_array_backing_size - this->_array_backing_count < count){\
-        const ch_word new_size = this->_array_backing_size ? this->_array_backing_size * 2 : next_pow2(count);\
+    if(this->_array_backing->size - this->_array_backing_count < count){\
+        const ch_word new_size = this->_array_backing->size ? this->_array_backing->size * 2 : next_pow2(count);\
         _resize_##TYPE(this,new_size);\
     }\
 \
@@ -463,26 +429,15 @@ ch_vector_##TYPE##_t* ch_vector_##TYPE##_new(ch_word size, ch_word (*cmp)(TYPE l
         return NULL;\
     }\
 \
-    if(size > 0){\
-        result->_array_backing       = calloc(size,sizeof(TYPE));\
-        if(!result->_array_backing){\
-            printf("Could not allocate memory for new vector backing. Giving upn");\
-            free(result);\
-            return NULL;\
-        }\
-    }\
-    else{\
-        result->_array_backing = NULL;\
-    }\
+    result->_array_backing       = ch_array_##TYPE##_new(size, cmp);\
 \
     /*We have memory to play with, now do all the other assignments*/\
-    result->_array_backing_size     = size;\
     result->_array_backing_count    = 0;\
     result->_cmp                    = cmp;\
-    result->first                   = result->_array_backing;\
-    result->last                    = result->_array_backing;\
-    result->end                     = result->_array_backing;\
-    result->size                    = result->_array_backing_size;\
+    result->first                   = result->_array_backing->first;\
+    result->last                    = result->first;\
+    result->end                     = result->first;\
+    result->size                    = result->_array_backing->size;\
     result->count                   = result->_array_backing_count;\
     result->resize                  = _resize_##TYPE;\
     result->eq                      = _eq_##TYPE;\
@@ -501,11 +456,8 @@ ch_vector_##TYPE##_t* ch_vector_##TYPE##_new(ch_word size, ch_word (*cmp)(TYPE l
     result->insert_after            = _insert_after_##TYPE;\
     result->insert_before           = _insert_before_##TYPE;\
     result->remove                  = _remove_##TYPE;\
-    result->push_back_carray        = _push_back_cvector_##TYPE;\
+    result->push_back_carray        = _push_back_carray_##TYPE;\
     result->delete                  = _delete_##TYPE;\
 \
     return result;\
-}
-
-#endif /* VECTOR_DEFINE_TEMPLATE_H_ */
-
+} 

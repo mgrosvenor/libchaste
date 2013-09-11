@@ -6,7 +6,7 @@
 #define VECTOR_DECLARE_TEMPLATE_H_
 
 #include "../../types/types.h"
-
+#include "../array/array_std.h"
 
 #define declare_ch_vector(TYPE) \
 \
@@ -49,8 +49,7 @@ struct ch_vector_##TYPE{\
 \
      /* Members prefixed with "_" are nominally "private" Don't touch my privates!*/\
     ch_word (*_cmp)(TYPE lhs, TYPE rhs); /* Comparator function for find and sort operations */\
-    TYPE* _array_backing; /*Actual vector storage*/\
-    ch_word _array_backing_size; /*Number of elements allocated in the given vector*/\
+    ch_array_##TYPE##_t* _array_backing; /*Actual vector storage*/\
     ch_word _array_backing_count; /*NUmber of elements currently in the vector*/\
 \
 };\

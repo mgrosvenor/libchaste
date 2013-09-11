@@ -8,7 +8,6 @@
 #include <stdio.h>
 
 
-
 #define ch_vector_t ch_vector_ch_word_t
 
 static ch_word cmp_ch_word(ch_word lhs, ch_word rhs)
@@ -41,12 +40,12 @@ static ch_word test1_ch_word(ch_word* test_data)
     /* Test the initial conditions and equality of new (empty) array lists*/
     (void)test_data;
     ch_vector_t* al1 = ch_vector_ch_word_new(0,cmp_ch_word);
-    CH_ASSERT(al1->_array_backing == NULL);
+    CH_ASSERT(al1->_array_backing->first == NULL);
     CH_ASSERT(al1->first == NULL);
     CH_ASSERT(al1->last == NULL);
     CH_ASSERT(al1->end == NULL);
     CH_ASSERT(al1->_array_backing_count == 0);
-    CH_ASSERT(al1->_array_backing_size == 0);
+    CH_ASSERT(al1->_array_backing->size == 0);
     CH_ASSERT(al1->_cmp == cmp_ch_word);
     CH_ASSERT(al1->count == 0);
     CH_ASSERT(al1->size == 0);
@@ -69,11 +68,11 @@ static ch_word test2_ch_word(ch_word* test_data)
     (void)test_data;
     ch_vector_t* al1 = ch_vector_ch_word_new(1,cmp_ch_word);
     CH_ASSERT(al1->_array_backing != NULL);
-    CH_ASSERT(al1->first == al1->_array_backing);
+    CH_ASSERT(al1->first == al1->_array_backing->first);
     CH_ASSERT(al1->last == al1->first);
     CH_ASSERT(al1->end == al1->last);
     CH_ASSERT(al1->_array_backing_count == 0);
-    CH_ASSERT(al1->_array_backing_size == 1);
+    CH_ASSERT(al1->_array_backing->size == 1);
     CH_ASSERT(al1->_cmp == cmp_ch_word);
     CH_ASSERT(al1->count == 0);
     CH_ASSERT(al1->size == 1);
@@ -97,13 +96,13 @@ static ch_word test3_ch_word(ch_word* test_data)
     ch_vector_t* al1 = ch_vector_ch_word_new(0,cmp_ch_word);
     CH_ASSERT(al1->push_back(al1, test_data[0]));
     CH_ASSERT(al1->_array_backing != NULL);
-    CH_ASSERT(al1->first == al1->_array_backing);
+    CH_ASSERT(al1->first == al1->_array_backing->first);
     CH_ASSERT(al1->last == al1->first);
     CH_ASSERT(al1->end != al1->last);
     CH_ASSERT(*al1->first == test_data[0]);
     CH_ASSERT(*al1->last == test_data[0]);
     CH_ASSERT(al1->_array_backing_count == 1);
-    CH_ASSERT(al1->_array_backing_size == 1);
+    CH_ASSERT(al1->_array_backing->size == 1);
     CH_ASSERT(al1->_cmp == cmp_ch_word);
     CH_ASSERT(al1->count == 1);
     CH_ASSERT(al1->size == 1);
@@ -131,13 +130,13 @@ static ch_word test4_ch_word(ch_word* test_data)
     ch_vector_t* al1 = ch_vector_ch_word_new(1,cmp_ch_word);
     CH_ASSERT(al1->push_back(al1, test_data[0]));
     CH_ASSERT(al1->_array_backing != NULL);
-    CH_ASSERT(al1->first == al1->_array_backing);
+    CH_ASSERT(al1->first == al1->_array_backing->first);
     CH_ASSERT(al1->last == al1->first);
     CH_ASSERT(al1->end != al1->last);
     CH_ASSERT(*al1->first == test_data[0]);
     CH_ASSERT(*al1->last == test_data[0]);
     CH_ASSERT(al1->_array_backing_count == 1);
-    CH_ASSERT(al1->_array_backing_size == 1);
+    CH_ASSERT(al1->_array_backing->size == 1);
     CH_ASSERT(al1->_cmp == cmp_ch_word);
     CH_ASSERT(al1->count == 1);
     CH_ASSERT(al1->size == 1);
@@ -162,13 +161,13 @@ static ch_word test5_ch_word(ch_word* test_data)
     ch_vector_t* al1 = ch_vector_ch_word_new(10,cmp_ch_word);
     CH_ASSERT(al1->push_back(al1, test_data[0]));
     CH_ASSERT(al1->_array_backing != NULL);
-    CH_ASSERT(al1->first == al1->_array_backing);
+    CH_ASSERT(al1->first == al1->_array_backing->first);
     CH_ASSERT(al1->last == al1->first);
     CH_ASSERT(al1->end != al1->last);
     CH_ASSERT(*al1->first == test_data[0]);
     CH_ASSERT(*al1->last == test_data[0]);
     CH_ASSERT(al1->_array_backing_count == 1);
-    CH_ASSERT(al1->_array_backing_size == 10);
+    CH_ASSERT(al1->_array_backing->size == 10);
     CH_ASSERT(al1->_cmp == cmp_ch_word);
     CH_ASSERT(al1->count == 1);
     CH_ASSERT(al1->size == 10);
@@ -195,13 +194,13 @@ static ch_word test6_ch_word(ch_word* test_data)
     CH_ASSERT(al1->push_back(al1, test_data[0]));
     CH_ASSERT(al1->push_back(al1, test_data[1]));
     CH_ASSERT(al1->_array_backing != NULL);
-    CH_ASSERT(al1->first == al1->_array_backing);
+    CH_ASSERT(al1->first == al1->_array_backing->first);
     CH_ASSERT(al1->last != al1->first);
     CH_ASSERT(al1->end != al1->last);
     CH_ASSERT(*al1->first == test_data[0]);
     CH_ASSERT(*al1->last == test_data[1]);
     CH_ASSERT(al1->_array_backing_count == 2);
-    CH_ASSERT(al1->_array_backing_size == 2);
+    CH_ASSERT(al1->_array_backing->size == 2);
     CH_ASSERT(al1->_cmp == cmp_ch_word);
     CH_ASSERT(al1->count == 2);
     CH_ASSERT(al1->size == 2);
@@ -233,14 +232,15 @@ static ch_word test7_ch_word(ch_word* test_data)
     /* Make sure that this works a few times over */
     for(ch_word i = 0; i < 10; i++){
 
-        CH_ASSERT(rmv_1 = al1->push_back(al1, test_data[0]));
+        CH_ASSERT(al1->push_back(al1, test_data[0]));
         CH_ASSERT(al1->push_back(al1, test_data[1]));
-        CH_ASSERT(al1->first == al1->_array_backing);
-
+        CH_ASSERT(al1->first == al1->_array_backing->first);
 
         CH_ASSERT(al2->push_front(al2, test_data[1]));
-        CH_ASSERT(rmv_2 = al2->push_front(al2, test_data[0]));
+        CH_ASSERT(al2->push_front(al2, test_data[0]));
 
+        rmv_1 = al1->first;
+        rmv_2 = al2->first;
         CH_ASSERT(*al1->remove(al1,rmv_1) == test_data[1]);
         CH_ASSERT(*al2->remove(al2,rmv_2) == test_data[1]);
 
@@ -249,7 +249,7 @@ static ch_word test7_ch_word(ch_word* test_data)
         CH_ASSERT(*al1->first == test_data[1]);
         CH_ASSERT(*al1->last == test_data[1]);
         CH_ASSERT(al1->_array_backing_count == 1);
-        CH_ASSERT(al1->_array_backing_size == 2);
+        CH_ASSERT(al1->_array_backing->size == 2);
         CH_ASSERT(al1->count == 1);
         CH_ASSERT(al1->size == 2);
 
@@ -258,7 +258,7 @@ static ch_word test7_ch_word(ch_word* test_data)
         CH_ASSERT(*al2->first == test_data[1]);
         CH_ASSERT(*al2->last == test_data[1]);
         CH_ASSERT(al2->_array_backing_count == 1);
-        CH_ASSERT(al2->_array_backing_size == 2);
+        CH_ASSERT(al2->_array_backing->size == 2);
         CH_ASSERT(al2->count == 1);
         CH_ASSERT(al2->size == 2);
 
@@ -272,14 +272,14 @@ static ch_word test7_ch_word(ch_word* test_data)
         CH_ASSERT(al1->last == al1->first);
         CH_ASSERT(al1->end == al1->last);
         CH_ASSERT(al1->_array_backing_count == 0);
-        CH_ASSERT(al1->_array_backing_size == 2);
+        CH_ASSERT(al1->_array_backing->size == 2);
         CH_ASSERT(al1->count == 0);
         CH_ASSERT(al1->size == 2);
 
         CH_ASSERT(al2->last == al2->first);
         CH_ASSERT(al2->end == al2->last);
         CH_ASSERT(al2->_array_backing_count == 0);
-        CH_ASSERT(al2->_array_backing_size == 2);
+        CH_ASSERT(al2->_array_backing->size == 2);
         CH_ASSERT(al2->count == 0);
         CH_ASSERT(al2->size == 2);
 
@@ -305,12 +305,12 @@ static ch_word test8_ch_word(ch_word* test_data)
     al1->sort(al1);
 
     CH_ASSERT(al2 != al1);
-    CH_ASSERT(al1->_array_backing == NULL);
+    CH_ASSERT(al1->_array_backing->first == NULL);
     CH_ASSERT(al1->first == NULL);
     CH_ASSERT(al1->last == NULL);
     CH_ASSERT(al1->end == NULL);
     CH_ASSERT(al1->_array_backing_count == 0);
-    CH_ASSERT(al1->_array_backing_size == 0);
+    CH_ASSERT(al1->_array_backing->size == 0);
     CH_ASSERT(al1->_cmp == cmp_ch_word);
     CH_ASSERT(al1->count == 0);
     CH_ASSERT(al1->size == 0);
@@ -336,11 +336,11 @@ static ch_word test9_ch_word(ch_word* test_data)
 
     CH_ASSERT(al2 != al1);
     CH_ASSERT(al1->_array_backing != NULL);
-    CH_ASSERT(al1->first == al1->_array_backing);
+    CH_ASSERT(al1->first == al1->_array_backing->first);
     CH_ASSERT(al1->last == al1->last);
     CH_ASSERT(al1->end == al1->last + 1);
     CH_ASSERT(al1->_array_backing_count == 1);
-    CH_ASSERT(al1->_array_backing_size == 1);
+    CH_ASSERT(al1->_array_backing->size == 1);
     CH_ASSERT(al1->_cmp == cmp_ch_word);
     CH_ASSERT(al1->count == 1);
     CH_ASSERT(al1->size == 1);
@@ -368,11 +368,11 @@ static ch_word test10_ch_word(ch_word* test_data)
 
     CH_ASSERT(al2 != al1);
     CH_ASSERT(al1->_array_backing != NULL);
-    CH_ASSERT(al1->first == al1->_array_backing);
+    CH_ASSERT(al1->first == al1->_array_backing->first);
     CH_ASSERT(al1->last == al1->last);
     CH_ASSERT(al1->end == al1->last + 1);
     CH_ASSERT(al1->_array_backing_count == 2);
-    CH_ASSERT(al1->_array_backing_size == 2);
+    CH_ASSERT(al1->_array_backing->size == 2);
     CH_ASSERT(al1->_cmp == cmp_ch_word);
     CH_ASSERT(al1->count == 2);
     CH_ASSERT(al1->size == 2);
@@ -401,11 +401,11 @@ static ch_word test11_ch_word(ch_word* test_data, ch_word* test_result)
 
     CH_ASSERT(al2 != al1);
     CH_ASSERT(al1->_array_backing != NULL);
-    CH_ASSERT(al1->first == al1->_array_backing);
+    CH_ASSERT(al1->first == al1->_array_backing->first);
     CH_ASSERT(al1->last == al1->last);
     CH_ASSERT(al1->end == al1->last + 1);
     CH_ASSERT(al1->_array_backing_count == 150);
-    CH_ASSERT(al1->_array_backing_size == 256);
+    CH_ASSERT(al1->_array_backing->size == 256);
     CH_ASSERT(al1->_cmp == cmp_ch_word);
     CH_ASSERT(al1->count == 150);
     CH_ASSERT(al1->size == 256);
@@ -483,11 +483,11 @@ static ch_word test15_ch_word(ch_word* test_data, ch_word* test_result)
 
     CH_ASSERT(al2 != al1);
     CH_ASSERT(al1->_array_backing != NULL);
-    CH_ASSERT(al1->first == al1->_array_backing);
+    CH_ASSERT(al1->first == al1->_array_backing->first);
     CH_ASSERT(al1->last == al1->last);
     CH_ASSERT(al1->end == al1->last + 1);
     CH_ASSERT(al1->_array_backing_count == 150);
-    CH_ASSERT(al1->_array_backing_size == 256);
+    CH_ASSERT(al1->_array_backing->size == 256);
     CH_ASSERT(al1->_cmp == cmp_ch_word);
     CH_ASSERT(al1->count == 150);
     CH_ASSERT(al1->size == 256);
@@ -508,13 +508,13 @@ static ch_word test16_ch_word(ch_word* test_data)
     ch_vector_t* al1 = ch_vector_ch_word_new(0,cmp_ch_word);
     CH_ASSERT(al1->push_back(al1, test_data[0]));
     CH_ASSERT(al1->_array_backing != NULL);
-    CH_ASSERT(al1->first == al1->_array_backing);
+    CH_ASSERT(al1->first == al1->_array_backing->first);
     CH_ASSERT(al1->last == al1->first);
     CH_ASSERT(al1->end != al1->last);
     CH_ASSERT(*al1->first == test_data[0]);
     CH_ASSERT(*al1->last == test_data[0]);
     CH_ASSERT(al1->_array_backing_count == 1);
-    CH_ASSERT(al1->_array_backing_size == 1);
+    CH_ASSERT(al1->_array_backing->size == 1);
     CH_ASSERT(al1->_cmp == cmp_ch_word);
     CH_ASSERT(al1->count == 1);
     CH_ASSERT(al1->size == 1);

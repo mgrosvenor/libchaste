@@ -8,26 +8,26 @@
 #include "../../types/types.h"
 #include "vector_define_tempate.h"
 
-define_ch_vector(int)
-define_ch_vector(short)
-define_ch_vector(long)
-define_ch_vector(char)
-define_ch_vector(float)
-define_ch_vector(double)
-
-
-define_ch_vector(u8)
-define_ch_vector(u16)
-define_ch_vector(u32)
-define_ch_vector(u64)
-
-define_ch_vector(i8)
-define_ch_vector(i16)
-define_ch_vector(i32)
-define_ch_vector(i64)
-
-define_ch_vector(ch_machine)
+//define_ch_vector(int)
+//define_ch_vector(short)
+//define_ch_vector(long)
+//define_ch_vector(char)
+//define_ch_vector(float)
+//define_ch_vector(double)
+//
+//
+//define_ch_vector(u8)
+//define_ch_vector(u16)
+//define_ch_vector(u32)
+//define_ch_vector(u64)
+//
+//define_ch_vector(i8)
+//define_ch_vector(i16)
+//define_ch_vector(i32)
+//define_ch_vector(i64)
+//
+//define_ch_vector(ch_machine)
 define_ch_vector(ch_word)
-define_ch_vector(ch_char)
-define_ch_vector(ch_bool)
+//define_ch_vector(ch_char)
+//define_ch_vector(ch_bool)
 
