@@ -38,7 +38,7 @@ struct ch_array_##TYPE{\
 \
     void (*delete)(ch_array_##TYPE##_t* this); /*Free the resources associated with this array, assumes that individual items have been freed*/ \
 \
-    TYPE* (*from_carray)(ch_array_##TYPE##_t* this, ch_word offset, TYPE* carray, ch_word count); /*Set at most count elements to the value in carray starting at offset in this array*/\
+    TYPE* (*from_carray)(ch_array_##TYPE##_t* this, TYPE* carray, ch_word count); /*Set at most count elements to the value in carray starting at offset in this array*/\
 \
      /* Members prefixed with "_" are nominally "private" Don't touch my privates!*/\
     ch_word (*_cmp)(TYPE lhs, TYPE rhs); /* Comparator function for find and sort operations */\

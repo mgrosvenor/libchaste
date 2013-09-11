@@ -2,6 +2,9 @@
 // Copyright (C) 2013: Matthew P. Grosvenor (matthew.grosvenor@cl.cam.ac.uk)
 // Licensed under BSD 3 Clause, please see LICENSE for more details.
 
+#ifndef ARRAY_DEFINE_TEMPLATE_H_
+#define ARRAY_DEFINE_TEMPLATE_H_
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -12,7 +15,7 @@
 #include "../types/types.h"
 #include "../utils/util.h"
 
-#define _LAST(a) (a + this->_array_backing_count -1)
+#define _LAST(a) (a + this->_array_backing_size -1)
 
 #define define_ch_array(TYPE) \
 \
@@ -20,13 +23,11 @@ static void _resize_##TYPE(ch_array_##TYPE##_t* this, ch_word new_size)\
 {\
     this->_array_backing = (TYPE*)realloc(this->_array_backing, new_size * sizeof(TYPE));\
     if(!this->_array_backing){\
-        printf("Could not allocate memory for backing storen");\
+        printf("Could not allocate memory for backing store\n");\
         return;\
     }\
 \
     this->_array_backing_size  = new_size;\
-    this->_array_backing_count = MIN(new_size, this->_array_backing_count);\
-    this->count                = this->_array_backing_count;\
     this->size                 = new_size;\
 \
     if(new_size == 0){\
@@ -36,24 +37,25 @@ static void _resize_##TYPE(ch_array_##TYPE##_t* this, ch_word new_size)\
     }\
     else{\
         this->first            = this->_array_backing;\
-        this->end              = this->_array_backing + this->_array_backing_count;\
-        this->last             = this->end - 1;\
+        this->last             = _LAST(this->_array_backing);\
+        this->end              = this->last + 1;\
     }\
 \
 }\
 \
 \
 /*Check for equality between two array lists*/\
-ch_word _eq_##TYPE(ch_array_##TYPE##_t* this, ch_array_##TYPE##_t* that)\
+static ch_word _eq_##TYPE(ch_array_##TYPE##_t* this, ch_array_##TYPE##_t* that)\
 {\
 \
-    if(this->_array_backing_count != that->_array_backing_count){\
+    if(this->_array_backing_size != that->_array_backing_size){\
         return 0; \
     }\
 \
     TYPE* i = this->first; \
     TYPE* j = that->first; \
-    for(; i < this->end && j < this->end; i = this->next(this, i), j = that->next(that, j)){\
+\
+    for(; i < this->end && j < that->end; i = this->next(this, i), j = that->next(that, j)){\
         if( this->_cmp(*i,*j) ){\
             return 0;\
         }\
@@ -68,11 +70,11 @@ static inline ch_word range_fix_##TYPE(ch_array_##TYPE##_t* this, ch_word idx)\
 {\
     idx = idx < 0 ? idx + this->_array_backing_size : idx;\
 \
-    if(idx >= 0 && idx < this->_array_backing_count && idx < this->_array_backing_size){\
+    if(idx >= 0 && idx < this->_array_backing_size){\
         return idx;\
     }\
 \
-    printf("Index (%li) is out of the valid range [%li,%li]", idx, -1 * this->_array_backing_size, this->_array_backing_size - 1 );\
+    printf("Index (%li) is out of the valid range [%li,%li]\n", idx, -1 * this->_array_backing_size, this->_array_backing_size - 1 );\
     return -1;\
 \
 }\
@@ -81,6 +83,11 @@ static inline ch_word range_fix_##TYPE(ch_array_##TYPE##_t* this, ch_word idx)\
 /*Return the element at a given offset, with bounds checking*/\
 static TYPE* _off_##TYPE(ch_array_##TYPE##_t* this, ch_word idx)\
 {\
+\
+    if(this->_array_backing_size < 1){\
+        printf("Index (%li) is out of the valid range [%li,%li]\n", idx, -1 * this->_array_backing_size, this->_array_backing_size - 1 );\
+        return NULL;\
+    }\
 \
     idx = range_fix_##TYPE(this, idx);\
     if(idx >= 0){\
@@ -124,9 +131,19 @@ static TYPE* _prev_##TYPE(ch_array_##TYPE##_t* this, TYPE* ptr)\
 \
 \
 \
-/*find the given value using the comparitor function*/\
+/*find the given value using the comparator function*/\
 static TYPE* _find_##TYPE(ch_array_##TYPE##_t* this, TYPE* begin, TYPE* end, TYPE value)\
 {\
+    if(unlikely(begin < this->first || begin > this->end)){\
+        printf("Begin iterator supplied is out of range is not a member of this array\n");\
+        return NULL;\
+    }\
+\
+    if(unlikely(end < this->first || end > this->end)){\
+        printf("End iterator supplied is out of range is not a member of this array\n");\
+        return NULL;\
+    }\
+\
     for(TYPE* it = begin; it != end; it++){\
         if(this->_cmp(*it,value) == 0 ){\
             return it;\
@@ -201,12 +218,12 @@ static inline TYPE* _merge_##TYPE(TYPE* out, TYPE* lhs_lo, TYPE* lhs_hi, TYPE* r
 /*sort into order given the comparitor function dir -1 = down, 1 = up*/\
 static void _sort_dir_##TYPE(ch_array_##TYPE##_t* this, ch_word dir)\
 {\
-    if(this->_array_backing_count <= 1){\
+    if(this->_array_backing_size <= 1){\
         return; /*Nothing to do here. */\
     }\
 \
     /* Grab some temporary auxilary storage */\
-    TYPE* aux1 = (TYPE*)malloc(this->_array_backing_count * sizeof(TYPE));\
+    TYPE* aux1 = (TYPE*)malloc(this->_array_backing_size * sizeof(TYPE));\
     if(!aux1){\
         printf("Could not allocate memory for new array structure. Giving up\n");\
         return;\
@@ -215,7 +232,7 @@ static void _sort_dir_##TYPE(ch_array_##TYPE##_t* this, ch_word dir)\
     TYPE* src = this->_array_backing;\
 \
     ch_word chunk_size = 1;\
-    while(chunk_size <= this->_array_backing_count){\
+    while(chunk_size <= this->_array_backing_size){\
         TYPE* dst_ptr = dst;\
         TYPE* lhs_lo  = src;\
         TYPE* lhs_hi  = lhs_lo + chunk_size - 1;\
@@ -265,7 +282,7 @@ static void _sort_dir_##TYPE(ch_array_##TYPE##_t* this, ch_word dir)\
 \
 \
     if(dst == this->_array_backing){\
-        memcpy(dst, src, this->_array_backing_count * sizeof(TYPE));\
+        memcpy(dst, src, this->_array_backing_size * sizeof(TYPE));\
     }\
 \
     free(aux1);\
@@ -287,128 +304,6 @@ static void _sort_reverse_##TYPE(ch_array_##TYPE##_t* this)\
 }\
 \
 \
-/* Insert an element before the element giver by ptr [WARN: In general this is very expensive for an array] */\
-static TYPE* _insert_before_##TYPE(ch_array_##TYPE##_t* this, TYPE* ptr, TYPE value)\
-{\
-\
-    /*If the backing memory is full, grow the array*/\
-    if(unlikely(this->_array_backing_count == this->_array_backing_size)){\
-        const ch_word ptr_idx = ptr ? ptr - this->_array_backing: 0;\
-        const ch_word new_size = this->_array_backing_size ? this->_array_backing_size * 2 : 1;\
-        _resize_##TYPE(this,new_size);\
-        ptr = this->_array_backing + ptr_idx;\
-    }\
-\
-    if(unlikely(ptr < this->first)){\
-        printf("ptr supplied is out of range. Too small.\n");\
-        return NULL;\
-    }\
-\
-    /* NB: It's ok to insert *before* last + 1. This essentially inserts at last which is the last item. */\
-    if(unlikely(ptr > this->last + 1)){\
-        printf("ptr supplied is out of range. Too big.\n");\
-        return NULL;\
-    }\
-\
-    /* Optimise for the push_back case*/\
-    if(unlikely(this->_array_backing_count  && ptr <= this->_array_backing + this->_array_backing_count )){\
-        memmove(ptr + 1,ptr , (this->_array_backing + this->_array_backing_count - ptr) * sizeof(TYPE));\
-    }\
-\
-    *ptr = value;\
-\
-    if(unlikely(this->_array_backing_count == 0)){\
-        this->first = this->_array_backing;\
-        this->last  = this->_array_backing;\
-        this->end   = this->last + 1;\
-    }\
-    else{\
-        this->last++;\
-        this->end++;\
-    }\
-\
-    this->_array_backing_count++;\
-    this->count++;\
-\
-    return ptr;\
-}\
-\
-/* Insert an element after the element given by ptr* [WARN: In general this is very expensive for an array] */\
-static TYPE* _insert_after_##TYPE(ch_array_##TYPE##_t* this, TYPE* ptr, TYPE value)\
-{\
-    /*Inserting after is the equivalent to inserting before, the value after the current */\
-    ptr = this->_array_backing_size == 0 ? NULL : ptr + 1; \
-    return _insert_before_##TYPE(this,ptr,value);\
-}\
-\
-\
-/* Put an element at the front of the array values, [WARN: In general this is very expensive for an array] */\
-static TYPE* _push_front_##TYPE(ch_array_##TYPE##_t* this, TYPE value)\
-{\
-    /* Pushing onto the front is equivalent to inserting at the head */\
-    TYPE* ptr = this->_array_backing_size == 0 ? NULL : this->first; \
-    return _insert_before_##TYPE(this, ptr, value);\
-}\
-\
-/* Put an element at the back of the arary values*/\
-static TYPE* _push_back_##TYPE(ch_array_##TYPE##_t* this, TYPE value)\
-{\
-    /* Pushing onto the end is equivalent to inserting at the tail */\
-    TYPE* ptr = this->_array_backing_size == 0 ? NULL : this->end; \
-    return _insert_before_##TYPE(this, ptr, value);\
-}\
-\
-\
-/*Remove the given ptr [WARN: In general this is very expensive], return an to the next item in the list */\
-static TYPE* _remove_##TYPE(ch_array_##TYPE##_t* this, TYPE* ptr)\
-{\
-\
-    if(unlikely(this->first == this->end)){\
-        printf("Array list is emptyn");\
-        return NULL;\
-    }\
-\
-    if(unlikely(ptr < this->_array_backing)){\
-        printf("ptr supplied is out of range. Too small.\n");\
-        return NULL;\
-    }\
-\
-    if(unlikely(ptr > this->last)){\
-        printf("ptr supplied is out of range. Too big.\n");\
-        return NULL;\
-    }\
-\
-    /*Slow (but likely), keep the fast path fast*/\
-    if(unlikely(ptr != this->last)){\
-/*\
-        printf("ptr:%p[%li], first:%p[%li], last:%p[%li], end:%p:[%li] (%lu)\n",\
-                (void*)ptr, ptr - this->first,\
-                (void*)this->first, this->first - this->first,\
-                (void*)this->last, this->last - this->first,\
-                (void*)this->end, this->end - this->first,\
-                (this->last) - (ptr));\
-*/\
-        memmove(ptr, ptr + 1, (this->last) - (ptr) );\
-    }\
-\
-    this->_array_backing_count--;\
-    this->count--;\
-\
-\
-    if(unlikely(this->_array_backing_count == 0)){\
-        this->last  = this->_array_backing;\
-        this->first = this->_array_backing;\
-        this->end   = this->_array_backing;\
-        ptr = NULL;\
-    }\
-    else{\
-        this->last--;\
-        this->end--;\
-    }\
-\
-    return ptr;\
-}\
-\
 \
 static void _delete_##TYPE(ch_array_##TYPE##_t* this)\
 {\
@@ -421,18 +316,10 @@ static void _delete_##TYPE(ch_array_##TYPE##_t* this)\
 \
 \
 /*Assign at most size elements from the C array*/\
-static TYPE* _push_back_carray_##TYPE(ch_array_##TYPE##_t* this, TYPE* carray, ch_word count)\
+static TYPE* _from_carray_##TYPE(ch_array_##TYPE##_t* this, TYPE* carray, ch_word count)\
 {\
-    if(this->_array_backing_size - this->_array_backing_count < count){\
-        const ch_word new_size = this->_array_backing_size ? this->_array_backing_size * 2 : next_pow2(count);\
-        _resize_##TYPE(this,new_size);\
-    }\
-\
-    memcpy(this->end, carray, count * sizeof(TYPE) );\
-    this->_array_backing_count += count;\
-    this->count = this->_array_backing_count;\
-    this->last += count;\
-    this->end = this->last + 1;\
+    count = MIN(count,this->_array_backing_size);\
+    memcpy(this->first, carray,  count * sizeof(TYPE) );\
 \
     return this->last;\
 }\
@@ -461,11 +348,10 @@ ch_array_##TYPE##_t* ch_array_##TYPE##_new(ch_word size, ch_word (*cmp)(TYPE lhs
 \
     /*We have memory to play with, now do all the other assignments*/\
     result->_array_backing_size     = size;\
-    result->_array_backing_count    = 0;\
     result->_cmp                    = cmp;\
     result->first                   = result->_array_backing;\
-    result->last                    = result->_array_backing;\
-    result->end                     = result->_array_backing;\
+    result->last                    = result->first ? result->_array_backing + size -1 : NULL;\
+    result->end                     = result->first ? result->last + 1 : NULL;\
     result->size                    = result->_array_backing_size;\
     result->resize                  = _resize_##TYPE;\
     result->eq                      = _eq_##TYPE;\
@@ -477,9 +363,12 @@ ch_array_##TYPE##_t* ch_array_##TYPE##_new(ch_word size, ch_word (*cmp)(TYPE lhs
     result->find                    = _find_##TYPE;\
     result->sort                    = _sort_##TYPE;\
     result->sort_reverse            = _sort_reverse_##TYPE;\
-    result->remove                  = _remove_##TYPE;\
     result->from_carray             = _from_carray_##TYPE;\
     result->delete                  = _delete_##TYPE;\
 \
     return result;\
 }
+
+
+#endif /* ARRAY_DEFINE_TEMPLATE_H_ */
+

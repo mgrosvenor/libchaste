@@ -16,5 +16,5 @@
 set -x
 F="-Ideps -D_XOPEN_SOURCE=700 -D_BSD_SOURCE -std=c99 -Werror -Wall -Wextra -pedantic -Wno-missing-field-initializers"
 
-deps/cake/cake demos/*.c --append-CFLAGS="$F" $@
+deps/cake/cake libch.c --append-CFLAGS="$F" $@ --begintests  tests/*.c --endtests
 

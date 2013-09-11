@@ -6,14 +6,29 @@
  */
 
 
-#include "array_list_define_tempate.h"
+#include "array_define_tempate.h"
 
-
-define_ch_array_list(test_t)
-define_ch_array_list(int)
-define_ch_array_list(short)
-define_ch_array_list(long)
-define_ch_array_list(char)
-define_ch_array_list(float)
-define_ch_array_list(double)
-define_ch_array_list(i64)
+//
+//
+//define_ch_array(int)
+//define_ch_array(short)
+//define_ch_array(long)
+//define_ch_array(char)
+//define_ch_array(float)
+//define_ch_array(double)
+//
+//
+//define_ch_array(u8)
+//define_ch_array(u16)
+//define_ch_array(u32)
+//define_ch_array(u64)
+//
+//define_ch_array(i8)
+//define_ch_array(i16)
+//define_ch_array(i32)
+//define_ch_array(i64)
+//
+//define_ch_array(ch_machine)
+define_ch_array(ch_word)
+//define_ch_array(ch_char)
+//define_ch_array(ch_bool)

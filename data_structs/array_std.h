@@ -8,18 +8,27 @@
 #include <stdint.h>
 #include "array_declare_template.h"
 
-typedef struct { ch_word x; ch_word y; } test_t;
-
-declare_ch_array(test_t);
-declare_ch_array(int);
-declare_ch_array(short);
-declare_ch_array(long);
-declare_ch_array(char);
-declare_ch_array(float);
-declare_ch_array(double);
-declare_ch_array(i64);
-
-
+//declare_ch_array(int);
+//declare_ch_array(short);
+//declare_ch_array(long);
+//declare_ch_array(char);
+//declare_ch_array(float);
+//declare_ch_array(double);
+//
+//declare_ch_array(u8);
+//declare_ch_array(u16);
+//declare_ch_array(u32);
+//declare_ch_array(u64);
+//
+//declare_ch_array(i8);
+//declare_ch_array(i16);
+//declare_ch_array(i32);
+//declare_ch_array(i64);
+//
+//declare_ch_array(ch_machine);
+declare_ch_array(ch_word);
+//declare_ch_array(ch_char);
+//declare_ch_array(ch_bool);
 
 
 

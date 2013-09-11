@@ -2,6 +2,10 @@
 // Copyright (C) 2013: Matthew P. Grosvenor (matthew.grosvenor@cl.cam.ac.uk)
 // Licensed under BSD 3 Clause, please see LICENSE for more details.
 
+
+#ifndef ARRAY_LIST_DEFINE_TEMPLATE_H_
+#define ARRAY_LIST_DEFINE_TEMPLATE_H_
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -44,7 +48,7 @@ static void _resize_##TYPE(ch_array_list_##TYPE##_t* this, ch_word new_size)\
 \
 \
 /*Check for equality between two array lists*/\
-ch_word _eq_##TYPE(ch_array_list_##TYPE##_t* this, ch_array_list_##TYPE##_t* that)\
+static ch_word _eq_##TYPE(ch_array_list_##TYPE##_t* this, ch_array_list_##TYPE##_t* that)\
 {\
 \
     if(this->_array_backing_count != that->_array_backing_count){\
@@ -53,7 +57,7 @@ ch_word _eq_##TYPE(ch_array_list_##TYPE##_t* this, ch_array_list_##TYPE##_t* tha
 \
     TYPE* i = this->first; \
     TYPE* j = that->first; \
-    for(; i < this->end && j < this->end; i = this->next(this, i), j = that->next(that, j)){\
+    for(; i < this->end && j < that->end; i = this->next(this, i), j = that->next(that, j)){\
         if( this->_cmp(*i,*j) ){\
             return 0;\
         }\
@@ -488,3 +492,6 @@ ch_array_list_##TYPE##_t* ch_array_list_##TYPE##_new(ch_word size, ch_word (*cmp
 \
     return result;\
 }
+
+#endif /* ARRAY_LIST_DEFINE_TEMPLATE_H_ */
+
