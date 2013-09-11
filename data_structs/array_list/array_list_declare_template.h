@@ -5,7 +5,7 @@
 #ifndef ARRAY_LIST_DECLARE_TEMPLATE_H_
 #define ARRAY_LIST_DECLARE_TEMPLATE_H_
 
-#include "../types/types.h"
+#include "../../types/types.h"
 
 
 #define declare_ch_array_list(TYPE) \

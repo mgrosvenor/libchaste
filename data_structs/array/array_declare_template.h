@@ -5,7 +5,7 @@
 #ifndef ARRAY_DECLARE_TEMPLATE_H_
 #define ARRAY_DECLARE_TEMPLATE_H_
 
-#include "../types/types.h"
+#include "../../types/types.h"
 
 
 #define declare_ch_array(TYPE) \

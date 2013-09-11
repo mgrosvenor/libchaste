@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-#include "../types/types.h"
+#include "../../types/types.h"
 #include "array_list_declare_template.h"
 
 declare_ch_array_list(int);

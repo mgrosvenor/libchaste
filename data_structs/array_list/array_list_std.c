@@ -5,7 +5,7 @@
  *      Author: mpg39
  */
 
-#include "../types/types.h"
+#include "../..//types/types.h"
 #include "array_list_define_tempate.h"
 
 define_ch_array_list(int)

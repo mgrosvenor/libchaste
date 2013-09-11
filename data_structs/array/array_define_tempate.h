@@ -12,8 +12,8 @@
 #include "array_std.h"
 //#include "../log/log.h"
 
-#include "../types/types.h"
-#include "../utils/util.h"
+#include "../../types/types.h"
+#include "../../utils/util.h"
 
 #define _LAST(a) (a + this->_array_backing_size -1)
 

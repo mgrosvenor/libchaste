@@ -15,8 +15,9 @@
 //#include "deps/libbstring/bstrlib.h"
 //#include "deps/libcgen/vector.h"
 
-#include "data_structs/array_std.h"
-#include "data_structs/array_list_std.h"
+#include "data_structs/array/array_std.h"
+#include "data_structs/vector/vector_std.h"
+#include "data_structs/array_list/array_list_std.h"
 
 
 
