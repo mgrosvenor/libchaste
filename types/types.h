@@ -28,7 +28,8 @@ typedef int64_t     i64; //Try to avoid this, use ch_word.
 
 //CH Library Preferred Types
 typedef size_t  ch_machine; //Use this sparingly, only when it really matters that the int size is the same as the machine size
-typedef u8      ch_char;
+typedef i8      ch_char;
+typedef u8      ch_byte;
 typedef i64     ch_word; //Singed int chosen specifically to avoid underrun and signed/unsigned comparisons
 typedef bool    ch_bool; //Give the compiler tons of freedom to decide what to do here
 
