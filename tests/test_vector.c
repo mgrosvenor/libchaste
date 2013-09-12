@@ -2,7 +2,7 @@
 // Copyright (C) 2013: Matthew P. Grosvenor (matthew.grosvenor@cl.cam.ac.uk) 
 // Licensed under BSD 3 Clause, please see LICENSE for more details. 
 
-#include "../data_structs/vector/vector_typed.h"
+#include "../data_structs/vector/vector_std.h"
 #include "../utils/util.h"
 
 #include <stdio.h>
