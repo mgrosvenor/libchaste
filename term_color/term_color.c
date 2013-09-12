@@ -6,10 +6,12 @@
  */
 
 
+#include "../string/string.h"
 #include "term_color.h"
 
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 
 //Print to a file descriptor a colored formatted string
@@ -17,30 +19,31 @@
 int dprintf_color_va(int fd, ch_colour_t color, ch_str format, va_list va)
 {
 
-    ch_str result = bfromcstr("");
+    ch_str result = CH_STR_LIT_HEAP("",1024);
 
     //Only print colors if we're talking to a TTY
     //Set the colour/attributes
     if(isatty(fd)){
-        bcatcstr(result,color);
+        CH_STR_CAT_STACK(result,color);
     }
 
 
     //Format the text -- the bvformata is broken and I don't have time to figure out why
-    const ch_word size = 2048;
-    ch_str text = bfromcstralloc(size,"");
-    vsnprintf(cstr(text),size,cstr(format),va);
-    text->slen = size;
-    bconcat(result,text);
-    bstrFree(text);
+    ch_word size = 2048;
+    ch_str text = CH_STR_LIT_HEAP("", size);
+    size = vsnprintf(CH_CSTR(text),size,CH_CSTR(format),va);
+    text.slen = size;
+    CH_STR_CAT_STACK(result,text);
+    CH_STR_FREE(text);
 
     //Reset since we're done with the colour for the moment
     if(isatty(fd)){
-        bcatcstr(result,CH_TERM_COL_NONE);
+        ch_str reset = CH_STR_CONST_LIT(CH_TERM_COL_NONE);
+        CH_STR_CAT_STACK(result, reset);
     }
 
     //Output to file descriptor
-    return write(fd,cstr(result), result->slen);
+    return write(fd, CH_CSTR(result), result.slen);
 
 }
 

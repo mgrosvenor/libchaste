@@ -75,7 +75,7 @@
 #define CH_TERM_COL_EMPH_YELLOW  CH_TERM_COLOR_ATTR(CH_TERM_COL_RAW_YELLOW, CH_TERM_ATTR_RAW_UNDERLINE)
 
 
-typedef char* ch_colour_t;
+typedef ch_str ch_colour_t;
 
 int dprintf_color_va(int fd, ch_colour_t color, ch_str format, va_list va);
 int dprintf_color(int fd, ch_colour_t color, ch_str format, ...);
