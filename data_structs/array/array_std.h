@@ -20,4 +20,10 @@ declare_array(u32)
 declare_array(u16)
 declare_array(u8)
 
+
+declare_array(ch_machine)
+declare_array(ch_word)
+declare_array(ch_byte)
+declare_array(ch_char)
+
 #endif /* ARRAY_STD_H_ */

@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define _LAST ( array_forward(this,this->_array_backing, this->_array_backing_size -1))
+#define _LAST ( _array_forward_unsafe(this,this->_array_backing, this->_array_backing_size -1))
 
 
 //These are for use when we are still initilising everything. Do not use generally
@@ -28,6 +28,7 @@ void* array_forward(ch_array_t* this, void* ptr, ch_word amount)
         return (ch_byte*)ptr + (amount * this->_element_size);
     }
 
+    printf("Array forward catch\n");
     return ptr;
 }
 
@@ -37,6 +38,7 @@ void* array_back(ch_array_t* this, void* ptr, ch_word amount)
         return (ch_byte*)ptr - amount * this->_element_size;
     }
 
+    printf("Array backward catch\n");
     return ptr;
 }
 
@@ -73,7 +75,7 @@ void array_resize(ch_array_t* this, ch_word new_size)
     else{
         this->first            = this->_array_backing;
         this->last             = _LAST;
-        this->end              = array_next(this,this->last);
+        this->end              = _array_next_unsafe(this,this->last);
     }
 
 }

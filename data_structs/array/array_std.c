@@ -19,3 +19,8 @@ define_array(u64)
 define_array(u32)
 define_array(u16)
 define_array(u8)
+
+define_array(ch_machine)
+define_array(ch_word)
+define_array(ch_byte)
+define_array(ch_char)
