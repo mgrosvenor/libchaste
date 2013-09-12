@@ -8,7 +8,8 @@ found = 0
 
 for line in open(sys.argv[1]):
     if not found :
-        if line.find("#define define") >= 0:
+        if line.find("#define define") >= 0 or line.find("#define declare") >= 0:
+            
             found = 1
         else:
             out.write(line)
