@@ -110,23 +110,23 @@ ch_str ch_str_trunc(ch_str* lhs, ch_word count)
 
 
 
-//Concatenate two strings
-ch_str ch_str_cat(ch_str* lhs, ch_str* rhs)
+//Concatenate rhs onto lhs.
+ch_str ch_str_cat(ch_str* lhs, ch_str rhs)
 {
     ch_str_sanitize(lhs);
-    ch_str_sanitize(rhs);
+    ch_str_sanitize(&rhs);
 
     //Quick exits
-    if(rhs->slen == 0){
+    if(rhs.slen == 0){
         return *lhs;
     }
 
-    if(lhs->slen == 0 && rhs->slen == 0){
+    if(lhs->slen == 0 && rhs.slen == 0){
         return *lhs;
     }
 
 
-    const i64 result_size = lhs->slen + rhs->slen + 1;
+    const i64 result_size = lhs->slen + rhs.slen + 1;
 
     ch_str* result = NULL;
 
@@ -145,36 +145,14 @@ ch_str ch_str_cat(ch_str* lhs, ch_str* rhs)
 
     //Can simply cat, RHS onto the back of LHS at this point.
     if(result){
-        memcpy(&lhs->cstr[lhs->slen], rhs->cstr, rhs->slen);
+        memcpy(&lhs->cstr[lhs->slen], rhs.cstr, rhs.slen);
         lhs->cstr[result_size] = '\0'; //Make sure we are null terminated
         lhs->cstr[lhs->mlen] = '\0'; //Make sure the whole memory is also null term'd
-        lhs->slen = lhs->slen + rhs->slen;
+        lhs->slen = lhs->slen + rhs.slen;
         //Woot! All done.
         return *lhs;
     }
 
-
-    if(rhs->is_const == 0 && rhs->mlen - rhs->slen >= result_size){ //There is enough memory already
-        result = rhs;
-    }
-    else{
-        if(!ch_str_resize(rhs, result_size)){
-            //Woot resized!
-            result = rhs;
-        }
-        //lame couldn't resize the RHS too!
-    }
-
-    //This is a little more tricky, need to more things around
-    if(result){
-        memmove(&rhs->cstr[lhs->slen], rhs->cstr, rhs->slen);
-        memcpy(&rhs->cstr[0], lhs->cstr, lhs->slen);
-        rhs->cstr[result_size] = '\0'; //Make sure we are null terminated
-        rhs->cstr[rhs->mlen] = '\0'; //Make sure the whole memory is also null term'd
-        rhs->slen = lhs->slen + rhs->slen;
-        //Woot! All done.
-        return *rhs;
-    }
 
     //If we've got to this point, we need to alloc some new memory for all of this.
     ch_str result_new = ch_str_new(lhs->cstr,result_size, 0);
@@ -187,14 +165,14 @@ ch_str ch_str_cat(ch_str* lhs, ch_str* rhs)
 ch_str ch_str_cat_cstr(ch_str* lhs, const char* cstr)
 {
     ch_str ch_str_rhs = CH_STR_CONST_LIT(cstr);
-    return ch_str_cat(lhs, &ch_str_rhs);
+    return ch_str_cat(lhs, ch_str_rhs);
 }
 
 
 ch_str ch_str_cat_char(ch_str* lhs, const char ch)
 {
     ch_str ch_str_rhs = ch_str_new(&ch,2,1);
-    return ch_str_cat(lhs, &ch_str_rhs);
+    return ch_str_cat(lhs, ch_str_rhs);
 }
 
 

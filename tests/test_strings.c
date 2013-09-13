@@ -204,20 +204,20 @@ ch_word test9()
     CH_ASSERT_STR_INVARIANTS(str2);
 
 
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str1,&str2), str1) );
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str1,&str2), str2) );
+    CH_ASSERT( ch_str_eq( ch_str_cat(&str1,str2), str1) );
+    CH_ASSERT( ch_str_eq( ch_str_cat(&str1,str2), str2) );
 
     CH_ASSERT_STR_INVARIANTS(str1);
     CH_ASSERT_STR_INVARIANTS(str2);
 
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str2,&str1), str1) );
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str2,&str1), str2) );
+    CH_ASSERT( ch_str_eq( ch_str_cat(&str2,str1), str1) );
+    CH_ASSERT( ch_str_eq( ch_str_cat(&str2,str1), str2) );
 
     CH_ASSERT_STR_INVARIANTS(str1);
     CH_ASSERT_STR_INVARIANTS(str2);
 
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str1,&str1), str1) );
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str2,&str2), str2) );
+    CH_ASSERT( ch_str_eq( ch_str_cat(&str1,str1), str1) );
+    CH_ASSERT( ch_str_eq( ch_str_cat(&str2,str2), str2) );
 
     CH_ASSERT_STR_INVARIANTS(str1);
     CH_ASSERT_STR_INVARIANTS(str2);
@@ -244,7 +244,7 @@ ch_word test10()
     CH_ASSERT_STR_INVARIANTS(ans2);
     CH_ASSERT_STR_INVARIANTS(ans3);
 
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str1,&str2), ans1) );
+    CH_ASSERT( ch_str_eq( ch_str_cat(&str1,str2), ans1) );
 
     CH_ASSERT_STR_INVARIANTS(str1);
     CH_ASSERT_STR_INVARIANTS(str2);
@@ -252,7 +252,7 @@ ch_word test10()
     CH_ASSERT_STR_INVARIANTS(ans2);
     CH_ASSERT_STR_INVARIANTS(ans3);
 
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str2,&str1), ans2) );
+    CH_ASSERT( ch_str_eq( ch_str_cat(&str2,str1), ans2) );
 
     CH_ASSERT_STR_INVARIANTS(str1);
     CH_ASSERT_STR_INVARIANTS(str2);
@@ -260,7 +260,7 @@ ch_word test10()
     CH_ASSERT_STR_INVARIANTS(ans2);
     CH_ASSERT_STR_INVARIANTS(ans3);
 
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str1,&str1), ans3) );
+    CH_ASSERT( ch_str_eq( ch_str_cat(&str1,str1), ans3) );
 
     CH_ASSERT_STR_INVARIANTS(str1);
     CH_ASSERT_STR_INVARIANTS(str2);
@@ -268,7 +268,7 @@ ch_word test10()
     CH_ASSERT_STR_INVARIANTS(ans2);
     CH_ASSERT_STR_INVARIANTS(ans3);
 
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str2,&str2), ans4) );
+    CH_ASSERT( ch_str_eq( ch_str_cat(&str2,str2), ans4) );
 
     CH_ASSERT_STR_INVARIANTS(str1);
     CH_ASSERT_STR_INVARIANTS(str2);
