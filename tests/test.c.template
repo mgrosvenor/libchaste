@@ -1,0 +1,27 @@
+
+#include "../string/string.h"
+
+#include "../types/types.h"
+#include <stdio.h>
+
+
+
+ch_word test1()
+{
+    ch_word result = 1;
+    return result;
+}
+
+
+int main(int argc, char** argv)
+{
+    (void)argc;
+    (void)argv;
+
+    ch_word test_pass = 0;
+    printf("CH String Test 01: ");  printf("%s", (test_pass = test1()) ? "PASS\n" : "FAIL\n"); if(!test_pass) return 1;
+
+
+
+    return 0;
+}

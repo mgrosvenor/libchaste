@@ -15,6 +15,7 @@
 #include "../types/types.h"
 #include "../timing/timestamp.h"
 #include "../term_color/term_color.h"
+#include "../string/string.h"
 
 
 //Suck in the log settings structure from "somewhere"...
@@ -60,13 +61,16 @@ ch_word _ch_log_out_va_write(ch_word level, const ch_str format, va_list args)
 
                     if(ch_log_settings.fd == -1 ){
                         ch_str timestamp = generate_iso_timestamp(ch_log_settings.use_utc,ch_log_settings.subsec_digits, ch_log_settings.incl_timezone);
+                        ch_str error_txt = CH_STR_STACK("", 128);
+                        strerror_r(errno,error_txt.cstr, error_txt.mlen);
                         dprintf(STDERR_FILENO, "[%s][Error][%s:%u]: Could not open file \"%s\". Error returned is \"%s\", reverting to stderr\n",
                                 timestamp.cstr,
                                 __FILE__,
                                 __LINE__,
                                 ch_log_settings.filename,
-                                strerror_r(errno));
-                        bstrFree(timestamp);
+                                error_txt.cstr
+                                );
+                        CH_STR_FREE(timestamp);
                         ch_log_settings.fd = STDERR_FILENO;
                     }
                 }
@@ -77,7 +81,7 @@ ch_word _ch_log_out_va_write(ch_word level, const ch_str format, va_list args)
                     return dprintf_color_va(ch_log_settings.fd,ch_log_settings.lvl_config[level].color,format,args);
                 }
                 else{
-                    return vdprintf(ch_log_settings.fd,cstr(format),args);
+                    return vdprintf(ch_log_settings.fd,CH_STR_CSTR(format),args);
                 }
 
 
@@ -92,7 +96,7 @@ ch_word _ch_log_out_va_write(ch_word level, const ch_str format, va_list args)
                     ch_log_settings.fd = 0; //Dummy this in so we don't init everytime
                 }
 
-                vsyslog(ch_log_to_syslog_lvls[level],cstr(format),args);
+                vsyslog(ch_log_to_syslog_lvls[level],CH_STR_CSTR(format),args);
                 return 0;
             }
 
@@ -100,11 +104,11 @@ ch_word _ch_log_out_va_write(ch_word level, const ch_str format, va_list args)
             default:{
                 ch_str timestamp = generate_iso_timestamp(ch_log_settings.use_utc,ch_log_settings.subsec_digits, ch_log_settings.incl_timezone);
                 dprintf(STDERR_FILENO, "[%s][Error][%s:%u]: Unknown log output type \"%u\", reverting to stderr\n",
-                        cstr(timestamp),
+                        CH_STR_CSTR(timestamp),
                         __FILE__,
                         __LINE__,
                         ch_log_settings.output_mode );
-                bstrFree(timestamp);
+                CH_STR_FREE(timestamp);
             }
         }
     }
@@ -125,22 +129,22 @@ ch_word _ch_log_out_va_(
         return 0; //Early exit for logs we don't want
     }
 
-    ch_str final_format = bfromcstralloc(512, ""); //This should keep reallocs to a minimum
+    ch_str final_format = CH_STR("", 512); //This should keep reallocs to a minimum
 
     if(ch_log_settings.lvl_config[level].timestamp){
-        bconchar(final_format,'[');
+        CH_STR_CAT_CHAR(final_format,'[');
         ch_str timestamp = generate_iso_timestamp(ch_log_settings.use_utc,ch_log_settings.subsec_digits, ch_log_settings.incl_timezone);
-        bconcat(final_format,timestamp);
-        bstrFree(timestamp);
-        bconchar(final_format,']');
+        CH_STR_CAT(final_format,timestamp);
+        CH_STR_FREE(timestamp);
+        CH_STR_CAT_CHAR(final_format,']');
     }
 
     if(ch_log_settings.lvl_config[level].text){
-        bformata(final_format, "[%s]", ch_log_settings.lvl_config[level].text);
+        CH_STR_LEN(final_format) = snprintf(CH_STR_CSTR(final_format), CH_STR_AVAIL(final_format), "[%s]", ch_log_settings.lvl_config[level].text);
     }
 
     if(ch_log_settings.lvl_config[level].source){
-        bformata(final_format, "(%s:%u)", filename, line_num);
+        CH_STR_LEN(final_format) = snprintf( CH_STR_CSTR(final_format), CH_STR_AVAIL(final_format), "(%s:%li)", filename, line_num);
     }
 
 
@@ -148,15 +152,15 @@ ch_word _ch_log_out_va_(
     if(ch_log_settings.lvl_config[level].source      ||
        ch_log_settings.lvl_config[level].timestamp   ||
        ch_log_settings.lvl_config[level].text        ){
-        bcatcstr(final_format,": ");
+        CH_STR_CAT_CSTR(final_format,": ");
     }
 
-    bcatcstr(final_format, format);
+    CH_STR_CAT_CSTR(final_format, format);
 
     //Do the final write out
     _ch_log_out_va_write(level,final_format,args);
 
-    bstrFree(final_format);
+    CH_STR_FREE(final_format);
 
     //Make fatal logs, actually fatal
     if(level == CH_LOG_LVL_FATAL){

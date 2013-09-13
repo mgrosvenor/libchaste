@@ -37,7 +37,6 @@ typedef bool    ch_bool; //Give the compiler tons of freedom to decide what to d
 typedef struct {
     char* cstr; //Can be NULL or point to a const or non-const memory area
     int is_const; //Can be -1 (unknown), 0 (can call free) or 1 (cannot call free)
-    int is_stack; //Can be -1 (unknown), 0 (not stack allocated) or 1 (stack allocated)
     i64 slen; //A valid string len is always -1 (unknown), or < mlen
     i64 mlen; //A valid memory len is always -1 (unknown), or > slen
 } ch_str;

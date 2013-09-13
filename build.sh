@@ -14,7 +14,9 @@
 #-std=c11 We use anonymous unions and alligned_alloc
 
 set -x
-F="-Ideps -D_XOPEN_SOURCE=700 -D_BSD_SOURCE -std=c99 -Werror -Wall -Wextra -pedantic -Wno-missing-field-initializers"
 
-deps/cake/cake libch.c --append-CFLAGS="$F" $@ --begintests  tests/*.c --endtests
+CFLAGS="-Ideps -D_XOPEN_SOURCE=700 -D_BSD_SOURCE -std=c99 -Werror -Wall -Wextra -pedantic -Wno-missing-field-initializers"
+LINKFLAGS="-lrt"
+
+deps/cake/cake libch.c --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@ --begintests  tests/*.c --endtests
 

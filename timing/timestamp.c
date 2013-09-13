@@ -6,8 +6,11 @@
  */
 
 #include "timestamp.h"
+#include "../string/string.h"
 
 #include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 
 
@@ -31,31 +34,32 @@ ch_str generate_iso_timestamp(ch_bool use_gmt, ch_word subseconds, ch_bool incl_
     }
 
     //Create a string containing the timestamp major part
-    ch_str time_major = bStrfTime("%Y%m%dT%H%M%S",timeinfo);
+    ch_str time_major = CH_STR("",256);
+    CH_STR_LEN(time_major) = strftime( CH_STR_CSTR(time_major), CH_STR_AVAIL(time_major), "%Y%m%dT%H%M%S",timeinfo);
 
 
     //Create the subseconds timestamp component with variable accuracy
-    ch_str time_minor = NULL;
+    ch_str time_minor = CH_STR("",256);
     if(subseconds > 0){
-        time_minor = bformat(".%li", ts.tv_nsec);
-        bassignmidstr(time_minor,time_minor,0,subseconds +1);
+        CH_STR_LEN(time_minor) = snprintf(CH_STR_CSTR(time_minor), CH_STR_LEN(time_minor),".%li", ts.tv_nsec);
+        ch_str_trunc(time_minor,subseconds +1);
     }
 
     //Add the timezone offset to GMT
-    ch_str time_offset = bfromcstr("");
+    ch_str time_offset = CH_STR("", 256);
     if(incl_tz_offset){
-        time_offset = bStrfTime("%z",timeinfo);
+        CH_STR_LEN(time_offset) = strftime(CH_STR_CSTR(time_offset), CH_STR_LEN(time_offset), "%z",timeinfo );
     }
 
-    ch_str iso_time_out = bfromcstr("");
-    bconcat(iso_time_out, time_major);
-    bstrFree(time_major); //Now done with time major
+    ch_str iso_time_out = CH_STR("", 256);
+    CH_STR_CAT(iso_time_out, time_major);
+    CH_STR_FREE(time_major); //Now done with time major
 
-    bconcat(iso_time_out,time_minor);
-    bstrFree(time_minor); //Now done with time_minor
+    CH_STR_CAT(iso_time_out,time_minor);
+    CH_STR_FREE(time_minor); //Now done with time_minor
 
-    bconcat(iso_time_out,time_offset);
-    bstrFree(time_offset); //Now done with time major
+    CH_STR_CAT(iso_time_out,time_offset);
+    CH_STR_FREE(time_offset); //Now done with time major
 
     return iso_time_out; //The caller is responsible for calling free
 

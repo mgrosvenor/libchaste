@@ -7,6 +7,7 @@
 #include <stdarg.h>
 
 #include "../types/types.h"
+#include "../string/string.h"
 
 
 #ifndef CH_TERM_COLORS_H_
@@ -32,9 +33,9 @@
 #define CH_TERM_COL_RAW_WHITE       "7"
 
 //Private definitions, don't use directly
-#define CH_TERM_COLOR(col) "\x1B[3"col"m"
-#define CH_TERM_COLOR_ATTR(col,attr) "\x1B["attr";3"col"m"
-#define CH_TERM_ATTR(attr) "\x1B["attr"m"
+#define CH_TERM_COLOR(col)              CH_STR_CONST_LIT("\x1B[3"col"m")
+#define CH_TERM_COLOR_ATTR(col,attr)    CH_STR_CONST_LIT("\x1B["attr";3"col"m")
+#define CH_TERM_ATTR(attr)              CH_STR_CONST_LIT("\x1B["attr"m")
 
 //Colors to be used by users - Please use directly!
 #define CH_TERM_COL_NONE    CH_TERM_ATTR(CH_TERM_ATTR_RAW_RESET)
