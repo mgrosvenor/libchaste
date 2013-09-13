@@ -146,8 +146,8 @@ ch_str ch_str_cat(ch_str* lhs, ch_str rhs)
     //Can simply cat, RHS onto the back of LHS at this point.
     if(result){
         memcpy(&lhs->cstr[lhs->slen], rhs.cstr, rhs.slen);
-        lhs->cstr[result_size] = '\0'; //Make sure we are null terminated
-        lhs->cstr[lhs->mlen] = '\0'; //Make sure the whole memory is also null term'd
+        lhs->cstr[result_size - 1 ] = '\0'; //Make sure we are null terminated
+        lhs->cstr[lhs->mlen - 1] = '\0'; //Make sure the whole memory is also null term'd
         lhs->slen = lhs->slen + rhs.slen;
         //Woot! All done.
         return *lhs;
@@ -190,7 +190,7 @@ ch_word ch_str_eq(ch_str lhs, ch_str rhs)
 }
 
 
-static void ch_str_free_(ch_str* s){
+void ch_str_free(ch_str* s){
     if(s->is_const == 0){
         free(s->cstr);
 
@@ -199,10 +199,3 @@ static void ch_str_free_(ch_str* s){
         s->slen = -1;
     }
 }
-
-
-ch_str ch_str_free(ch_str* s){
-   ch_str_free_(s);
-   return *s;
-}
-

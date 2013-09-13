@@ -42,7 +42,7 @@ ch_str generate_iso_timestamp(ch_bool use_gmt, ch_word subseconds, ch_bool incl_
     ch_str time_minor = CH_STR("",256);
     if(subseconds > 0){
         CH_STR_LEN(time_minor) = snprintf(CH_STR_CSTR(time_minor), CH_STR_LEN(time_minor),".%li", ts.tv_nsec);
-        ch_str_trunc(time_minor,subseconds +1);
+        ch_str_trunc(&time_minor,subseconds +1);
     }
 
     //Add the timezone offset to GMT
@@ -52,14 +52,14 @@ ch_str generate_iso_timestamp(ch_bool use_gmt, ch_word subseconds, ch_bool incl_
     }
 
     ch_str iso_time_out = CH_STR("", 256);
-    CH_STR_CAT(iso_time_out, time_major);
-    CH_STR_FREE(time_major); //Now done with time major
+    iso_time_out = CH_STR_CAT(&iso_time_out, time_major);
+    ch_str_free(&time_major); //Now done with time major
 
-    CH_STR_CAT(iso_time_out,time_minor);
-    CH_STR_FREE(time_minor); //Now done with time_minor
+    iso_time_out = CH_STR_CAT(&iso_time_out,time_minor);
+    ch_str_free(&time_minor); //Now done with time_minor
 
-    CH_STR_CAT(iso_time_out,time_offset);
-    CH_STR_FREE(time_offset); //Now done with time major
+    iso_time_out = CH_STR_CAT(&iso_time_out,time_offset);
+    ch_str_free(&time_offset); //Now done with time major
 
     return iso_time_out; //The caller is responsible for calling free
 

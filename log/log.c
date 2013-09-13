@@ -61,7 +61,7 @@ ch_word _ch_log_out_va_write(ch_word level, const ch_str format, va_list args)
 
                     if(ch_log_settings.fd == -1 ){
                         ch_str timestamp = generate_iso_timestamp(ch_log_settings.use_utc,ch_log_settings.subsec_digits, ch_log_settings.incl_timezone);
-                        ch_str error_txt = CH_STR_STACK("", 128);
+                        ch_str error_txt = CH_STR("", 128);
                         strerror_r(errno,error_txt.cstr, error_txt.mlen);
                         dprintf(STDERR_FILENO, "[%s][Error][%s:%u]: Could not open file \"%s\". Error returned is \"%s\", reverting to stderr\n",
                                 timestamp.cstr,
@@ -70,7 +70,8 @@ ch_word _ch_log_out_va_write(ch_word level, const ch_str format, va_list args)
                                 ch_log_settings.filename,
                                 error_txt.cstr
                                 );
-                        CH_STR_FREE(timestamp);
+                        ch_str_free(&timestamp);
+                        ch_str_free(&error_txt);
                         ch_log_settings.fd = STDERR_FILENO;
                     }
                 }
@@ -108,7 +109,7 @@ ch_word _ch_log_out_va_write(ch_word level, const ch_str format, va_list args)
                         __FILE__,
                         __LINE__,
                         ch_log_settings.output_mode );
-                CH_STR_FREE(timestamp);
+                ch_str_free(&timestamp);
             }
         }
     }
@@ -132,11 +133,11 @@ ch_word _ch_log_out_va_(
     ch_str final_format = CH_STR("", 512); //This should keep reallocs to a minimum
 
     if(ch_log_settings.lvl_config[level].timestamp){
-        CH_STR_CAT_CHAR(final_format,'[');
+        CH_STR_CAT_CHAR(&final_format,'[');
         ch_str timestamp = generate_iso_timestamp(ch_log_settings.use_utc,ch_log_settings.subsec_digits, ch_log_settings.incl_timezone);
-        CH_STR_CAT(final_format,timestamp);
-        CH_STR_FREE(timestamp);
-        CH_STR_CAT_CHAR(final_format,']');
+        CH_STR_CAT(&final_format,timestamp);
+        ch_str_free(&timestamp);
+        CH_STR_CAT_CHAR(&final_format,']');
     }
 
     if(ch_log_settings.lvl_config[level].text){
@@ -152,15 +153,15 @@ ch_word _ch_log_out_va_(
     if(ch_log_settings.lvl_config[level].source      ||
        ch_log_settings.lvl_config[level].timestamp   ||
        ch_log_settings.lvl_config[level].text        ){
-        CH_STR_CAT_CSTR(final_format,": ");
+        CH_STR_CAT_CSTR(&final_format,": ");
     }
 
-    CH_STR_CAT_CSTR(final_format, format);
+    CH_STR_CAT_CSTR(&final_format, format);
 
     //Do the final write out
     _ch_log_out_va_write(level,final_format,args);
 
-    CH_STR_FREE(final_format);
+    ch_str_free(&final_format);
 
     //Make fatal logs, actually fatal
     if(level == CH_LOG_LVL_FATAL){

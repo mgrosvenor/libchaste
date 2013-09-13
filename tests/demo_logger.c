@@ -34,7 +34,7 @@ int main(int argc, char** argv)
         ch_log_debug3("Debug 3 text here - %u\n", i);
     }
 
-    ch_log_fatal("Fatal error text here %u\n", i);
+    //ch_log_fatal("Fatal error text here %u\n", i);
 
     return 0;
 }

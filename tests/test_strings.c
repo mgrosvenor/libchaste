@@ -222,6 +222,8 @@ ch_word test9()
     CH_ASSERT_STR_INVARIANTS(str1);
     CH_ASSERT_STR_INVARIANTS(str2);
 
+    ch_str_free(&str1);
+
     return result;
 }
 
@@ -235,7 +237,7 @@ ch_word test10()
 
     ch_str ans1 = CH_STR_CONST_LIT("TESTstring\n");
     ch_str ans2 = CH_STR_CONST_LIT("string\nTEST");
-    ch_str ans3 = CH_STR_CONST_LIT("TESTTEST");
+    ch_str ans3 = CH_STR_CONST_LIT("TESTstring\nTESTstring\n");
     ch_str ans4 = CH_STR_CONST_LIT("string\nstring\n");
 
     CH_ASSERT_STR_INVARIANTS(str1);
@@ -244,7 +246,16 @@ ch_word test10()
     CH_ASSERT_STR_INVARIANTS(ans2);
     CH_ASSERT_STR_INVARIANTS(ans3);
 
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str1,str2), ans1) );
+    ch_str test1 = ch_str_cat(&str1,str2);
+    CH_ASSERT( ch_str_eq( test1 , ans1) );
+    CH_ASSERT_STR_INVARIANTS(str1);
+    CH_ASSERT_STR_INVARIANTS(str2);
+    CH_ASSERT_STR_INVARIANTS(ans1);
+    CH_ASSERT_STR_INVARIANTS(ans2);
+    CH_ASSERT_STR_INVARIANTS(ans3);
+
+    ch_str test2 = ch_str_cat(&str2,str1);
+    CH_ASSERT( ch_str_eq( test2 , ans2) );
 
     CH_ASSERT_STR_INVARIANTS(str1);
     CH_ASSERT_STR_INVARIANTS(str2);
@@ -252,7 +263,8 @@ ch_word test10()
     CH_ASSERT_STR_INVARIANTS(ans2);
     CH_ASSERT_STR_INVARIANTS(ans3);
 
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str2,str1), ans2) );
+    ch_str test3 = ch_str_cat(&str1,str1);
+    CH_ASSERT( ch_str_eq( test3, ans3) );
 
     CH_ASSERT_STR_INVARIANTS(str1);
     CH_ASSERT_STR_INVARIANTS(str2);
@@ -260,7 +272,8 @@ ch_word test10()
     CH_ASSERT_STR_INVARIANTS(ans2);
     CH_ASSERT_STR_INVARIANTS(ans3);
 
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str1,str1), ans3) );
+    ch_str test4 = ch_str_cat(&str2,str2);
+    CH_ASSERT( ch_str_eq( test4 , ans4) );
 
     CH_ASSERT_STR_INVARIANTS(str1);
     CH_ASSERT_STR_INVARIANTS(str2);
@@ -268,15 +281,9 @@ ch_word test10()
     CH_ASSERT_STR_INVARIANTS(ans2);
     CH_ASSERT_STR_INVARIANTS(ans3);
 
-    CH_ASSERT( ch_str_eq( ch_str_cat(&str2,str2), ans4) );
 
-    CH_ASSERT_STR_INVARIANTS(str1);
-    CH_ASSERT_STR_INVARIANTS(str2);
-    CH_ASSERT_STR_INVARIANTS(ans1);
-    CH_ASSERT_STR_INVARIANTS(ans2);
-    CH_ASSERT_STR_INVARIANTS(ans3);
-
-
+    ch_str_free(&str1);
+    ch_str_free(&str2);
     return result;
 }
 

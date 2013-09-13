@@ -19,12 +19,12 @@
 int dprintf_color_va(int fd, ch_colour_t color, ch_str format, va_list va)
 {
 
-    ch_str result = CH_STR_STACK("",1024);
+    ch_str result = CH_STR("",1024);
 
     //Only print colors if we're talking to a TTY
     //Set the colour/attributes
     if(isatty(fd)){
-        CH_STR_CAT_STACK(result,color);
+        result = CH_STR_CAT(&result,color);
     }
 
 
@@ -33,17 +33,20 @@ int dprintf_color_va(int fd, ch_colour_t color, ch_str format, va_list va)
     ch_str text = CH_STR("", size);
     size = vsnprintf(CH_STR_CSTR(text),size,CH_STR_CSTR(format),va);
     text.slen = size;
-    CH_STR_CAT_STACK(result,text);
-    CH_STR_FREE(text);
+    result= CH_STR_CAT(&result,text);
+    ch_str_free(&text);
 
     //Reset since we're done with the colour for the moment
     if(isatty(fd)){
         ch_str reset = CH_TERM_COL_NONE;
-        CH_STR_CAT_STACK(result, reset);
+        result = CH_STR_CAT(&result, reset);
     }
 
     //Output to file descriptor
-    return write(fd, CH_STR_CSTR(result), result.slen);
+    const ch_word bytes = write(fd, CH_STR_CSTR(result), result.slen);
+
+    ch_str_free(&result);
+    return bytes;
 
 }
 
