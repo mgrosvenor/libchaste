@@ -35,20 +35,20 @@ ch_str generate_iso_timestamp(ch_bool use_gmt, ch_word subseconds, ch_bool incl_
 
     //Create a string containing the timestamp major part
     ch_str time_major = CH_STR("",256);
-    CH_STR_LEN(time_major) = strftime( CH_STR_CSTR(time_major), CH_STR_AVAIL(time_major), "%Y%m%dT%H%M%S",timeinfo);
+    CH_STR_LEN(time_major) = strftime( CH_STR_CSTR_END(time_major), CH_STR_AVAIL(time_major), "%Y%m%dT%H%M%S",timeinfo);
 
 
     //Create the subseconds timestamp component with variable accuracy
     ch_str time_minor = CH_STR("",256);
     if(subseconds > 0){
-        CH_STR_LEN(time_minor) = snprintf(CH_STR_CSTR(time_minor), CH_STR_LEN(time_minor),".%li", ts.tv_nsec);
+        CH_STR_LEN(time_minor) = snprintf(CH_STR_CSTR_END(time_minor), CH_STR_LEN(time_minor),".%li", ts.tv_nsec);
         ch_str_trunc(&time_minor,subseconds +1);
     }
 
     //Add the timezone offset to GMT
     ch_str time_offset = CH_STR("", 256);
     if(incl_tz_offset){
-        CH_STR_LEN(time_offset) = strftime(CH_STR_CSTR(time_offset), CH_STR_LEN(time_offset), "%z",timeinfo );
+        CH_STR_LEN(time_offset) = strftime(CH_STR_CSTR_END(time_offset), CH_STR_LEN(time_offset), "%z",timeinfo );
     }
 
     ch_str iso_time_out = CH_STR("", 256);
