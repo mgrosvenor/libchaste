@@ -118,7 +118,7 @@ typedef struct {
     char* filename;                 //If outputing to a file, the file name, otherwise ignored
     ch_bool use_utc;                //Use UTC time, otherwise use local time
     ch_bool incl_timezone;          //Include the UTC timezone offset
-    ch_bool subsec_digits;          //How many sub-second digits to use
+    ch_word subsec_digits;          //How many sub-second digits to use
     ch_log_level_setting_t lvl_config[CH_LOG_LVL_COUNT]; //Setting for each log level
     int fd;                         //Private, the file descriptor of the output
 } ch_log_settings_t;

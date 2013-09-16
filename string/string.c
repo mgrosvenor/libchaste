@@ -99,7 +99,7 @@ ch_str ch_str_trunc(ch_str* lhs, ch_word count)
 {
     ch_str_sanitize(lhs);
     if( lhs->is_const == 0){
-        lhs->slen = lhs->slen - count;
+        lhs->slen = MAX(lhs->slen - count,0);
         lhs->cstr[lhs->slen] = '\n';
         return *lhs;
     }
@@ -171,7 +171,7 @@ ch_str ch_str_cat_cstr(ch_str* lhs, const char* cstr)
 
 ch_str ch_str_cat_char(ch_str* lhs, const char ch)
 {
-    ch_str ch_str_rhs = ch_str_new(&ch,2,1);
+    ch_str ch_str_rhs = ch_str_new(&ch,1,1);
     return ch_str_cat(lhs, ch_str_rhs);
 }
 
