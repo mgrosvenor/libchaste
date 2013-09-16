@@ -9,5 +9,5 @@
 #include "../data_structs/vector/vector_typed_define_template.h"
 #include "options_vectors.h"
 
-define_ch_vector(ch_options_opt_t)
+define_ch_vector(opts, ch_options_opt_t)
 

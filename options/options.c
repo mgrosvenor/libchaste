@@ -21,15 +21,21 @@
 
 #include "../parsing/numeric_parser.h"
 #include "../parsing/bool_parser.h"
+#include "../data_structs/vector/vector_std.h"
+
+
+ch_word cmp(ch_options_t* lhs, ch_options_t* rhs)
+{
+    return strcmp(lhs->short_description, rhs->long_description);
+}
 
 
 extern ch_options_t opts;
 void ch_options_init()
 {
-    construct(Vector,&opts.opt_defs,sizeof(ch_options_opt_t),FREEOBJ);
+    opts.opt_defs = CH_VECTOR_NEW(opt,256,cmp);
     opts.done_init = 1;
 }
-
 
 
 void print_usage(const char* err_tx_fmt, ...){
@@ -37,9 +43,9 @@ void print_usage(const char* err_tx_fmt, ...){
     if(opts.short_description)
         printf("\n%s:\n\n", opts.short_description);
 
+    opts.opt_defs->sort(opts.opt_defs);
 
-    for (u64 i = 0; i < size(Vector,&opts.opt_defs); i++ ) {
-        ch_options_opt_t* opt_def = ((ch_options_opt_t*)opts.opt_defs.mem) + i;
+    for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
 
         char* mode = NULL;
         switch(opt_def->mode){
@@ -150,8 +156,8 @@ static ch_word ch_options_add_generic(
     opt_def_new->var       = result_out;
 
 
-    for( u64 i = 0; i < size(Vector,&opts.opt_defs); i++){
-        ch_options_opt_t* opt_def = ((ch_options_opt_t*)opts.opt_defs.mem) + i;
+    for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
+
         if(opt_def->short_str == opt_def_new->short_str) {
 
             //Special case 'h' for help as we want it to stick around
@@ -203,7 +209,7 @@ ch_opt_add_declare_i(ch_type_name, c_type_name, short_name, long_name)\
 ch_opt_add_define_i(CH_BOOL,     ch_bool,    b, "boolean")
 ch_opt_add_define_i(CH_UINT64,   u64,        u, "unsigned")
 ch_opt_add_define_i(CH_INT64,    ch_word,    i, "integer")
-ch_opt_add_define_i(CH_STRING,   ch_str,     s, "string")
+ch_opt_add_define_i(CH_STRING,   ch_cstr,    s, "string")
 ch_opt_add_define_i(CH_DOUBLE,   ch_float,   f, "float")
 //##########################################################################################################################
 
@@ -223,7 +229,7 @@ ch_opt_add_declare_u(ch_type_name, c_type_name, short_name, long_name)\
         return result;\
     }\
     \
-    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){\
+    if(!opts.opt_defs->push_back(opts.opt_defs, opt_new)){\
         ch_log_error("Could not append new"long_name"option to options list\n");\
         return -1;\
     }\
@@ -232,41 +238,41 @@ ch_opt_add_declare_u(ch_type_name, c_type_name, short_name, long_name)\
 }
 ch_opt_add_define_u(CH_BOOL,     ch_bool,    b, "boolean")
 ch_opt_add_define_u(CH_UINT64,   u64,        u, "unsigned")
-ch_opt_add_define_u(CH_INT64,    i64,        i, "integer")
-ch_opt_add_define_u(CH_STRING,   char*,      s, "string")
-ch_opt_add_define_u(CH_DOUBLE,   double,     f, "float")
+ch_opt_add_define_u(CH_INT64,    ch_word,    i, "integer")
+ch_opt_add_define_u(CH_STRING,   ch_cstr,    s, "string")
+ch_opt_add_define_u(CH_DOUBLE,   ch_float,   f, "float")
 //##########################################################################################################################
 
-//Define all the options parsers for non vector types, with initializers
-#define ch_opt_add_define_VI(ch_type_name, c_type_name_default, short_name, long_name)\
-ch_opt_add_declare_VI(ch_type_name, c_type_name_default, short_name, long_name)\
+//Define all the options parsers for vector types, with initializers
+#define ch_opt_add_define_VI(ch_type_name, vector_name, c_type_name_default, short_name, long_name)\
+ch_opt_add_declare_VI(ch_type_name, vector_name, c_type_name_default, short_name, long_name)\
 {\
     ch_options_opt_t opt_new = {0};\
-    memset(result_out, 0, sizeof(Vector));\
-    construct(Vector, result_out, sizeof(c_type_name_default), FREEOBJ);\
-    push_back(Vector,result_out,&default_val,STATIC);\
+    *result_out = CH_VECTOR_NEW(vector_name, 4, CH_VECTOR_CMP(vector_name));\
+    (*result_out)->push_back(*result_out, default_val);\
     \
     ch_word result = ch_options_add_generic(&opt_new, mode, short_str, long_str, descr, ch_type_name, result_out);\
     if(result){ /*Catch errors inside add generic, it prints it's own message*/\
         return result;\
     }\
-    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){\
+    if(!opts.opt_defs->push_back(opts.opt_defs, opt_new)){\
         ch_log_error("Could not append new vector of "long_name" option to options list\n");\
         return -1;\
     }\
     \
     return result;\
 }
-ch_opt_add_define_VI(CH_BOOLS,    ch_bool,    B, "booleans")
-ch_opt_add_define_VI(CH_UINT64S,  u64,        U, "unsigneds")
-ch_opt_add_define_VI(CH_INT64S,   i64,        I, "integers")
-ch_opt_add_define_VI(CH_STRINGS,  char*,      S, "strings")
-ch_opt_add_define_VI(CH_DOUBLES,  double,     F, "floats")
+
+ch_opt_add_define_VI(CH_BOOLS,    ch_bool, ch_bool,    B, "booleans")
+ch_opt_add_define_VI(CH_UINT64S,  u64,     u64,        U, "unsigneds")
+ch_opt_add_define_VI(CH_INT64S,   i64,     ch_word,    I, "integers")
+ch_opt_add_define_VI(CH_STRINGS,  cstr,    ch_cstr,    S, "strings")
+ch_opt_add_define_VI(CH_DOUBLES,  float,   ch_float,   F, "floats")
 //##########################################################################################################################
 
-//Define all the options parsers for non vector types, without initializers
-#define ch_opt_add_define_VU(ch_type_name, c_type_name, short_name, long_name)\
-ch_opt_add_declare_VU(ch_type_name, c_type_name, short_name, long_name)\
+//Define all the options parsers for vector types, without initializers
+#define ch_opt_add_define_VU(ch_type_name, vector_name, short_name, long_name)\
+ch_opt_add_declare_VU(ch_type_name, vector_name, short_name, long_name)\
 {\
     if(mode == CH_OPTION_OPTIONAL){\
         ch_log_fatal("CH vector options marked as \"optional\" must have an initializer value. Use \"ch_opt_add_"#short_name"U()\" instead.\n");\
@@ -274,36 +280,29 @@ ch_opt_add_declare_VU(ch_type_name, c_type_name, short_name, long_name)\
     }\
     \
     ch_options_opt_t opt_new = {0};\
-    memset(result_out, 0, sizeof(Vector));\
-    construct(Vector, result_out, sizeof(c_type_name), FREEOBJ);\
+    *result_out = CH_VECTOR_NEW(vector_name, 4, CH_VECTOR_CMP(vector_name));\
     \
     ch_word result = ch_options_add_generic(&opt_new, mode, short_str, long_str, descr, ch_type_name, result_out);\
     if(result){ /*Catch errors inside add generic, it prints it's own message*/\
         return result;\
     }\
-    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){\
+    if(!opts.opt_defs->push_back(opts.opt_defs, opt_new)){\
         ch_log_error("Could not append new vector of "long_name" option to options list\n");\
         return -1;\
     }\
     \
     return result;\
 }
+
 ch_opt_add_define_VU(CH_BOOLS,    ch_bool,    B, "booleans")
 ch_opt_add_define_VU(CH_UINT64S,  u64,        U, "unsigneds")
-ch_opt_add_define_VU(CH_INT64S,   i64,        I, "integers")
-ch_opt_add_define_VU(CH_STRINGS,  char*,      S, "strings")
-ch_opt_add_define_VU(CH_DOUBLES,  double,     F, "floats")
+ch_opt_add_define_VU(CH_INT64S,   word,       I, "integers")
+ch_opt_add_define_VU(CH_STRINGS,  cstr,       S, "strings")
+ch_opt_add_define_VU(CH_DOUBLES,  float,      F, "floats")
 //##########################################################################################################################
 
 
 void parse_argument(ch_options_opt_t* opt_def) {
-
-    if(is_vector(opt_def->type)){
-        if(opt_def->found == 1 && size(Vector,(Vector*)opt_def->var) == 1 ){ //This is the first option found
-            pop_back(Vector,(Vector*)opt_def->var); //Remove the default value
-        }
-    }
-
 
     num_result_t num_result;
     switch (opt_def->type) {
@@ -322,7 +321,11 @@ void parse_argument(ch_options_opt_t* opt_def) {
                 *((int64_t*)opt_def->var) = num_result.val_int;
             }
             else {
-                push_back(Vector,opt_def->var, &num_result.val_int, STATIC);
+                CH_VECTOR(word) resultv = (CH_VECTOR(word))opt_def->var;
+                if(opt_def->found == 1 && resultv->size == 1 ){ //This is the first option found
+                    resultv->pop_back(resultv); //Remove the default value
+                }
+                resultv->push_back(resultv, num_result.val_int);
             }
             break;
         }
@@ -341,7 +344,11 @@ void parse_argument(ch_options_opt_t* opt_def) {
                 *((uint64_t*)opt_def->var) = num_result.val_uint;
             }
             else{
-                push_back(Vector,opt_def->var, &num_result.val_uint, STATIC);
+                CH_VECTOR(u64) resultv = (CH_VECTOR(u64))opt_def->var;
+                if(opt_def->found == 1 && resultv->size == 1 ){ //This is the first option found
+                    resultv->pop_back(resultv); //Remove the default value
+                }
+                resultv->push_back(resultv, num_result.val_uint);
             }
             break;
         }
@@ -375,7 +382,11 @@ void parse_argument(ch_options_opt_t* opt_def) {
                 *(double*) opt_def->var = result;
             }
             else{
-                push_back(Vector,opt_def->var, &result, STATIC);
+                CH_VECTOR(float) resultv = (CH_VECTOR(float))opt_def->var;
+                if(opt_def->found == 1 && resultv->size == 1 ){ //This is the first option found
+                    resultv->pop_back(resultv); //Remove the default value
+                }
+                resultv->push_back(resultv, result);
             }
 
             break;
@@ -395,7 +406,11 @@ void parse_argument(ch_options_opt_t* opt_def) {
                 *((int*)opt_def->var) = (int) num_result.val_int;
             }
             else{
-                push_back(Vector,opt_def->var, &num_result.val_int, STATIC);
+                CH_VECTOR(ch_bool) resultv = (CH_VECTOR(ch_bool))opt_def->var;
+                if(opt_def->found == 1 && resultv->size == 1 ){ //This is the first option found
+                    resultv->pop_back(resultv); //Remove the default value
+                }
+                resultv->push_back(resultv, num_result.val_int);
             }
 
             break;
@@ -411,7 +426,11 @@ void parse_argument(ch_options_opt_t* opt_def) {
                 * ((char**)opt_def->var) = optarg;
             }
             else{
-                push_back(Vector,opt_def->var, &optarg, STATIC);
+                CH_VECTOR(cstr) resultv = (CH_VECTOR(cstr))opt_def->var;
+                if(opt_def->found == 1 && resultv->size == 1 ){ //This is the first option found
+                    resultv->pop_back(resultv); //Remove the default value
+                }
+                resultv->push_back(resultv, optarg);
             }
 
             break;
@@ -429,8 +448,7 @@ void process_option(char c) {
 
     //int done = 0;
     ch_options_opt_t* opt_def = NULL;
-    for ( u64 i = 0; i < size(Vector,&opts.opt_defs) ; i++) {
-        opt_def = ((ch_options_opt_t*)opts.opt_defs.mem) + i;
+    for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
 
         if (opt_def->short_str == c) {
             //done = 1; //Exit the loop when finished

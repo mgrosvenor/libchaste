@@ -18,7 +18,6 @@ typedef enum {
 } ch_options_mode_e;
 
 
-
 typedef struct ch_options_opt{
     ch_options_mode_e mode;
     ch_types_e type;
@@ -30,7 +29,7 @@ typedef struct ch_options_opt{
 } ch_options_opt_t;
 
 
-declare_ch_vector(ch_options_opt_t)
+declare_ch_vector(opts, ch_options_opt_t)
 
 
 

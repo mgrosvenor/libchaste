@@ -42,6 +42,8 @@ typedef struct {
     i64 mlen; //A valid memory len is always -1 (unknown), or > slen
 } ch_str;
 
+typedef char*     ch_cstr; //Use this sparingly, only when it really matters that you are backwards compatible with c-strings
+
 
 //#define cstr(bstr) ((char*)(bstr->data))
 

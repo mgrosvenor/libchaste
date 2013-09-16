@@ -16,7 +16,7 @@
 typedef struct {
     char* short_description;
     char* long_description;
-    ch_vector_t(ch_options_opt_t) opt_defs;
+    CH_VECTOR(opts) opt_defs;
     uint64_t count;
     ch_bool help;
     int unlimted_set;
@@ -30,7 +30,7 @@ int ch_opt_add##short_name##i(ch_options_mode_e mode, char short_str, char* long
 ch_opt_add_declare_i(CH_BOOL,     ch_bool,    b, "boolean");
 ch_opt_add_declare_i(CH_UINT64,   u64,        u, "unsigned");
 ch_opt_add_declare_i(CH_INT64,    ch_word,    i, "integer");
-ch_opt_add_declare_i(CH_STRING,   ch_str,     s, "string");
+ch_opt_add_declare_i(CH_STRING,   ch_cstr,    s, "string");
 ch_opt_add_declare_i(CH_DOUBLE,   ch_float,   f, "float");
 
 //Declare all the options parsers for non vector types, untantalized
@@ -39,26 +39,26 @@ int ch_opt_add##short_name##u(ch_options_mode_e mode, char short_str, char* long
 ch_opt_add_declare_u(CH_BOOL,     ch_bool,    b, "boolean");
 ch_opt_add_declare_u(CH_UINT64,   u64,        u, "unsigned");
 ch_opt_add_declare_u(CH_INT64,    ch_word,    i, "integer");
-ch_opt_add_declare_u(CH_STRING,   ch_str,     s, "string");
+ch_opt_add_declare_u(CH_STRING,   ch_cstr,    s, "string");
 ch_opt_add_declare_u(CH_DOUBLE,   ch_float,   f, "float");
 
 //Declare all the options parsers for vector types, with initializers
-#define ch_opt_add_declare_VI(ch_type_name, c_type_name_default, short_name, long_name)\
-int ch_opt_add##short_name##I(ch_options_mode_e mode, char short_str, char* long_str, char* descr, ch_vector_t(c_type_name_default)* result_out, c_type_name_default default_val)
-ch_opt_add_declare_VI(CH_BOOLS,    ch_bool,    B, "booleans");
-ch_opt_add_declare_VI(CH_UINT64S,  u64,        U, "unsigneds");
-ch_opt_add_declare_VI(CH_INT64S,   ch_word,    I, "integers");
-ch_opt_add_declare_VI(CH_STRINGS,  ch_str,     S, "strings");
-ch_opt_add_declare_VI(CH_DOUBLES,  ch_float,   F, "floats");
+#define ch_opt_add_declare_VI(ch_type_name, vector_name, c_type_name_default, short_name, long_name)\
+int ch_opt_add##short_name##I(ch_options_mode_e mode, char short_str, char* long_str, char* descr, CH_VECTOR(vector_name) result_out, c_type_name_default default_val)
+ch_opt_add_declare_VI(CH_BOOLS,    ch_bool, ch_bool,    B, "booleans");
+ch_opt_add_declare_VI(CH_UINT64S,  u64,     u64,        U, "unsigneds");
+ch_opt_add_declare_VI(CH_INT64S,   word,    ch_word,    I, "integers");
+ch_opt_add_declare_VI(CH_STRINGS,  cstr,    ch_cstr,    S, "strings");
+ch_opt_add_declare_VI(CH_DOUBLES,  float,   ch_float,   F, "floats");
 
 //Declare all the options parsers for vector types, with uninitialized
-#define ch_opt_add_declare_VU(ch_type_name, c_type_name, short_name, long_name)\
-int ch_opt_add##short_name##U(ch_options_mode_e mode, char short_str, char* long_str, char* descr, ch_vector_t(c_type_name)* result_out)
+#define ch_opt_add_declare_VU(ch_type_name, vector_name, short_name, long_name)\
+int ch_opt_add##short_name##U(ch_options_mode_e mode, char short_str, char* long_str, char* descr, CH_VECTOR(vector_name) result_out)
 ch_opt_add_declare_VU(CH_BOOLS,    ch_bool,    B, "booleans");
 ch_opt_add_declare_VU(CH_UINT64S,  u64,        U, "unsigneds");
-ch_opt_add_declare_VU(CH_INT64S,   ch_word,    I, "integers");
-ch_opt_add_declare_VU(CH_STRINGS,  ch_str,     S, "strings");
-ch_opt_add_declare_VU(CH_DOUBLES,  ch_float,   F, "floats");
+ch_opt_add_declare_VU(CH_INT64S,   word,       I, "integers");
+ch_opt_add_declare_VU(CH_STRINGS,  cstr,       S, "strings"); //We use uint8_t* here to make the interface amenable to nice constants
+ch_opt_add_declare_VU(CH_DOUBLES,  float,      F, "floats");
 
 #define Vector_geti(type,vector,i) ((type*)vector.mem)[i]
 
