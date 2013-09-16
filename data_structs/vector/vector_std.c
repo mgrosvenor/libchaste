@@ -23,4 +23,6 @@ define_ch_vector(ch_machine)
 define_ch_vector(ch_word)
 define_ch_vector(ch_char)
 define_ch_vector(ch_bool)
+define_ch_vector(ch_float)
+define_ch_vector(ch_str)
 

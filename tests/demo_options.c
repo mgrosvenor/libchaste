@@ -1,7 +1,7 @@
 //#include "../options/ch_options.h"
 #include <stdio.h>
 
-#include "../deps/libcgen/vector.h"
+#include "../data_structs/vector/vector_std.h"
 #include "../options/options.h"
 #include "../log/log.h"
 
@@ -14,8 +14,8 @@ struct {
     ch_bool opt3;
     char*   opt4;
     double  opt5;
-    Vector  opt6;
-    Vector  opt7;
+    ch_vector_t(ch_str)  opt6;
+    ch_vector_t(ch_float)  opt7;
 } options;
 
 

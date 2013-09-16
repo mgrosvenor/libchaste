@@ -18,6 +18,7 @@
 #include <stdio.h>
 
 //Use it
+//
 USE_CH_LOGGER(CH_LOG_LVL_INFO,true,ch_log_tostdout,"NULL");
 
 int main(int argc, char** argv)

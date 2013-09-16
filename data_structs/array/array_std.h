@@ -25,5 +25,7 @@ declare_array(ch_machine)
 declare_array(ch_word)
 declare_array(ch_byte)
 declare_array(ch_char)
+declare_array(ch_float)
+declare_array(ch_str)
 
 #endif /* ARRAY_STD_H_ */

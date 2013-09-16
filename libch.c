@@ -7,6 +7,9 @@
 
 
 #include "libch.h"
+#include "log/log.h"
+
+USE_CH_LOGGER_DEFAULT;
 
 int main(int argc, char** argv)
 {

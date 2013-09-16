@@ -192,7 +192,7 @@ ch_opt_add_declare_i(ch_type_name, c_type_name, short_name, long_name)\
         return result;\
     }\
     \
-    if(push_back(Vector,&opts.opt_defs, &opt_new,STATIC)){\
+    if(!opts.opt_defs->push_back(&opt_new)){\
         ch_log_error("Could not append new"long_name"option to options list\n");\
         return -1;\
     }\
@@ -202,9 +202,9 @@ ch_opt_add_declare_i(ch_type_name, c_type_name, short_name, long_name)\
 
 ch_opt_add_define_i(CH_BOOL,     ch_bool,    b, "boolean")
 ch_opt_add_define_i(CH_UINT64,   u64,        u, "unsigned")
-ch_opt_add_define_i(CH_INT64,    i64,        i, "integer")
-ch_opt_add_define_i(CH_STRING,   char*,      s, "string")
-ch_opt_add_define_i(CH_DOUBLE,   double,     f, "float")
+ch_opt_add_define_i(CH_INT64,    ch_word,    i, "integer")
+ch_opt_add_define_i(CH_STRING,   ch_str,     s, "string")
+ch_opt_add_define_i(CH_DOUBLE,   ch_float,   f, "float")
 //##########################################################################################################################
 
 //Define all the options parsers for non vector types, without initializers

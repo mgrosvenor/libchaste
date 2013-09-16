@@ -25,6 +25,7 @@ ch_word ch_str_eq(ch_str lhs, ch_str rhs);
 
 #define CH_STR_CONST_NEW(name, s) ch_str name = CH_STR_CONST_LIT(s)
 #define CH_STR_CONST_LIT(s) { .cstr = (char*)s,    .is_const = 1,  .slen = strlen(s), .mlen = strlen(s) }
+#define CH_STR_CONST_LIT_NSTRL(s) { .cstr = (char*)s,    .is_const = 1,  .slen = -1, .mlen = -1 }
 #define CH_STR_FUNC(s)      { .cstr = (char*)s,    .is_const = -1, .slen = -1,        .mlen = -1 }
 #define CH_STR_NULL         { .cstr = NULL,        .is_const = 1, .slen = 0,        .mlen = 0 }
 #define CH_STR(s,sz)  ch_str_new(s, sz, 0)

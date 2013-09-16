@@ -26,11 +26,11 @@ inline uint8_t getxdigit(char c) {
 }
 
 
-int inline iswhite(char c){
+inline int iswhite(char c){
     return c == '\r' || c == '\n' || c == ' ' || c == '\t';
 }
 
 
-int inline isnwhite(char c){
+inline int isnwhite(char c){
     return iswhite(c)|| c == '\0';
 }

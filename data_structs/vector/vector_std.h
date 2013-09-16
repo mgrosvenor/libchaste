@@ -31,6 +31,7 @@ declare_ch_vector(ch_machine)
 declare_ch_vector(ch_word)
 declare_ch_vector(ch_char)
 declare_ch_vector(ch_bool)
-
+declare_ch_vector(ch_float)
+declare_ch_vector(ch_str)
 
 #endif /* ARRAY_STD_INT_H_ */

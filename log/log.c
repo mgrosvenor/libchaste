@@ -16,6 +16,7 @@
 #include "../timing/timestamp.h"
 #include "../term_color/term_color.h"
 #include "../string/string.h"
+#include "../log/log.h"
 
 
 //Suck in the log settings structure from "somewhere"...

@@ -15,7 +15,7 @@
 
 set -x
 
-CFLAGS="-Ideps -D_XOPEN_SOURCE=700 -D_BSD_SOURCE -std=c99 -Werror -Wall -Wextra -pedantic -Wno-missing-field-initializers"
+CFLAGS="-Ideps -D_XOPEN_SOURCE=700 -D_BSD_SOURCE -std=c11 -Werror -Wall -Wextra -pedantic -Wno-missing-field-initializers"
 LINKFLAGS="-lrt"
 
 deps/cake/cake libch.c --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@ --begintests  tests/*.c --endtests

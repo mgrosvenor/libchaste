@@ -48,3 +48,5 @@ struct ch_vector_##TYPE{\
 \
 \
 ch_vector_##TYPE##_t* ch_vector_##TYPE##_new(ch_word size, ch_word(*cmp)(TYPE* lhs, TYPE* rhs) );
+
+#define ch_vector_t(TYPE)  ch_vector_##TYPE##_t
