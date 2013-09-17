@@ -15,7 +15,7 @@
 #include "../log/log.h" //Include this here, so users don't have to
 #include "../utils/util.h"
 
-#warning "This is all broken and arch specifc. Need to make the logic and impl separate"
+//#warning "This is all broken and arch specifc. Need to make the logic and impl separate"
 
 typedef struct {
     uint64_t ts;             //Time the event was logged
@@ -78,7 +78,7 @@ extern ch_perf_t ch_perf;
             ch_perf.events[ch_perf.event_index].event_id = (ch_word_event_id);               \
             ch_perf.events[ch_perf.event_index].cond_id  = (ch_word_cond_id);                \
             DECLARE_ARGS(lo, hi);                                                            \
-            asm volatile("rdtsc" : EAX_EDX_RET(lo, hi));                                     \
+            __asm__ __volatile__("rdtsc" : EAX_EDX_RET(lo, hi));                                     \
             ch_perf.events[ch_perf.event_index].ts       = EAX_EDX_VAL(lo, hi);              \
             ch_perf.event_index++;                                                           \
         }                                                                                    \
@@ -100,7 +100,7 @@ extern ch_perf_t ch_perf;
     #define ch_perf_event_stop(ch_word_event_id, ch_word_cond_id)                          \
         if(likely(ch_perf.event_index < ch_perf.max_events)){                              \
             DECLARE_ARGS(lo, hi);                                                          \
-            asm volatile("rdtsc" : EAX_EDX_RET(lo, hi));                                   \
+            __asm__ __volatile__("rdtsc" : EAX_EDX_RET(lo, hi));                                   \
             ch_perf.events[ch_perf.event_index].ts       = EAX_EDX_VAL(lo, hi);            \
             ch_perf.events[ch_perf.event_index].event_id = (ch_word_event_id) | (1<<31);   \
             ch_perf.events[ch_perf.event_index].cond_id  = (ch_word_cond_id);              \
@@ -146,7 +146,7 @@ void ch_perf_finish_(ch_perf_output_e output, ch_perf_format_e format, char* fil
 
 #define ch_perf_timer_stop {                                                       \
     DECLARE_ARGS(lo, hi);                                                          \
-    asm volatile("rdtsc" : EAX_EDX_RET(lo, hi));                                   \
+    __asm__ __volatile__("rdtsc" : EAX_EDX_RET(lo, hi));                                   \
     ch_perf.timer_stop = EAX_EDX_VAL(lo, hi);                                      \
 }
 
