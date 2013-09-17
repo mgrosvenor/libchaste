@@ -73,7 +73,6 @@ void* vector_find(ch_vector_t* this, void* begin, void* end, void* value);
 //sort into order given the comparator function
 void vector_sort(ch_vector_t* this);
 
-
 ch_vector_t* ch_vector_new(ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) );
 
 #endif // VECTOR_H_

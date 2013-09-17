@@ -5,11 +5,12 @@
  *      Author: mgrosvenor
  */
 
+#ifndef ARRAY_TYPED_TEMPLATE_DECLARE_H_
+#define ARRAY_TYPED_TEMPLATE_DECLARE_H_
+
 
 #include "../../types/types.h"
 #include "array.h"
-
-typedef ch_word (*cmp_void_f)(void*, void*);
 
 #define declare_array(NAME,TYPE)\
 \
@@ -47,3 +48,4 @@ ch_array_##NAME##_t* ch_array_##NAME##_new(ch_word size, ch_word (*cmp)(TYPE* lh
 #define CH_ARRAY(NAME)  ch_array_##NAME##_t*
 #define CH_ARRAY_NEW(NAME, size, cmp) ch_array_##NAME##_new(size, cmp )
 
+#endif //ARRAY_TYPED_TEMPLATE_DECLARE_H_
