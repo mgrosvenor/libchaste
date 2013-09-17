@@ -82,7 +82,7 @@ declare_ch_vector_cmp(charp, ch_char*)
 declare_ch_vector_cmp(boolp, ch_bool*)
 declare_ch_vector_cmp(floatp, ch_float*)
 declare_ch_vector_cmp(stringp, ch_str*)
-declare_ch_vector_cmp(cstr, ch_cstr*)
+declare_ch_vector_cmp(cstrp, ch_cstr*)
 
 declare_ch_vector_cmp(voidp,  void*)
 

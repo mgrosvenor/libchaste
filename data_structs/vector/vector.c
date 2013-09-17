@@ -35,7 +35,7 @@ void* vector_forward(ch_vector_t* this, void* ptr, ch_word amount)
         return (ch_byte*)ptr + this->_array->_element_size * amount;
     }
 
-    printf("vector forward catch\n");
+    printf("Vector forward catch\n");
 
     return ptr;
 }

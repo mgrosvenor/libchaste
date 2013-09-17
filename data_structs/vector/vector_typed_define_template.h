@@ -101,7 +101,7 @@ ch_word ch_vector_cmp_##NAME(TYPE* lhs, TYPE* rhs)\
 }
 
 //Pointer comparison function
-#define define_ch_vector_cmpp(NAME, TYPE) ch_word ch_vector_cmp_##NAME(TYPE* lhs, TYPE* rhs)\
+#define define_ch_vector_cmpp(NAME, TYPE) ch_word ch_vector_cmp_##NAME##p(TYPE* lhs, TYPE* rhs)\
 { \
     return ch_vector_cmp_##NAME(*lhs, *rhs);\
 }

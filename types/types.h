@@ -51,12 +51,14 @@ typedef enum {
     CH_NO_TYPE = 0,
     CH_BOOL,
     CH_UINT64,
+    CH_HEX,
     CH_INT64,
     CH_STRING,
     CH_DOUBLE,
     CH_BOOLS,     //Vector types
     CH_UINT64S,
     CH_INT64S,
+    CH_HEXS,
     CH_STRINGS,
     CH_DOUBLES,
 } ch_types_e;

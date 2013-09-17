@@ -10,6 +10,7 @@
 #include <getopt.h>
 #include <libio.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
@@ -24,16 +25,17 @@
 #include "../data_structs/vector/vector_std.h"
 
 
-ch_word cmp(ch_options_t* lhs, ch_options_t* rhs)
+ch_word cmp(ch_options_opt_t* lhs, ch_options_opt_t* rhs)
 {
-    return strcmp(lhs->short_description, rhs->long_description);
+    return lhs->short_str == rhs->short_str ? 0 : lhs->short_str < rhs->short_str ? -1 : 1 ;
 }
 
 
 extern ch_options_t opts;
+
 void ch_options_init()
 {
-    opts.opt_defs = CH_VECTOR_NEW(opt,256,cmp);
+    opts.opt_defs = CH_VECTOR_NEW(opts,256,cmp);
     opts.done_init = 1;
 }
 
@@ -45,8 +47,10 @@ void print_usage(const char* err_tx_fmt, ...){
 
     opts.opt_defs->sort(opts.opt_defs);
 
+
     for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
 
+        ch_str def_val = CH_STR("",128);
         char* mode = NULL;
         switch(opt_def->mode){
             case CH_OPTION_FLAG:      mode = "Flag"; break;
@@ -57,21 +61,47 @@ void print_usage(const char* err_tx_fmt, ...){
 
         char* type = NULL;
         switch(opt_def->type){
-            case CH_BOOL:       type = "boolean";   break;
-            case CH_INT64:      type = "integer";   break;
-            case CH_UINT64:     type = "unsigned";  break;
-            case CH_DOUBLE:     type = "float";     break;
-            case CH_STRING:     type = "string";    break;
-            case CH_BOOLS:      type = "booleans";  break;
-            case CH_INT64S:     type = "integers";  break;
-            case CH_UINT64S:    type = "unsigneds"; break;
-            case CH_DOUBLES:    type = "floats";    break;
-            case CH_STRINGS:    type = "strings";   break;
+            case CH_BOOL:       type = "Boolean";   break;
+            case CH_INT64:      type = "Integer";   break;
+            case CH_UINT64:     type = "Unsigned";  break;
+            case CH_DOUBLE:     type = "Float";     break;
+            case CH_STRING:     type = "String";    break;
+            case CH_HEX:        type = "Unsigned";  break;
+            case CH_BOOLS:      type = "Boolean List";  break;
+            case CH_INT64S:     type = "Integers List"; break;
+            case CH_UINT64S:    type = "Unsigned List"; break;
+            case CH_DOUBLES:    type = "Float List";    break;
+            case CH_STRINGS:    type = "String List";   break;
+            case CH_HEXS:       type = "Unsigned List"; break;
             case CH_NO_TYPE:    type = "error";     break;
         }
 
 
-        printf("%-9s (%-9s) -%c  --%-15s - %s\n", mode, type, opt_def->short_str, opt_def->long_str,  opt_def->descr);
+        if(opt_def->mode == CH_OPTION_OPTIONAL){
+
+            def_val = CH_STR_CAT_CHAR(&def_val, '[' );
+            switch(opt_def->type){
+                case CH_BOOL:       CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%s",  *(ch_bool*)opt_def->var ? "True" : "False");   break;
+                case CH_INT64:      CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%li", *(ch_word*)opt_def->var);   break;
+                case CH_UINT64:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lu", *(u64*)opt_def->var);   break;
+                case CH_DOUBLE:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lf", *(double*)opt_def->var);   break;
+                case CH_STRING:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%s",  *(char**)opt_def->var);   break;
+                case CH_HEX:        CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"0x%016lX", *(u64*)opt_def->var);  break;
+                case CH_BOOLS:      CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%s",  ( *((CH_VECTOR(ch_bool)*)opt_def->var)->first) ? "True" : "False"); break;
+                case CH_INT64S:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%li", *((CH_VECTOR(word)*)opt_def->var)->first );  break;
+                case CH_UINT64S:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lu", *((CH_VECTOR(u64)*)opt_def->var)->first );  break;
+                case CH_DOUBLES:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lf", *((CH_VECTOR(float)*)opt_def->var)->first );  break;
+                case CH_STRINGS:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%s", *((CH_VECTOR(cstr)*)opt_def->var)->first );  break;
+                case CH_HEXS:       CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"0x%016lX", *((CH_VECTOR(u64)*)opt_def->var)->first );  break;
+                case CH_NO_TYPE:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val), "Unknown");  break;
+            }
+
+            def_val = CH_STR_CAT_CHAR(&def_val, ']' );
+
+        }
+
+        printf("%-9s (%-11s) -%c  --%-15s %s %s\n", mode, type, opt_def->short_str, opt_def->long_str,  opt_def->descr, CH_STR_CSTR(def_val));
+        ch_str_free(&def_val);
     }
 
     if(opts.long_description)
@@ -198,7 +228,7 @@ ch_opt_add_declare_i(ch_type_name, c_type_name, short_name, long_name)\
         return result;\
     }\
     \
-    if(!opts.opt_defs->push_back(&opt_new)){\
+    if(!opts.opt_defs->push_back(opts.opt_defs,opt_new)){\
         ch_log_error("Could not append new"long_name"option to options list\n");\
         return -1;\
     }\
@@ -206,11 +236,12 @@ ch_opt_add_declare_i(ch_type_name, c_type_name, short_name, long_name)\
     return result;\
 }
 
-ch_opt_add_define_i(CH_BOOL,     ch_bool,    b, "boolean")
-ch_opt_add_define_i(CH_UINT64,   u64,        u, "unsigned")
-ch_opt_add_define_i(CH_INT64,    ch_word,    i, "integer")
-ch_opt_add_define_i(CH_STRING,   ch_cstr,    s, "string")
-ch_opt_add_define_i(CH_DOUBLE,   ch_float,   f, "float")
+ch_opt_add_define_i(CH_BOOL,     ch_bool,    b, "Boolean")
+ch_opt_add_define_i(CH_UINT64,   u64,        u, "Unsigned")
+ch_opt_add_define_i(CH_INT64,    ch_word,    i, "Integer")
+ch_opt_add_define_i(CH_STRING,   ch_cstr,    s, "String")
+ch_opt_add_define_i(CH_DOUBLE,   ch_float,   f, "Float")
+ch_opt_add_define_i(CH_HEX,      u64,        x, "Unsigned")
 //##########################################################################################################################
 
 //Define all the options parsers for non vector types, without initializers
@@ -236,11 +267,12 @@ ch_opt_add_declare_u(ch_type_name, c_type_name, short_name, long_name)\
     \
     return result;\
 }
-ch_opt_add_define_u(CH_BOOL,     ch_bool,    b, "boolean")
-ch_opt_add_define_u(CH_UINT64,   u64,        u, "unsigned")
-ch_opt_add_define_u(CH_INT64,    ch_word,    i, "integer")
-ch_opt_add_define_u(CH_STRING,   ch_cstr,    s, "string")
-ch_opt_add_define_u(CH_DOUBLE,   ch_float,   f, "float")
+ch_opt_add_define_u(CH_BOOL,     ch_bool,    b, "Boolean")
+ch_opt_add_define_u(CH_UINT64,   u64,        u, "Unsigned")
+ch_opt_add_define_u(CH_INT64,    ch_word,    i, "Integer")
+ch_opt_add_define_u(CH_STRING,   ch_cstr,    s, "String")
+ch_opt_add_define_u(CH_DOUBLE,   ch_float,   f, "Float")
+ch_opt_add_define_u(CH_HEX,      u64,        x, "Unsigned")
 //##########################################################################################################################
 
 //Define all the options parsers for vector types, with initializers
@@ -251,7 +283,7 @@ ch_opt_add_declare_VI(ch_type_name, vector_name, c_type_name_default, short_name
     *result_out = CH_VECTOR_NEW(vector_name, 4, CH_VECTOR_CMP(vector_name));\
     (*result_out)->push_back(*result_out, default_val);\
     \
-    ch_word result = ch_options_add_generic(&opt_new, mode, short_str, long_str, descr, ch_type_name, result_out);\
+    ch_word result = ch_options_add_generic(&opt_new, mode, short_str, long_str, descr, ch_type_name, *result_out);\
     if(result){ /*Catch errors inside add generic, it prints it's own message*/\
         return result;\
     }\
@@ -263,11 +295,12 @@ ch_opt_add_declare_VI(ch_type_name, vector_name, c_type_name_default, short_name
     return result;\
 }
 
-ch_opt_add_define_VI(CH_BOOLS,    ch_bool, ch_bool,    B, "booleans")
-ch_opt_add_define_VI(CH_UINT64S,  u64,     u64,        U, "unsigneds")
-ch_opt_add_define_VI(CH_INT64S,   i64,     ch_word,    I, "integers")
-ch_opt_add_define_VI(CH_STRINGS,  cstr,    ch_cstr,    S, "strings")
-ch_opt_add_define_VI(CH_DOUBLES,  float,   ch_float,   F, "floats")
+ch_opt_add_define_VI(CH_BOOLS,    ch_bool, ch_bool,    B, "Boolean List")
+ch_opt_add_define_VI(CH_UINT64S,  u64,     u64,        U, "Unsigned List")
+ch_opt_add_define_VI(CH_INT64S,   word,    ch_word,    I, "Integer List")
+ch_opt_add_define_VI(CH_STRINGS,  cstr,    ch_cstr,    S, "String List")
+ch_opt_add_define_VI(CH_DOUBLES,  float,   ch_float,   F, "Float List")
+ch_opt_add_define_VI(CH_HEXS,     u64,     u64,        X, "Unsigned List")
 //##########################################################################################################################
 
 //Define all the options parsers for vector types, without initializers
@@ -282,7 +315,7 @@ ch_opt_add_declare_VU(ch_type_name, vector_name, short_name, long_name)\
     ch_options_opt_t opt_new = {0};\
     *result_out = CH_VECTOR_NEW(vector_name, 4, CH_VECTOR_CMP(vector_name));\
     \
-    ch_word result = ch_options_add_generic(&opt_new, mode, short_str, long_str, descr, ch_type_name, result_out);\
+    ch_word result = ch_options_add_generic(&opt_new, mode, short_str, long_str, descr, ch_type_name, *result_out);\
     if(result){ /*Catch errors inside add generic, it prints it's own message*/\
         return result;\
     }\
@@ -294,11 +327,12 @@ ch_opt_add_declare_VU(ch_type_name, vector_name, short_name, long_name)\
     return result;\
 }
 
-ch_opt_add_define_VU(CH_BOOLS,    ch_bool,    B, "booleans")
-ch_opt_add_define_VU(CH_UINT64S,  u64,        U, "unsigneds")
-ch_opt_add_define_VU(CH_INT64S,   word,       I, "integers")
-ch_opt_add_define_VU(CH_STRINGS,  cstr,       S, "strings")
-ch_opt_add_define_VU(CH_DOUBLES,  float,      F, "floats")
+ch_opt_add_define_VU(CH_BOOLS,    ch_bool,    B, "Booleans List")
+ch_opt_add_define_VU(CH_UINT64S,  u64,        U, "Unsigneds List")
+ch_opt_add_define_VU(CH_INT64S,   word,       I, "Integers List")
+ch_opt_add_define_VU(CH_STRINGS,  cstr,       S, "Strings List")
+ch_opt_add_define_VU(CH_DOUBLES,  float,      F, "Floats List")
+ch_opt_add_define_VU(CH_HEXS,     u64,        X, "Unsigned List")
 //##########################################################################################################################
 
 
@@ -321,8 +355,8 @@ void parse_argument(ch_options_opt_t* opt_def) {
                 *((int64_t*)opt_def->var) = num_result.val_int;
             }
             else {
-                CH_VECTOR(word) resultv = (CH_VECTOR(word))opt_def->var;
-                if(opt_def->found == 1 && resultv->size == 1 ){ //This is the first option found
+                CH_VECTOR(word)* resultv = (CH_VECTOR(word)*)opt_def->var;
+                if(opt_def->found == 1 && resultv->count == 1 ){ //This is the first option found
                     resultv->pop_back(resultv); //Remove the default value
                 }
                 resultv->push_back(resultv, num_result.val_int);
@@ -331,7 +365,9 @@ void parse_argument(ch_options_opt_t* opt_def) {
         }
 
         case CH_UINT64:
-        case CH_UINT64S: {
+        case CH_UINT64S:
+        case CH_HEX:
+        case CH_HEXS: {
             //Sanity check
             if (!optarg) { print_usage( "Option  --%s (-%c) Expected argument of type UINT64 but none found.\n", opt_def->long_str, opt_def->short_str); }
 
@@ -344,8 +380,8 @@ void parse_argument(ch_options_opt_t* opt_def) {
                 *((uint64_t*)opt_def->var) = num_result.val_uint;
             }
             else{
-                CH_VECTOR(u64) resultv = (CH_VECTOR(u64))opt_def->var;
-                if(opt_def->found == 1 && resultv->size == 1 ){ //This is the first option found
+                CH_VECTOR(u64)* resultv = (CH_VECTOR(u64)*)opt_def->var;
+                if(opt_def->found == 1 && resultv->count == 1 ){ //This is   the first option found
                     resultv->pop_back(resultv); //Remove the default value
                 }
                 resultv->push_back(resultv, num_result.val_uint);
@@ -382,8 +418,8 @@ void parse_argument(ch_options_opt_t* opt_def) {
                 *(double*) opt_def->var = result;
             }
             else{
-                CH_VECTOR(float) resultv = (CH_VECTOR(float))opt_def->var;
-                if(opt_def->found == 1 && resultv->size == 1 ){ //This is the first option found
+                CH_VECTOR(float)* resultv = (CH_VECTOR(float)*)opt_def->var;
+                if(opt_def->found == 1 && resultv->count == 1 ){ //This is the first option found
                     resultv->pop_back(resultv); //Remove the default value
                 }
                 resultv->push_back(resultv, result);
@@ -406,8 +442,8 @@ void parse_argument(ch_options_opt_t* opt_def) {
                 *((int*)opt_def->var) = (int) num_result.val_int;
             }
             else{
-                CH_VECTOR(ch_bool) resultv = (CH_VECTOR(ch_bool))opt_def->var;
-                if(opt_def->found == 1 && resultv->size == 1 ){ //This is the first option found
+                CH_VECTOR(ch_bool)* resultv = (CH_VECTOR(ch_bool)*)opt_def->var;
+                if(opt_def->found == 1 && resultv->count == 1 ){ //This is the first option found
                     resultv->pop_back(resultv); //Remove the default value
                 }
                 resultv->push_back(resultv, num_result.val_int);
@@ -426,8 +462,8 @@ void parse_argument(ch_options_opt_t* opt_def) {
                 * ((char**)opt_def->var) = optarg;
             }
             else{
-                CH_VECTOR(cstr) resultv = (CH_VECTOR(cstr))opt_def->var;
-                if(opt_def->found == 1 && resultv->size == 1 ){ //This is the first option found
+                CH_VECTOR(cstr)* resultv = (CH_VECTOR(cstr)*)opt_def->var;
+                if(opt_def->found == 1 && resultv->count == 1 ){ //This is the first option found
                     resultv->pop_back(resultv); //Remove the default value
                 }
                 resultv->push_back(resultv, optarg);
@@ -447,7 +483,6 @@ void parse_argument(ch_options_opt_t* opt_def) {
 void process_option(char c) {
 
     //int done = 0;
-    ch_options_opt_t* opt_def = NULL;
     for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
 
         if (opt_def->short_str == c) {
@@ -476,10 +511,7 @@ void generate_unix_opts(char short_opts_str[1024], struct option* long_options) 
 
     char* short_opts_ptr = short_opts_str;
 
-    VectorIter* iter = create(VectorIter, &opts.opt_defs);
-    ch_bool has_next = true;
-    for (head(VectorIter,iter); has_next && !empty(Vector,&opts.opt_defs) && short_opts_ptr < &short_opts_str[1024]; (has_next = !next(VectorIter,iter)), i++ ) {
-        ch_options_opt_t* opt_def = (ch_options_opt_t*)retrieve(VectorIter,iter);
+    for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end && short_opts_ptr < &short_opts_str[1024];  opt_def = opts.opt_defs->next(opts.opt_defs, opt_def), i++ ) {
 
         *short_opts_ptr = opt_def->short_str;
         short_opts_ptr++;
@@ -509,7 +541,7 @@ void generate_unix_opts(char short_opts_str[1024], struct option* long_options) 
 }
 
 int ch_opt_parse(int argc, char** argv){
-    ch_opt_addbi(CH_OPTION_FLAG, 'h', "help", "Print this help message\n", &opts.help, 0);
+    ch_opt_addbi(CH_OPTION_FLAG, 'h', "help", "Print this help message", &opts.help, 0);
 
     char short_opts_str[1024] = {0};
 
@@ -543,16 +575,14 @@ int ch_opt_parse(int argc, char** argv){
     if (optind < argc){ //There are extra parameters
         //Look for an opt_def with type UNLIMITED
         ch_options_opt_t* opt_def = NULL;
-        u64 i = 0;
-        for (; i < size(Vector,&opts.opt_defs) ; i++) {
-            opt_def = ((ch_options_opt_t*)opts.opt_defs.mem) + i;
+        for (opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
             if(opt_def->mode == CH_OPTION_UNLIMTED){
                 break;
             }
         }
 
         //None found
-        if(i >= size(Vector,&opts.opt_defs)){
+        if(opt_def >= opts.opt_defs->end){
             print_usage("Unknown option \"%s\"\n", argv[optind]);
         }
 
@@ -566,9 +596,7 @@ int ch_opt_parse(int argc, char** argv){
 
 
     //Check the constraints
-    ch_options_opt_t* opt_def = NULL;
-    for (u64 i = 0; i < size(Vector,&opts.opt_defs) ; i++) {
-        opt_def = ((ch_options_opt_t*)opts.opt_defs.mem) + i;
+    for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
         if(opt_def->mode == CH_OPTION_REQUIRED && opt_def->found < 1){
             printf("Option --%s (-%c) is required but not supplied\n", opt_def->long_str, opt_def->short_str);
             print_usage("Option --%s (-%c) is required but not supplied\n", opt_def->long_str, opt_def->short_str);

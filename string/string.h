@@ -36,7 +36,7 @@ ch_word ch_str_eq(ch_str lhs, ch_str rhs);
 
 #define CH_STR_CSTR(ch_str)     ( (ch_str).cstr)
 #define CH_STR_CSTR_END(ch_str)     ( (ch_str).cstr + (ch_str).slen )
-#define CH_STR_AVAIL(ch_str)    ( (ch_str).mlen -1)
+#define CH_STR_AVAIL(ch_str)    ( (ch_str).mlen -1 - (ch_str).slen )
 #define CH_STR_LEN(ch_str)      ( (ch_str).slen)
 
 
