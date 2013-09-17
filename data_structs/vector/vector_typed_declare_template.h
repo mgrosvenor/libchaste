@@ -5,7 +5,6 @@
 #include "../../types/types.h"
 #include "vector.h"
 
-typedef ch_word (*cmp_void_f)(void*, void*);
 
 #define declare_ch_vector(NAME,TYPE) \
 \
