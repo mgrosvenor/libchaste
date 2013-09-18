@@ -14,7 +14,7 @@
 #define MIN(x,y) ( (x) < (y) ?  (x) : (y))
 #define MAX(x,y) ( (x) > (y) ?  (x) : (y))
 
-#include "types/types.h"
+#include "../types/types.h"
 
 /**
  * (from Linux kernel source)

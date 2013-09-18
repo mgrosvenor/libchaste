@@ -8,6 +8,10 @@
 #ifndef LIBM6_H_
 #define LIBM6_H_
 
+#include "types/types.h"
+#include "utils/util.h"
+#include "string/string.h"
+
 #include "options/options.h"
 //#include "perf/perf.h"
 #include "log/log.h"
