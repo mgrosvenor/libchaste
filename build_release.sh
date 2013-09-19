@@ -22,6 +22,10 @@ cp bin/libchaste.a $tmp
 cp LICENSE $tmp
 cp README $tmp
 
+#Include the commit ID against which this was built
+touch $tmp/$(git rev-parse HEAD)
+
+
 #Make the tarball
 cd $tmp/../
 tar -cjf libchaste.tar.bz2 libchaste
