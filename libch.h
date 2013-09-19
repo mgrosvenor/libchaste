@@ -13,7 +13,7 @@
 #include "string/string.h"
 
 #include "options/options.h"
-//#include "perf/perf.h"
+#include "perf/perf.h"
 #include "log/log.h"
 
 
