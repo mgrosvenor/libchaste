@@ -4,6 +4,28 @@
 
 #include "linked_list.h"
 
+
+
+
+//Get the first entry
+static ch_llist_it llist_first(ch_llist_t* this)
+{
+
+}
+
+//Get the last entry
+static ch_llist_it llist_last(ch_llist_t* this)
+{
+
+}
+
+//Get the end
+static ch_llist_it llist_end(ch_llist_t* this)
+{
+
+}
+
+
 //Take an index an fix it so that negative indexs are legal
 static inline ch_word range_fix(ch_llist_t* this, ch_word idx)
 {
@@ -19,36 +41,78 @@ static inline ch_word range_fix(ch_llist_t* this, ch_word idx)
 }
 
 
-//Return the element at a given offset, with bounds checking [WARN: This is slow in general]
-static void** llist_off(ch_llist_t* this, ch_word idx)
+static ch_list_it step_through_list(ch_llist_t*this, ch_llist_it* start, ch_word amount)
 {
+
+    ch_llist_it result = { 0 };
+    ch_llist_node_t* node = start;
+
+    const ch_word dir = amount > 0 ? 1 : -1;
+
     //Do this slow and stupid for now.
-    idx = range_fix(this, idx);
-
-    if(idx < 0){
-        return NULL;
+    for(ch_word i = 0; i < amount; i++){
+        if(node){
+            node = dir ? node->next : node->prev; }
     }
 
-    ch_llist_node_t* node = this->first;
-
-    for(ch_word i = 0; i < idx; i++){
-        if(node){ node = node->next; }
+    result->_node = node;
+    if(node){
+        result->value = node->data;
+    }
+    else{
+        result->value = NULL;
     }
 
-    return node;
+    return result;
 
 }
 
-//Step forwards by one entry
-static void** llist_next (ch_llist_t* this, void** ptr)
+
+
+//Return the element at a given offset, with bounds checking [WARN: This is slow in general]
+static ch_llist_it llist_off(ch_llist_t* this, ch_word idx)
 {
-    if(*ptr){ node = node->next; }
+    ch_llist_it result;
+
+
+    idx = range_fix(this, idx);
+
+    if(idx < 0){
+        result->_node = NULL;
+        result->value = NULL;
+        return result;
+    }
+
+    step_through_list(this, result->` )
+    return result;
+
+}
+
+
+//Step forwards by amount
+static ch_llist_it* llist_forward(ch_llist_t* this, ch_llist_it* ptr, ch_word amount)
+{
+
+}
+
+
+//Step forwards by one entry
+static ch_llist_it* llist_next (ch_llist_t* this, ch_llist_it* it)
+{
+
+    ch_llist_it* node = NULL;
+    if(it){
+        node = it->_node->next;
+    }
+
+    it->_node = node;
+    if(node){
+
+    }
 }
 
 //Step backwards by one entry
 static void* llist_prev(ch_llist_t* this, void* ptr) {}
-//Step forwards by amount
-static void* llist_forward(ch_llist_t* this, void* ptr, ch_word amount) {}
 //Step backwards by amount
 static void* llist_back(ch_llist_t* this, void* ptr, ch_word amount) {}
 

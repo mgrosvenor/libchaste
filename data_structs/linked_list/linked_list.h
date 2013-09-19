@@ -16,7 +16,7 @@ typedef struct ch_llist_node ch_llist_node_t;
 struct ch_llist_node {
     ch_llist_node_t* next;
     ch_llist_node_t* prev;
-    void* value;
+    ch_byte data[0];
 };
 
 struct ch_llist;
@@ -25,29 +25,38 @@ typedef struct ch_llist ch_llist_t;
 struct ch_llist{
     ch_word count;  //Return the actual number of elements in the llist
 
-    void* first; //Pointer to the fist valid entry list. Not valid if first == end
-    void* last; //Pointer to the last valid element in the list. Not valid if last == end
-    void* end; //Pointer to the one element beyond the end of the valid elements in list. Do not dereference!
-
     // Members prefixed with "_" are nominally "private" Don't touch my privates!
    ch_word (*_cmp)(void* lhs, void* rhs); // Comparator function for find and sort operations
-   ch_array_t* _array; //Actual llist storage
    ch_llist_node_t* _first;
    ch_llist_node_t* _last;
 };
 
+typedef struct {
+    void* value;
+
+    //These state variables are private
+    ch_llist_node_t* _node;
+} ch_llist_it;
+
 
 //Return the element at a given offset, with bounds checking [WARN: This is slow in general]
-void* llist_off(ch_llist_t* this, ch_word idx);
+ch_llist_it llist_off(ch_llist_t* this, ch_word idx);
+
+//Get the first entry
+ch_llist_it llist_first(ch_llist_t* this);
+//Get the last entry
+ch_llist_it llist_last(ch_llist_t* this);
+//Get the end
+ch_llist_it llist_end(ch_llist_t* this);
 
 //Step forwards by one entry
-void* llist_next (ch_llist_t* this, void* ptr);
+ch_llist_it* llist_next (ch_llist_t* this, ch_llist_it* it);
 //Step backwards by one entry
-void* llist_prev(ch_llist_t* this, void* ptr);
+ch_llist_it* llist_prev(ch_llist_t* this, ch_llist_it*);
 //Step forwards by amount
-void* llist_forward(ch_llist_t* this, void* ptr, ch_word amount);
+ch_llist_it* llist_forward(ch_llist_t* this, ch_llist_it* it, ch_word amount);
 //Step backwards by amount
-void* llist_back(ch_llist_t* this, void* ptr, ch_word amount);
+ch_llist_it* llist_back(ch_llist_t* this, ch_llist_it* it, ch_word amount);
 
 // Put an element at the front of the llist list values,
 void* llist_push_front(ch_llist_t* this, void* value);
@@ -59,11 +68,11 @@ void* llist_push_back(ch_llist_t* this, void* value);
 void llist_pop_back(ch_llist_t* this);
 
 // Insert an element after the element given by ptr
-void* llist_insert_after(ch_llist_t* this, void* ptr, void* value);
+void* llist_insert_after(ch_llist_t* this, ch_llist_it* it, void* value);
 // Insert an element before the element giver by ptr
-void* llist_insert_before(ch_llist_t* this, void* ptr, void* value);
+void* llist_insert_before(ch_llist_t* this, ch_llist_it* it, void* value);
 //Remove the given ptr [WARN: In general this is very expensive]
-void* llist_remove(ch_llist_t* this, void* ptr);
+void* llist_remove(ch_llist_t* this, ch_llist_it* it);
 //Free the resources associated with this llist, assumes that individual items have been freed
 void llist_delete(ch_llist_t* this);
 
