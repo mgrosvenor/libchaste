@@ -5,12 +5,14 @@
  *      Author: mgrosvenor
  */
 
+#ifndef ARRAY_TYPED_TEMPLATE_DEFINE_H_
+#define ARRAY_TYPED_TEMPLATE_DEFINE_H_
+
 
 #include "array.h"
 
 #include <stdlib.h>
 #include <stdio.h>
-
 
 #define define_array(NAME,TYPE)\
 \
@@ -76,3 +78,5 @@ ch_array_##NAME##_t* ch_array_##NAME##_new(ch_word size, ch_word (*cmp)(TYPE* lh
 \
     return result;\
 }
+
+#endif //ARRAY_TYPED_TEMPLATE_DEFINE_H_

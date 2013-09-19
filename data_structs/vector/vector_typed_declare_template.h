@@ -1,7 +1,10 @@
+#ifndef VECTOR_TYPED_TEMPLATE_DECLARE_H_
+#define VECTOR_TYPED_TEMPLATE_DECLARE_H_
+
+
 #include "../../types/types.h"
 #include "vector.h"
 
-typedef ch_word (*cmp_void_f)(void*, void*);
 
 #define declare_ch_vector(NAME,TYPE) \
 \
@@ -55,4 +58,5 @@ ch_vector_##NAME##_t* ch_vector_##NAME##_new(ch_word size, ch_word(*cmp)(TYPE* l
 #define CH_VECTOR_NEW(NAME, size, cmp) ch_vector_##NAME##_new(size, cmp )
 #define CH_VECTOR_CMP(NAME) ch_vector_cmp_##NAME
 
+#endif //VECTOR_TYPED_TEMPLATE_DECLARE_H_
 

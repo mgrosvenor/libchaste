@@ -1,3 +1,6 @@
+#ifndef VECTOR_TYPED_TEMPLATE_DEFINE_H_
+#define VECTOR_TYPED_TEMPLATE_DEFINE_H_
+
 #include "vector.h"
 #include "vector_std.h"
 
@@ -106,4 +109,4 @@ ch_word ch_vector_cmp_##NAME(TYPE* lhs, TYPE* rhs)\
     return ch_vector_cmp_##NAME(*lhs, *rhs);\
 }
 
-
+#endif //VECTOR_TYPED_TEMPLATE_DEFINE_H_

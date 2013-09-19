@@ -65,7 +65,7 @@ typedef enum {
 
 ch_word is_vector(ch_word type);
 
-
+typedef ch_word (*cmp_void_f)(void*, void*);
 
 
 
