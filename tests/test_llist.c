@@ -14,11 +14,11 @@
 
 static ch_word cmp_i64(void* lhs, void* rhs)
 {
-    if(*(i64*)lhs < *(i64*)rhs){
+    if( *(i64*)lhs < *(i64*)rhs ){
         return -1;
     }
 
-    if(*(i64*)lhs > *(i64*)rhs){
+    if( *(i64*)lhs > *(i64*)rhs ){
         return 1;
     }
 
@@ -28,11 +28,13 @@ static ch_word cmp_i64(void* lhs, void* rhs)
 
 void dump_array_ch_word(ch_llist_t* ll)
 {
+    printf("---------------------------------------------------\n");
     printf("There are %li items in the list\n", ll->count);
     for(ch_llist_it i = llist_first(ll); i.value ;  llist_next(ll, &i)){
-        printf("%li,", (i64)i.value);
+        printf("%li,", *(i64*)i.value);
     }
     printf("\n");
+    printf("---------------------------------------------------\n");
 }
 
 
@@ -121,7 +123,7 @@ static ch_word test2_i64(i64* test_data)
     CH_ASSERT( *(i64*)it2.value == test_data[0] );
 
     //Test that last() returns a valid iterator
-    ch_llist_it it3 = llist_first(ll1);
+    ch_llist_it it3 = llist_last(ll1);
     CH_ASSERT( it3._node );
     CH_ASSERT( (*(i64*)NODE_DATAP(it1._node)) == test_data[0] );
     CH_ASSERT( it3.value );
@@ -158,9 +160,9 @@ static ch_word test2_i64(i64* test_data)
     CH_ASSERT( *(i64*)it5.value == test_data[0] );
 
     //Test that last() returns a valid iterator
-    ch_llist_it it7 = llist_first(ll2);
+    ch_llist_it it7 = llist_last(ll2);
     CH_ASSERT( it7._node );
-    CH_ASSERT( (*(i64*)NODE_DATAP(it1._node)) == test_data[0] );
+    CH_ASSERT( (*(i64*)NODE_DATAP(it7._node)) == test_data[0] );
     CH_ASSERT( it7.value );
     CH_ASSERT( *(i64*)it7.value == test_data[0] );
 
@@ -238,7 +240,105 @@ static ch_word test3_i64(i64* test_data)
 }
 
 
+#define TEST_4_MAX 15
 
+/* Insert all elements into an empty list. Use both push back, push front and push_back_carray*/
+static ch_word test4_i64(i64* test_data)
+{
+    ch_word result = 1;
+
+    //Make a new list
+    ch_llist_t* ll1 = ch_llist_new(sizeof(i64),cmp_i64);
+    ch_llist_t* ll2 = ch_llist_new(sizeof(i64),cmp_i64);
+    ch_llist_t* ll3 = ch_llist_new(sizeof(i64),cmp_i64);
+
+    for(ch_word i = 0; i < TEST_4_MAX; i++){
+        //Push a value onto it
+        ch_llist_it it1 = llist_push_back(ll1, &test_data[i]);
+
+        CH_ASSERT(!llist_eq(ll1,ll2));
+
+        ch_llist_it it4 = llist_push_front(ll2, &test_data[TEST_4_MAX -1 - i]);
+
+        //Test the the push returns a valid iterator
+        CH_ASSERT( it1._node );
+        CH_ASSERT( (*(i64*)NODE_DATAP(it1._node)) == test_data[i] );
+        CH_ASSERT( it1.value );
+        CH_ASSERT( *(i64*)it1.value == test_data[i] );
+
+        //Test that first() returns a valid iterator
+        ch_llist_it it2 = llist_first(ll1);
+        CH_ASSERT( it2._node );
+        CH_ASSERT( (*(i64*)NODE_DATAP(it2._node)) == test_data[0] );
+        CH_ASSERT( it2.value );
+        CH_ASSERT( *(i64*)it2.value == test_data[0] );
+
+        //Test that last() returns a valid iterator
+        ch_llist_it it3 = llist_last(ll1);
+        CH_ASSERT( it3._node );
+        CH_ASSERT( (*(i64*)NODE_DATAP(it1._node)) == test_data[i] );
+        CH_ASSERT( it3.value );
+        CH_ASSERT( *(i64*)it3.value == test_data[i] );
+
+        //Test that the returned iterator is valid
+        CH_ASSERT( it4._node );
+        CH_ASSERT( (*(i64*)NODE_DATAP(it4._node)) == test_data[TEST_4_MAX -1 -i] );
+        CH_ASSERT( it4.value );
+        CH_ASSERT( *(i64*)it4.value == test_data[TEST_4_MAX -1 -i] );
+
+        //Test that first() returns a valid iterator
+        ch_llist_it it5 = llist_first(ll2);
+        CH_ASSERT( it5._node );
+        CH_ASSERT( (*(i64*)NODE_DATAP(it5._node)) == test_data[TEST_4_MAX -1 - i] );
+        CH_ASSERT( it5.value );
+        CH_ASSERT( *(i64*)it5.value == test_data[TEST_4_MAX -1  -i] );
+
+        //Test that last() returns a valid iterator
+        ch_llist_it it7 = llist_last(ll2);
+        CH_ASSERT( it7._node );
+        CH_ASSERT( (*(i64*)NODE_DATAP(it7._node)) == test_data[TEST_4_MAX -1] );
+        CH_ASSERT( it7.value );
+        CH_ASSERT( *(i64*)it7.value == test_data[TEST_4_MAX -1] );
+    }
+
+    ch_llist_it it8 = llist_push_back_carray(ll3, test_data, TEST_4_MAX);
+    //Test that the returned iterator is valid
+    CH_ASSERT( it8._node );
+    CH_ASSERT( (*(i64*)NODE_DATAP(it8._node)) == test_data[TEST_4_MAX -1 -TEST_4_MAX] );
+    CH_ASSERT( it8.value );
+    CH_ASSERT( *(i64*)it8.value == test_data[TEST_4_MAX -1 -TEST_4_MAX] );
+
+    //Test that first() returns a valid iterator
+    ch_llist_it it9 = llist_first(ll2);
+    CH_ASSERT( it9._node );
+    CH_ASSERT( (*(i64*)NODE_DATAP(it9._node)) == test_data[TEST_4_MAX -1 - TEST_4_MAX] );
+    CH_ASSERT( it9.value );
+    CH_ASSERT( *(i64*)it9.value == test_data[TEST_4_MAX -1  -TEST_4_MAX] );
+
+    //Test that last() returns a valid iterator
+    ch_llist_it it10 = llist_last(ll2);
+    CH_ASSERT( it10._node );
+    CH_ASSERT( (*(i64*)NODE_DATAP(it10._node)) == test_data[TEST_4_MAX -1] );
+    CH_ASSERT( it10.value );
+    CH_ASSERT( *(i64*)it10.value == test_data[TEST_4_MAX -1] );
+
+
+    //Check that the lists are now equal
+    CH_ASSERT(llist_eq(ll1,ll2));
+    CH_ASSERT(llist_eq(ll2,ll1));
+    CH_ASSERT(llist_eq(ll3,ll1));
+    CH_ASSERT(llist_eq(ll3,ll2));
+    CH_ASSERT(llist_eq(ll1,ll3));
+    CH_ASSERT(llist_eq(ll2,ll3));
+
+
+
+    //Clean up and bug out.
+    llist_delete(ll1);
+    llist_delete(ll2);
+    llist_delete(ll3);
+    return result;
+}
 
 ///* Insert an element into an array of size 10*/
 //static ch_word test5_i64(i64* test_data)
@@ -629,7 +729,7 @@ int main(int argc, char** argv)
     printf("CH Data Structures: Linked List Test 01: ");  printf("%s", (test_result = test1_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Linked List Test 02: ");  printf("%s", (test_result = test2_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Linked List Test 03: ");  printf("%s", (test_result = test3_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-//    printf("CH Data Structures: Linked List Test 04: ");  printf("%s", (test_result = test4_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Linked List Test 04: ");  printf("%s", (test_result = test4_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Linked List Test 05: ");  printf("%s", (test_result = test5_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Linked List Test 06: ");  printf("%s", (test_result = test6_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Linked List Test 07: ");  printf("%s", (test_result = test7_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
