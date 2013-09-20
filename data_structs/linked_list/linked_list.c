@@ -2,8 +2,15 @@
 // Copyright (C) 2013: Matthew P. Grosvenor (matthew.grosvenor@cl.cam.ac.uk) 
 // Licensed under BSD 3 Clause, please see LICENSE for more details. 
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
 #include "linked_list.h"
 
+
+#define NODE_DATAP(node) ((node->prev + 1))
+#define NODE_DATA(node) ((node.prev + 1))
 
 //Allocate an object using whatever mechanism we want
 static ch_llist_node_t* alloc_ch_llist_node_obj(ch_llist_t* this){
@@ -12,41 +19,44 @@ static ch_llist_node_t* alloc_ch_llist_node_obj(ch_llist_t* this){
 }
 
 static void free_ch_llist_node_obj(ch_llist_t* this, ch_llist_node_t* lhs){
+    (void)this;
     free(lhs);
 }
 
 
 //Get the first entry
-static ch_llist_it llist_first(ch_llist_t* this)
+ch_llist_it llist_first(ch_llist_t* this)
 {
     ch_llist_it result = {0};
     result._node = this->_first;
-    result.value = result._node ? result._node->data : NULL;
+    result.value = result._node ? NODE_DATAP(result._node) : NULL;
     return result;
 }
 
 //Get the last entry
-static ch_llist_it llist_last(ch_llist_t* this)
+ch_llist_it llist_last(ch_llist_t* this)
 {
     ch_llist_it result = {0};
     result._node = this->_last;
-    result.value = result._node ? result._node->data : NULL;
+    result.value = result._node ? NODE_DATAP(result._node) : NULL;
     return result;
 
 }
 
 //Get the end
-static ch_llist_it llist_end(ch_llist_t* this)
+ch_llist_it llist_end(ch_llist_t* this)
 {
+    (void)this;
     ch_llist_it result = {0};
     return result;
 }
 
 
 //Step through the list in any direction by any amount
-static ch_llist_it step_through_list(ch_llist_t*this, ch_llist_it* start, ch_word amount)
+static ch_llist_it step_through_list(ch_llist_t*this, ch_llist_node_t* start, ch_word amount)
 {
 
+    (void)this;
     ch_llist_it result = { 0 };
     ch_llist_node_t* node = start;
 
@@ -59,7 +69,7 @@ static ch_llist_it step_through_list(ch_llist_t*this, ch_llist_it* start, ch_wor
     }
 
     result._node = node;
-    result.value = result._node ? result._node->data : NULL;
+    result.value = result._node ? NODE_DATAP(result._node) : NULL;
 
     return result;
 
@@ -67,10 +77,8 @@ static ch_llist_it step_through_list(ch_llist_t*this, ch_llist_it* start, ch_wor
 
 
 //Return the element at a given offset, with bounds checking [WARN: This is slow in general]
-static ch_llist_it llist_off(ch_llist_t* this, ch_word idx)
+ch_llist_it llist_off(ch_llist_t* this, ch_word idx)
 {
-    ch_llist_it result;
-
     ch_llist_node_t* start = idx < 0 ? this->_last : this->_first;
     idx = idx < 0 ? idx + 1 : idx; //Correct for the change above
 
@@ -79,42 +87,47 @@ static ch_llist_it llist_off(ch_llist_t* this, ch_word idx)
 
 
 //Step forwards by amount
-static ch_llist_it* llist_forward(ch_llist_t* this, ch_llist_it* itr, ch_word amount)
+ch_llist_it* llist_forward(ch_llist_t* this, ch_llist_it* itr, ch_word amount)
 {
-    return (*itr = step_through_list(this, this, amount) ) ;
+    *itr = step_through_list(this, itr->_node, amount);
+    return itr ;
 }
 
 //Step backwards by amount
-static ch_llist_it* llist_back(ch_llist_t* this, ch_llist_it* itr, ch_word amount)
+ch_llist_it* llist_back(ch_llist_t* this, ch_llist_it* itr, ch_word amount)
 {
-    return (*itr = step_through_list(this, this, -1 * amount) ) ;
+    *itr = step_through_list(this, itr->_node, -1 * amount);
+    return itr;
 }
 
 
 //Step forwards by one entry
-static ch_llist_it* llist_next (ch_llist_t* this, ch_llist_it* it)
+ch_llist_it* llist_next (ch_llist_t* this, ch_llist_it* it)
 {
-    return (*it = step_through_list(this, this, 1) ) ;
+    *it = step_through_list(this, it->_node, 1);
+    return it;
 }
 
 //Step backwards by one entry
-static ch_llist_it* llist_prev(ch_llist_t* this, ch_llist_it* it)
+ch_llist_it* llist_prev(ch_llist_t* this, ch_llist_it* it)
 {
-    return (*it = step_through_list(this, this, -1) ) ;
+    *it = step_through_list(this, it->_node, -1);
+    return  it;
+
 }
 
 
 // Put an element at the front of the llist list values,
-static ch_llist_it llist_push_front(ch_llist_t* this, const void* value)
+ch_llist_it llist_push_front(ch_llist_t* this, const void* value)
 {
     ch_llist_it result = { 0 };
-    ch_llist_node_t* node = alloc_ch_llist_node_obj();
+    ch_llist_node_t* node = alloc_ch_llist_node_obj(this);
 
     if(!node){
         return result;
     }
 
-    memcpy(node->data, value, this->_element_size);
+    memcpy(NODE_DATAP(node), value, this->_element_size);
     node->prev = NULL;
     node->next = this->_first;
 
@@ -132,25 +145,27 @@ static ch_llist_it llist_push_front(ch_llist_t* this, const void* value)
     this->_first = node;
 
     result._node = node;
-    result.value = result._node ? result._node->data : NULL;
+    result.value = result._node ? NODE_DATAP(result._node) : NULL;
 
     this->count++;
+
+    return result;
 
 }
 
 
 // Put an element at the back of the llist values
-static void* llist_push_back(ch_llist_t* this, const void* value)
+ch_llist_it llist_push_back(ch_llist_t* this, const void* value)
 {
 
     ch_llist_it result = { 0 };
-    ch_llist_node_t* node = alloc_ch_llist_node_obj();
+    ch_llist_node_t* node = alloc_ch_llist_node_obj(this);
 
     if(!node){
         return result;
     }
 
-    memcpy(node->data, value, this->_element_size);
+    memcpy( NODE_DATAP(node), value, this->_element_size);
     node->next = NULL;
     node->prev = this->_last;
 
@@ -167,25 +182,28 @@ static void* llist_push_back(ch_llist_t* this, const void* value)
 
     this->_last = node;
     this->count++;
+
+    return result;
 }
 
 
 
 // Insert an element after the element given by ptr
-static ch_llist_it* llist_insert_after(ch_llist_t* this, ch_llist_it* itr, const void* value)
+ch_llist_it* llist_insert_after(ch_llist_t* this, ch_llist_it* itr, const void* value)
 {
     if(!itr){
         return NULL;
     }
 
     ch_llist_it result = { 0 };
-    ch_llist_node_t* node = alloc_ch_llist_node_obj();
+    ch_llist_node_t* node = alloc_ch_llist_node_obj(this);
 
     if(!node){
-        return result;
+        *itr = result;
+        return itr;
     }
 
-    memcpy(node->data, value, this->_element_size);
+    memcpy(NODE_DATAP(node), value, this->_element_size);
 
     //Rearrange the pointers.
     if(itr->_node->next){
@@ -199,30 +217,32 @@ static ch_llist_it* llist_insert_after(ch_llist_t* this, ch_llist_it* itr, const
     node->prev       = itr->_node;
     itr->_node->next = node;
 
-    result->_node = node;
-    result->value = node->data;
+    result._node = node;
+    result.value = NODE_DATAP(node);
 
     this->count++;
-    return result;
+    *itr = result;
+    return itr;
 
 }
 
 
 // Insert an element before the element giver by ptr
-static ch_llist_it* llist_insert_before(ch_llist_t* this, ch_llist_it* itr, const void* value)
+ch_llist_it* llist_insert_before(ch_llist_t* this, ch_llist_it* itr, const void* value)
 {
     if(!itr){
         return NULL;
     }
 
     ch_llist_it result = { 0 };
-    ch_llist_node_t* node = alloc_ch_llist_node_obj();
+    ch_llist_node_t* node = alloc_ch_llist_node_obj(this);
 
     if(!node){
-        return result;
+        *itr = result;
+        return itr;
     }
 
-    memcpy(node->data, value, this->_element_size);
+    memcpy(NODE_DATAP(node), value, this->_element_size);
 
     //Rearrange the pointers.
     if(itr->_node->prev){
@@ -235,17 +255,19 @@ static ch_llist_it* llist_insert_before(ch_llist_t* this, ch_llist_it* itr, cons
     node->next       = itr->_node;
     itr->_node->prev = node;
 
-    result->_node = node;
-    result->value = node->data;
+    result._node = node;
+    result.value = NODE_DATAP(node);
 
     this->count++;
-    return result;
+    *itr = result;
+
+    return itr;
 
 }
 
 
 //Remove the given ptr [WARN: In general this is very expensive]
-static ch_llist_it llist_remove(ch_llist_t* this, ch_llist_it* itr)
+ch_llist_it llist_remove(ch_llist_t* this, ch_llist_it* itr)
 {
     ch_llist_it result = { 0 };
     if(!itr){
@@ -265,8 +287,8 @@ static ch_llist_it llist_remove(ch_llist_t* this, ch_llist_it* itr)
     else{
         itr->_node->next->prev = itr->_node->prev;
 
-        result->_node = itr->_node->next;
-        result.value = result._node ? result._node->data : NULL;
+        result._node = itr->_node->next;
+        result.value = result._node ? NODE_DATAP(result._node) : NULL;
     }
 
     free_ch_llist_node_obj(this, itr->_node);
@@ -277,19 +299,21 @@ static ch_llist_it llist_remove(ch_llist_t* this, ch_llist_it* itr)
 
 
 // Push an element at the back of the llist values
-static ch_llist_it llist_pop_back(ch_llist_t* this)
+ch_llist_it llist_pop_back(ch_llist_t* this)
 {
-    return llist_remove(this,llist_last(this));
+    ch_llist_it it = llist_last(this);
+    return llist_remove(this,&it);
 }
 
 // Push an element off the front of the llist list values,
-static ch_llist_it llist_pop_front(ch_llist_t* this)
+ch_llist_it llist_pop_front(ch_llist_t* this)
 {
-    return llist_remove(this,llist_first(this));
+    ch_llist_it it = llist_first(this);
+    return llist_remove(this,&it);
 }
 
 //Free the resources associated with this llist, assumes that individual items have been freed
-static void llist_delete(ch_llist_t* this)
+void llist_delete(ch_llist_t* this)
 {
     ch_llist_node_t* node = this->_first;
 
@@ -305,7 +329,7 @@ static void llist_delete(ch_llist_t* this)
 
 
 //Push back count elements the C llist to the back llist-list
-static ch_llist_it llist_push_back_carray(ch_llist_t* this, const void* carray, ch_word count)
+ch_llist_it llist_push_back_carray(ch_llist_t* this, const void* carray, ch_word count)
 {
     ch_llist_it result;
 
@@ -331,9 +355,9 @@ ch_word llist_eq(ch_llist_t* this, ch_llist_t* that)
 
     ch_llist_it it1 = llist_first(this);
     ch_llist_it it2 = llist_first(that);
-    for( ; it1->value && it2->value; llist_next(this,&it1), llist_next(that,&it2))
+    for( ; it1.value && it2.value; llist_next(this,&it1), llist_next(that,&it2))
     {
-        if(!this->_cmp(it1->value, it2->value)){
+        if(!this->_cmp(it1.value, it2.value)){
             return 0;
         }
     }
@@ -343,27 +367,26 @@ ch_word llist_eq(ch_llist_t* this, ch_llist_t* that)
 
 
 //find the given value using the comparator function
-static ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, void* value)
+ch_llist_it* llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, void* value)
 {
-    ch_llist_it result = { 0 };
-
-    for(ch_llist_it it = begin; it != end; llist_next(this,&it) ){
+    for(ch_llist_it* it = begin; it != end; llist_next(this,it) ){
         if(this->_cmp(it->value, value) == 0){
             return it;
         }
     }
 
-    return result;
+    return NULL;
 
 }
 //sort into order given the comparator function
-static void llist_sort(ch_llist_t* this)
+void llist_sort(ch_llist_t* this)
 {
+    (void)this;
     printf("%s:%s%u Not (yet  )implemented!\n", __FUNCTION__, __FILE__, __LINE__ );
     exit(1);
 }
 
-ch_llist_t* ch_llist_new(ch_word size, ch_word element_size, ch_word(*cmp)(static void* lhs, void* rhs) )
+ch_llist_t* ch_llist_new( ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) )
 {
     ch_llist_t* result = (ch_llist_t*)calloc(1,sizeof(ch_llist_t));
     if(!result){
@@ -378,12 +401,6 @@ ch_llist_t* ch_llist_new(ch_word size, ch_word element_size, ch_word(*cmp)(stati
     result->_first          = NULL;
     result->_last           = NULL;
     result->count           = 0;
-
-    result->first                   = llist_first;
-    result->last                    = result->first;
-    result->end                     = result->first;
-    result->size                    = result->_array->size;
-    result->count                   = result->_array_count;
 
     return result;
 
