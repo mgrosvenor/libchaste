@@ -9,8 +9,8 @@
 #include "linked_list.h"
 
 
-#define NODE_DATAP(node) ((node->prev + 1))
-#define NODE_DATA(node) ((node.prev + 1))
+#define NODE_DATAP(node) ( (void*)((u8*)node  + sizeof(ch_llist_node_t)) )
+#define NODE_DATA(node)  ( (void*)((u8*)&node + sizeof(ch_llist_node_t)) )
 
 //Allocate an object using whatever mechanism we want
 static ch_llist_node_t* alloc_ch_llist_node_obj(ch_llist_t* this){
@@ -135,6 +135,8 @@ ch_llist_it llist_push_front(ch_llist_t* this, const void* value)
         this->_first->prev = node;
     }
 
+    this->_first = node;
+
     if(this->_last == NULL){
         this->_last = this->_first;
     }
@@ -142,12 +144,9 @@ ch_llist_it llist_push_front(ch_llist_t* this, const void* value)
         this->_last = node->next;
     }
 
-    this->_first = node;
-
+    this->count++;
     result._node = node;
     result.value = result._node ? NODE_DATAP(result._node) : NULL;
-
-    this->count++;
 
     return result;
 
@@ -173,6 +172,8 @@ ch_llist_it llist_push_back(ch_llist_t* this, const void* value)
         this->_last->next = node;
     }
 
+    this->_last = node;
+
     if(this->_first == NULL){
         this->_first = this->_last;
     }
@@ -180,9 +181,10 @@ ch_llist_it llist_push_back(ch_llist_t* this, const void* value)
         this->_first = node->prev;
     }
 
-    this->_last = node;
-    this->count++;
 
+    this->count++;
+    result._node = node;
+    result.value = result._node ? NODE_DATAP(result._node) : NULL;
     return result;
 }
 
@@ -315,11 +317,16 @@ ch_llist_it llist_pop_front(ch_llist_t* this)
 //Free the resources associated with this llist, assumes that individual items have been freed
 void llist_delete(ch_llist_t* this)
 {
+    if(!this){
+        return;
+    }
+
     ch_llist_node_t* node = this->_first;
 
     while(node){
-        free_ch_llist_node_obj(this, node);
+        ch_llist_node_t* tmp = node;
         node = node->next;
+        free_ch_llist_node_obj(this, tmp);
     }
 
     free(this);
@@ -345,6 +352,18 @@ ch_llist_it llist_push_back_carray(ch_llist_t* this, const void* carray, ch_word
 //Check for equality
 ch_word llist_eq(ch_llist_t* this, ch_llist_t* that)
 {
+    if(!this && !that){
+        return 1;
+    }
+
+    if(!this){
+        return 0;
+    }
+
+    if(!that){
+        return 0;
+    }
+
     if(this->count != that->count){
         return 0;
     }
@@ -357,7 +376,7 @@ ch_word llist_eq(ch_llist_t* this, ch_llist_t* that)
     ch_llist_it it2 = llist_first(that);
     for( ; it1.value && it2.value; llist_next(this,&it1), llist_next(that,&it2))
     {
-        if(!this->_cmp(it1.value, it2.value)){
+        if(this->_cmp(it1.value, it2.value)){
             return 0;
         }
     }
@@ -388,6 +407,12 @@ void llist_sort(ch_llist_t* this)
 
 ch_llist_t* ch_llist_new( ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) )
 {
+
+    if(element_size <= 0){
+        printf("Error: invalid element size (<=0), must have *some* data\n");
+        return NULL;
+    }
+
     ch_llist_t* result = (ch_llist_t*)calloc(1,sizeof(ch_llist_t));
     if(!result){
         printf("Could not allocate memory for new llist structure. Giving up\n");
