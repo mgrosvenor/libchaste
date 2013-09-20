@@ -5,7 +5,7 @@
  *      Author: mgrosvenor
  */
 
-#include "libch.h"
+#include "chaste.h"
 
 USE_CH_LOGGER_DEFAULT;
 USE_CH_OPTIONS;
