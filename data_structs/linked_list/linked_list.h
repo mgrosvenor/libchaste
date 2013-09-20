@@ -29,6 +29,7 @@ struct ch_llist{
    ch_word (*_cmp)(void* lhs, void* rhs); // Comparator function for find and sort operations
    ch_llist_node_t* _first;
    ch_llist_node_t* _last;
+   ch_word _element_size;
 };
 
 typedef struct {
@@ -72,7 +73,7 @@ void* llist_insert_after(ch_llist_t* this, ch_llist_it* it, void* value);
 // Insert an element before the element giver by ptr
 void* llist_insert_before(ch_llist_t* this, ch_llist_it* it, void* value);
 //Remove the given ptr [WARN: In general this is very expensive]
-void* llist_remove(ch_llist_t* this, ch_llist_it* it);
+void llist_remove(ch_llist_t* this, ch_llist_it* it);
 //Free the resources associated with this llist, assumes that individual items have been freed
 void llist_delete(ch_llist_t* this);
 
