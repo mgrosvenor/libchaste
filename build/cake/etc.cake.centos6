@@ -1,4 +1,4 @@
-CAKE_DEFAULT_VARIANT="gcc46_debug"
+CAKE_DEFAULT_VARIANT="gcc481_debug"
 CAKE_PROJECT_VERSION_CMD="pkgit-project-version"
 
 CAKE_GCC44_ID="GCC44"
