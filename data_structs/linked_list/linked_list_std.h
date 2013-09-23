@@ -15,8 +15,6 @@ declare_ch_llist(u16, u16)
 declare_ch_llist(u32, u32)
 declare_ch_llist(u64, u64)
 
-declare_ch_llist(UINT64, u64)
-
 declare_ch_llist(u8p,  u8*)
 declare_ch_llist(u16p, u16*)
 declare_ch_llist(u32p, u32*)
@@ -89,6 +87,7 @@ declare_ch_llist_cmp(cstrp, ch_cstr*)
 declare_ch_llist_cmp(voidp,  void*)
 
 
-
+declare_ch_llist(UINT64, u64)
+declare_ch_llist_cmp(UINT64, u64)
 
 #endif /* LINKED_LIST_STD_H_ */

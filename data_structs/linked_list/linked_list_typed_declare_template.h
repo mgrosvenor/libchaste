@@ -61,7 +61,7 @@ ch_llist_##NAME##_t* ch_llist_##NAME##_new(ch_word(*cmp)(TYPE* lhs, TYPE* rhs) )
 
 #define CH_LIST(NAME)  ch_llist_##NAME##_t
 #define CH_LIST_IT(NAME)  ch_llist_##NAME##_it
-#define CH_LIST_NEW(NAME, size, cmp) ch_llist_##NAME##_new(size, cmp )
+#define CH_LIST_NEW(NAME, cmp) ch_llist_##NAME##_new(cmp )
 #define CH_LIST_CMP(NAME) ch_llist_cmp_##NAME
 
 #endif /*LINKED_LIST_TYPED_TEMPLATE_DECLARE_H_*/

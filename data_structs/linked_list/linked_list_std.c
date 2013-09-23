@@ -9,6 +9,10 @@
 #include "linked_list_std.h"
 #include "linked_list_typed_define_template.h"
 
+
+define_ch_llist_cmp(UINT64, u64)
+
+
 //define_ch_llist(UINT64, u64)
 
 static inline void _update_UINT64(ch_llist_UINT64_t* this)

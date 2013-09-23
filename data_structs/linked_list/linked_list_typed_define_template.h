@@ -103,7 +103,7 @@ ch_llist_##NAME##_t* ch_llist_##NAME##_new(ch_word size, ch_word (*cmp)(ch_llist
 
 //Regular comparison function
 #define define_ch_llist_cmp(NAME, TYPE) \
-ch_word ch_llist_cmp_##NAME(ch_llist_##NAME##_it lhs, ch_llist_##NAME##_it rhs)\
+ch_word ch_llist_cmp_##NAME(TYPE* lhs, TYPE* rhs)\
 { \
     return ( *lhs == *rhs ? 0 : *lhs < *rhs ? -1 : 1); \
 }
