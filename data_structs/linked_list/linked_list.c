@@ -276,6 +276,10 @@ ch_llist_it llist_remove(ch_llist_t* this, ch_llist_it* itr)
         return result;
     }
 
+    if(!itr->_node){
+        return result;
+    }
+
     if(!itr->_node->prev){
         this->_first = itr->_node->next;
     }
