@@ -7,6 +7,7 @@ DISTRIBUTOR_ID=""
 # Linux:  Use /etc/os-release once it is more prevalent, but for now lsb_release will suffice on linux systems.
 if [ -x $(which lsb_release) ]; then
     DISTRIBUTOR_ID=$(lsb_release -i | cut -f2 |tr -d '\n')
+    #echo "DISTRIBUTOR_ID=$DISTRIBUTOR_ID"
     
     if [ "CentOS" = "$DISTRIBUTOR_ID" ]; then
         MAJOR_RELEASE=$(lsb_release -r | cut -f2 | cut -d. -f1)
@@ -17,6 +18,12 @@ if [ -x $(which lsb_release) ]; then
     if [ "Fedora" = "$DISTRIBUTOR_ID" ]; then
         MAJOR_RELEASE=$(lsb_release -r | cut -f2 | cut -d. -f1)
         echo etc.cake.fedora$MAJOR_RELEASE
+    fi
+
+    if [ "Ubuntu" = "$DISTRIBUTOR_ID" ]; then
+        MAJOR_RELEASE=$(lsb_release -r | cut -f2 | cut -d. -f1)
+        #echo "MAJOR_RELEASE=$MAJOR_RELEASE";
+        echo etc.cake.ubuntu.$MAJOR_RELEASE
     fi
 fi
 
