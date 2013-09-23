@@ -32,10 +32,11 @@ struct ch_llist{
 };
 
 typedef struct {
-    void* value;
-
     //These state variables are private
     ch_llist_node_t* _node;
+
+    //This is public
+    void* value;
 } ch_llist_it;
 
 
@@ -50,13 +51,13 @@ ch_llist_it llist_last(ch_llist_t* this);
 ch_llist_it llist_end(ch_llist_t* this);
 
 //Step forwards by one entry
-ch_llist_it* llist_next (ch_llist_t* this, ch_llist_it* it);
+void llist_next (ch_llist_t* this, ch_llist_it* it);
 //Step backwards by one entry
-ch_llist_it* llist_prev(ch_llist_t* this, ch_llist_it*);
+void llist_prev(ch_llist_t* this, ch_llist_it*);
 //Step forwards by amount
-ch_llist_it* llist_forward(ch_llist_t* this, ch_llist_it* it, ch_word amount);
+void llist_forward(ch_llist_t* this, ch_llist_it* it, ch_word amount);
 //Step backwards by amount
-ch_llist_it* llist_back(ch_llist_t* this, ch_llist_it* it, ch_word amount);
+void llist_back(ch_llist_t* this, ch_llist_it* it, ch_word amount);
 
 // Put an element at the front of the llist list values,
 ch_llist_it llist_push_front(ch_llist_t* this, const void* value);
@@ -83,7 +84,7 @@ ch_llist_it llist_push_back_carray(ch_llist_t* this, const void* carray, ch_word
 //Check for equality
 ch_word llist_eq(ch_llist_t* this, ch_llist_t* that);
 //find the given value using the comparator function
-ch_llist_it* llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, void* value);
+ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, void* value);
 //sort into order given the comparator function
 void llist_sort(ch_llist_t* this);
 

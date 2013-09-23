@@ -87,33 +87,28 @@ ch_llist_it llist_off(ch_llist_t* this, ch_word idx)
 
 
 //Step forwards by amount
-ch_llist_it* llist_forward(ch_llist_t* this, ch_llist_it* itr, ch_word amount)
+void llist_forward(ch_llist_t* this, ch_llist_it* itr_inout, ch_word amount)
 {
-    *itr = step_through_list(this, itr->_node, amount);
-    return itr ;
+    *itr_inout = step_through_list(this, itr_inout->_node, amount);
 }
 
 //Step backwards by amount
-ch_llist_it* llist_back(ch_llist_t* this, ch_llist_it* itr, ch_word amount)
+void llist_back(ch_llist_t* this, ch_llist_it* itr_inout, ch_word amount)
 {
-    *itr = step_through_list(this, itr->_node, -1 * amount);
-    return itr;
+    *itr_inout = step_through_list(this, itr_inout->_node, -1 * amount);
 }
 
 
 //Step forwards by one entry
-ch_llist_it* llist_next (ch_llist_t* this, ch_llist_it* it)
+void llist_next (ch_llist_t* this, ch_llist_it* it_inout)
 {
-    *it = step_through_list(this, it->_node, 1);
-    return it;
+    *it_inout = step_through_list(this, it_inout ->_node, 1);
 }
 
 //Step backwards by one entry
-ch_llist_it* llist_prev(ch_llist_t* this, ch_llist_it* it)
+void llist_prev(ch_llist_t* this, ch_llist_it* it_inout)
 {
-    *it = step_through_list(this, it->_node, -1);
-    return  it;
-
+    *it_inout = step_through_list(this, it_inout->_node, -1);
 }
 
 
@@ -390,15 +385,22 @@ ch_word llist_eq(ch_llist_t* this, ch_llist_t* that)
 
 
 //find the given value using the comparator function
-ch_llist_it* llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, void* value)
+ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, void* value)
 {
-    for(ch_llist_it* it = begin; it != end; llist_next(this,it) ){
-        if(this->_cmp(it->value, value) == 0){
+    ch_llist_it result = { 0 };
+
+    if(begin == NULL || end == NULL){
+        return result;
+    }
+
+    ch_llist_it it = *begin;
+    for(; it._node && it._node != end->_node; llist_next(this,&it) ){
+        if(this->_cmp(it.value, value) == 0){
             return it;
         }
     }
 
-    return NULL;
+    return result;
 
 }
 //sort into order given the comparator function
