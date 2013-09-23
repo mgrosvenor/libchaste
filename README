@@ -21,7 +21,7 @@ Powerful logging with runtime and compile time log level tuning.
 
 A string library to efficiently do useful string manipulations. 
 
-Data structures: generic, type safe array and vector (linked list, bin tree and hash map coming soon)
+Data structures: generic, type safe array, vector and linked list (hash map and binary tree coming soon)
 
 Currently builds on:
     - Linux (Ubtuntu 12.10/13.04)
