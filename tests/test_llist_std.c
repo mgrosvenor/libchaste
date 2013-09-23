@@ -7,19 +7,18 @@
 
 #include <stdio.h>
 
-#define NAME UINT64
-#define TYPE u64
+#define TYPE i64
 
 #define NODE_DATAP(node) ( (void*)((u8*)node  + sizeof(void*) * 2) )
 #define NODE_DATA(node)  ( (void*)((u8*)&node + sizeof(void*) * 2) )
 
 
-void dump_list_TYPE(CH_LIST(UINT64)* ll)
+void dump_list_TYPE(CH_LIST(i64)* ll)
 {
     printf("---------------------------------------------------\n");
     printf("There are %li items in the list\n", ll->count);
-    for(CH_LIST_IT(UINT64) i = ll->first(ll); i.value ;  ll->next(ll, &i)){
-        printf("%lu,", *(TYPE*)i.value);
+    for(CH_LIST_IT(i64) i = ll->first(ll); i.value ;  ll->next(ll, &i)){
+        printf("%li,", *(TYPE*)i.value);
     }
     printf("\n");
     printf("---------------------------------------------------\n");
@@ -32,7 +31,7 @@ static ch_word test1_TYPE(TYPE* test_data)
     (void)test_data;
 
     //Make an empty list
-    CH_LIST(UINT64)* ll1 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
+    CH_LIST(i64)* ll1 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
 
     //Ensure that the basic invariants are met
     CH_ASSERT(ll1->first(ll1)._node == NULL);
@@ -44,7 +43,7 @@ static ch_word test1_TYPE(TYPE* test_data)
     CH_ASSERT(ll1->count == 0);
 
 
-    CH_LIST(UINT64)* ll2 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
+    CH_LIST(i64)* ll2 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
 
     //Make sure the list is new
     CH_ASSERT(ll2 != ll1);
@@ -66,10 +65,10 @@ static ch_word test2_TYPE(TYPE* test_data)
     ch_word result = 1;
 
     //Make a new list
-    CH_LIST(UINT64)* ll1 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
+    CH_LIST(i64)* ll1 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
 
     //Push a value onto it
-    CH_LIST_IT(UINT64) it1 = ll1->push_back(ll1, test_data[0]);
+    CH_LIST_IT(i64) it1 = ll1->push_back(ll1, test_data[0]);
 
     //Test the the push returns a valid iterator
     CH_ASSERT( it1._node );
@@ -78,14 +77,14 @@ static ch_word test2_TYPE(TYPE* test_data)
     CH_ASSERT( *(TYPE*)it1.value == test_data[0] );
 
     //Test that first() returns a valid iterator
-    CH_LIST_IT(UINT64) it2 = ll1->first(ll1);
+    CH_LIST_IT(i64) it2 = ll1->first(ll1);
     CH_ASSERT( it2._node );
     CH_ASSERT( (*(TYPE*)NODE_DATAP(it2._node)) == test_data[0] );
     CH_ASSERT( it2.value );
     CH_ASSERT( *(TYPE*)it2.value == test_data[0] );
 
     //Test that last() returns a valid iterator
-    CH_LIST_IT(UINT64) it3 = ll1->last(ll1);
+    CH_LIST_IT(i64) it3 = ll1->last(ll1);
     CH_ASSERT( it3._node );
     CH_ASSERT( (*(TYPE*)NODE_DATAP(it1._node)) == test_data[0] );
     CH_ASSERT( it3.value );
@@ -97,7 +96,7 @@ static ch_word test2_TYPE(TYPE* test_data)
     CH_ASSERT( it2.value == it3.value);
 
     //Create another list
-    CH_LIST(UINT64)* ll2 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
+    CH_LIST(i64)* ll2 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
 
     //Make sure it is distinct
     CH_ASSERT(ll2 != ll1);
@@ -106,7 +105,7 @@ static ch_word test2_TYPE(TYPE* test_data)
     CH_ASSERT(!ll1->eq(ll1,ll2));
 
     //Push the same value onto the front
-    CH_LIST_IT(UINT64) it4 = ll2->push_front(ll2, test_data[0]);
+    CH_LIST_IT(i64) it4 = ll2->push_front(ll2, test_data[0]);
 
     //Test that the returned iterator is valid
     CH_ASSERT( it4._node );
@@ -115,14 +114,14 @@ static ch_word test2_TYPE(TYPE* test_data)
     CH_ASSERT( *(TYPE*)it4.value == test_data[0] );
 
     //Test that first() returns a valid iterator
-    CH_LIST_IT(UINT64) it5 = ll2->first(ll2);
+    CH_LIST_IT(i64) it5 = ll2->first(ll2);
     CH_ASSERT( it5._node );
     CH_ASSERT( (*(TYPE*)NODE_DATAP(it5._node)) == test_data[0] );
     CH_ASSERT( it5.value );
     CH_ASSERT( *(TYPE*)it5.value == test_data[0] );
 
     //Test that last() returns a valid iterator
-    CH_LIST_IT(UINT64) it7 = ll2->last(ll2);
+    CH_LIST_IT(i64) it7 = ll2->last(ll2);
     CH_ASSERT( it7._node );
     CH_ASSERT( (*(TYPE*)NODE_DATAP(it7._node)) == test_data[0] );
     CH_ASSERT( it7.value );
@@ -145,14 +144,14 @@ static ch_word test3_TYPE(TYPE* test_data)
     ch_word result = 1;
 
     //Make a new list and push a value onto it - We can assume this works from above
-    CH_LIST(UINT64)* ll1 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
+    CH_LIST(i64)* ll1 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
     ll1->push_back(ll1, test_data[0]);
 
     //Create another list and push a value onto it- We can assume this works from above
-    CH_LIST(UINT64)* ll2 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
+    CH_LIST(i64)* ll2 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
     ll1->push_back(ll2, test_data[0]);
 
-    CH_LIST_IT(UINT64) it3 = ll1->pop_front(ll1);
+    CH_LIST_IT(i64) it3 = ll1->pop_front(ll1);
 
     //Ensure the list returns to base state
     CH_ASSERT(ll1->first(ll1)._node == NULL);
@@ -170,7 +169,7 @@ static ch_word test3_TYPE(TYPE* test_data)
 
 
     //Remove element from the first list
-    CH_LIST_IT(UINT64) it4 = ll2->pop_front(ll2);
+    CH_LIST_IT(i64) it4 = ll2->pop_front(ll2);
 
     //Ensure the list returns to base state
     CH_ASSERT(ll2->first(ll2)._node == NULL);
@@ -203,17 +202,17 @@ static ch_word test4_TYPE(TYPE* test_data)
     ch_word result = 1;
 
     //Make new lists
-    CH_LIST(UINT64)* ll1 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
-    CH_LIST(UINT64)* ll2 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
-    CH_LIST(UINT64)* ll3 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
+    CH_LIST(i64)* ll1 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
+    CH_LIST(i64)* ll2 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
+    CH_LIST(i64)* ll3 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
 
     for(ch_word i = 0; i < TEST_4_MAX; i++){
         //Push a value onto it
-        CH_LIST_IT(UINT64) it1 = ll1->push_back(ll1, test_data[i]);
+        CH_LIST_IT(i64) it1 = ll1->push_back(ll1, test_data[i]);
 
         CH_ASSERT(!ll1->eq(ll1,ll2));
 
-        CH_LIST_IT(UINT64) it4 = ll2->push_front(ll2, test_data[TEST_4_MAX -1 - i]);
+        CH_LIST_IT(i64) it4 = ll2->push_front(ll2, test_data[TEST_4_MAX -1 - i]);
 
         //Test the the push returns a valid iterator
         CH_ASSERT( it1._node );
@@ -222,14 +221,14 @@ static ch_word test4_TYPE(TYPE* test_data)
         CH_ASSERT( *(TYPE*)it1.value == test_data[i] );
 
         //Test that first() returns a valid iterator
-        CH_LIST_IT(UINT64) it2 = ll1->first(ll1);
+        CH_LIST_IT(i64) it2 = ll1->first(ll1);
         CH_ASSERT( it2._node );
         CH_ASSERT( (*(TYPE*)NODE_DATAP(it2._node)) == test_data[0] );
         CH_ASSERT( it2.value );
         CH_ASSERT( *(TYPE*)it2.value == test_data[0] );
 
         //Test that last() returns a valid iterator
-        CH_LIST_IT(UINT64) it3 = ll1->last(ll1);
+        CH_LIST_IT(i64) it3 = ll1->last(ll1);
         CH_ASSERT( it3._node );
         CH_ASSERT( (*(TYPE*)NODE_DATAP(it1._node)) == test_data[i] );
         CH_ASSERT( it3.value );
@@ -242,21 +241,21 @@ static ch_word test4_TYPE(TYPE* test_data)
         CH_ASSERT( *(TYPE*)it4.value == test_data[TEST_4_MAX -1 -i] );
 
         //Test that first() returns a valid iterator
-        CH_LIST_IT(UINT64) it5 = ll2->first(ll2);
+        CH_LIST_IT(i64) it5 = ll2->first(ll2);
         CH_ASSERT( it5._node );
         CH_ASSERT( (*(TYPE*)NODE_DATAP(it5._node)) == test_data[TEST_4_MAX -1 - i] );
         CH_ASSERT( it5.value );
         CH_ASSERT( *(TYPE*)it5.value == test_data[TEST_4_MAX -1  -i] );
 
         //Test that last() returns a valid iterator
-        CH_LIST_IT(UINT64) it7 = ll2->last(ll2);
+        CH_LIST_IT(i64) it7 = ll2->last(ll2);
         CH_ASSERT( it7._node );
         CH_ASSERT( (*(TYPE*)NODE_DATAP(it7._node)) == test_data[TEST_4_MAX -1] );
         CH_ASSERT( it7.value );
         CH_ASSERT( *(TYPE*)it7.value == test_data[TEST_4_MAX -1] );
     }
 
-    CH_LIST_IT(UINT64) it8 = ll3->push_back_carray(ll3, test_data, TEST_4_MAX);
+    CH_LIST_IT(i64) it8 = ll3->push_back_carray(ll3, test_data, TEST_4_MAX);
     //Test that the returned iterator is valid
     CH_ASSERT( it8._node );
     CH_ASSERT( (*(TYPE*)NODE_DATAP(it8._node)) == test_data[TEST_4_MAX -1] );
@@ -264,14 +263,14 @@ static ch_word test4_TYPE(TYPE* test_data)
     CH_ASSERT( *(TYPE*)it8.value == test_data[TEST_4_MAX -1] );
 
     //Test that first() returns a valid iterator
-    CH_LIST_IT(UINT64) it9 = ll2->first(ll2);
+    CH_LIST_IT(i64) it9 = ll2->first(ll2);
     CH_ASSERT( it9._node );
     CH_ASSERT( (*(TYPE*)NODE_DATAP(it9._node)) == test_data[0] );
     CH_ASSERT( it9.value );
     CH_ASSERT( *(TYPE*)it9.value == test_data[0] );
 
     //Test that last() returns a valid iterator
-    CH_LIST_IT(UINT64) it10 = ll2->last(ll2);
+    CH_LIST_IT(i64) it10 = ll2->last(ll2);
     CH_ASSERT( it10._node );
     CH_ASSERT( (*(TYPE*)NODE_DATAP(it10._node)) == test_data[TEST_4_MAX -1] );
     CH_ASSERT( it10.value );
@@ -303,9 +302,9 @@ static ch_word test5_TYPE(TYPE* test_data)
     ch_word result = 1;
 
     //Make new lists
-    CH_LIST(UINT64)* ll1 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
-    CH_LIST(UINT64)* ll2 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
-    CH_LIST(UINT64)* ll3 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
+    CH_LIST(i64)* ll1 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
+    CH_LIST(i64)* ll2 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
+    CH_LIST(i64)* ll3 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
 
     for(ch_word i = 0; i < TEST_5_MAX; i++){
         ll1->push_back(ll1, test_data[i]);
@@ -328,18 +327,18 @@ static ch_word test5_TYPE(TYPE* test_data)
         //dump_list_TYPE(ll2);
     }
 
-    CH_LIST_IT(UINT64) it1 = ll3->off(ll3,8);
+    CH_LIST_IT(i64) it1 = ll3->off(ll3,8);
     while( (it1 = ll3->remove(ll3,&it1) )._node ){
         //dump_list_TYPE(ll3);
     }
 
     CH_ASSERT( it1._node == NULL );
-    CH_LIST(UINT64)* ll4 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
+    CH_LIST(i64)* ll4 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
     ll4->push_back_carray(ll4, test_data, 8);
     CH_ASSERT(ll4->eq(ll4,ll3));
     CH_ASSERT(ll3->eq(ll3,ll4));
 
-    CH_LIST_IT(UINT64) it2 = ll3->first(ll3);
+    CH_LIST_IT(i64) it2 = ll3->first(ll3);
     while( (it2 = ll3->remove(ll3,&it2) )._node ){
         //dump_list_TYPE(ll3);
     }
@@ -365,10 +364,10 @@ static ch_word test6_TYPE(TYPE* test_data)
 {
     ch_word result = 1;
 
-    CH_LIST(UINT64)* ll1 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
+    CH_LIST(i64)* ll1 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
 
-    CH_LIST_IT(UINT64) start = ll1->first(ll1);
-    CH_LIST_IT(UINT64) end = ll1->end(ll1);
+    CH_LIST_IT(i64) start = ll1->first(ll1);
+    CH_LIST_IT(i64) end = ll1->end(ll1);
     CH_ASSERT(ll1->find(ll1, &start, &end , test_data[1])._node == NULL);
     CH_ASSERT(ll1->find(ll1, &start, &end , test_data[1]).value == NULL);
 
@@ -382,12 +381,12 @@ static ch_word test7_TYPE(TYPE* test_data)
 {
     ch_word result = 1;
 
-    CH_LIST(UINT64)* ll1 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
+    CH_LIST(i64)* ll1 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
     ll1->push_back_carray(ll1, test_data, 3);
 
-    CH_LIST_IT(UINT64) start = ll1->first(ll1);
-    CH_LIST_IT(UINT64) end = ll1->end(ll1);
-    CH_LIST_IT(UINT64) it = ll1->find(ll1, &start, &end , test_data[1]);
+    CH_LIST_IT(i64) start = ll1->first(ll1);
+    CH_LIST_IT(i64) end = ll1->end(ll1);
+    CH_LIST_IT(i64) it = ll1->find(ll1, &start, &end , test_data[1]);
     CH_ASSERT(it._node);
     CH_ASSERT(it.value);
     CH_ASSERT(*(TYPE*)it.value == test_data[1]);
@@ -402,13 +401,13 @@ static ch_word test8_TYPE(TYPE* test_data)
 {
     ch_word result = 1;
 
-    CH_LIST(UINT64)* ll1 = CH_LIST_NEW(UINT64,CH_LIST_CMP(UINT64));
+    CH_LIST(i64)* ll1 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
     ll1->push_back_carray(ll1, test_data, 3);
 
-    CH_LIST_IT(UINT64) start = ll1->first(ll1);
-    CH_LIST_IT(UINT64) end = ll1->end(ll1);
-    CH_LIST_IT(UINT64) start1 = start; ll1->forward(ll1,&start1,1);
-    CH_LIST_IT(UINT64) start2 = start; ll1->forward(ll1,&start2,2);
+    CH_LIST_IT(i64) start = ll1->first(ll1);
+    CH_LIST_IT(i64) end = ll1->end(ll1);
+    CH_LIST_IT(i64) start1 = start; ll1->forward(ll1,&start1,1);
+    CH_LIST_IT(i64) start2 = start; ll1->forward(ll1,&start2,2);
 
     TYPE value = 42;
     CH_ASSERT(ll1->find(ll1,&start, &end, value)._node == NULL);

@@ -1,5 +1,5 @@
-#ifndef VECTOR_TYPED_TEMPLATE_DEFINE_H_
-#define VECTOR_TYPED_TEMPLATE_DEFINE_H_
+#ifndef LINKED_LIST_TYPED_TEMPLATE_DEFINE_H_
+#define LINKED_LIST_TYPED_TEMPLATE_DEFINE_H_
 
 #include "linked_list.h"
 #include "linked_list_std.h"
@@ -11,39 +11,161 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define define_ch_llist(NAME,TYPE)\
+#include "linked_list.h"
+#include "linked_list_std.h"
+#include "linked_list_typed_define_template.h"
+
+#define define_ch_llist(NAME, TYPE)\
 \
-static void _update_##NAME(ch_llist_##NAME##_t* this)\
+static inline void _update_##NAME(ch_llist_##NAME##_t* this)\
 {\
     this->count = this->_llist->count;\
 }\
 \
-static void _update_##NAME(ch_llist_##NAME##_t* this)\
+static inline ch_llist_##NAME##_it _to_##NAME##_it(const ch_llist_it* rhs)\
 {\
-    this->count = this->_llist->count;\
+    ch_llist_##NAME##_it result = { ._node = rhs->_node, .value = (TYPE*)(rhs->value) };\
+    return result;\
 }\
 \
-static ch_llist_##NAME##_it _off_##NAME(ch_llist_##NAME##_t* this, ch_word idx)                        { ch_llist_##NAME##_it result = (ch_llist_##NAME##_it)llist_off(this->_llist, idx); _update_##NAME(this); return result; }\
+static inline ch_llist_it _from_##NAME##_it(const ch_llist_##NAME##_it* rhs)\
+{\
+    ch_llist_it result = { ._node = rhs->_node, .value = rhs->value };\
+    return result;\
+}\
 \
-ch_llist_##NAME##_it (*first)(ch_llist_t* this) {  llist_first(this->_llist}\
-ch_llist_##NAME##_it (*last)(ch_llist_t* this); /*Get the last entry*/\
-ch_llist_##NAME##_it (*end)(ch_llist_t* this); /*Get the end*/\
+static ch_llist_##NAME##_it  _off_##NAME(ch_llist_##NAME##_t* this, ch_word idx)\
+{\
+    const ch_llist_it result = llist_off(this->_llist, idx);\
+    return _to_##NAME##_it(&result);\
+}\
 \
-static ch_llist_##NAME##_it _forward_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it ptr, ch_word amount)           { ch_llist_##NAME##_it result = (ch_llist_##NAME##_it)llist_forward(this->_llist, (void*)ptr, amount); _update_##NAME(this); return result; }\
-static ch_llist_##NAME##_it _back_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it ptr, ch_word amount)              { ch_llist_##NAME##_it result =  (ch_llist_##NAME##_it)llist_back(this->_llist, (void*)ptr, amount); _update_##NAME(this); return result; }\
-static ch_llist_##NAME##_it _next_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it ptr)                              { ch_llist_##NAME##_it result = (ch_llist_##NAME##_it)_forward_##NAME(this, ptr, 1); _update_##NAME(this); return result; }\
-static ch_llist_##NAME##_it _prev_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it ptr)                              { ch_llist_##NAME##_it result = (ch_llist_##NAME##_it)_back_##NAME(this, ptr, 1); _update_##NAME(this); return result; }\
-static ch_llist_##NAME##_it _find_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it begin, ch_llist_##NAME##_it end, TYPE value)       { ch_llist_##NAME##_it result = (ch_llist_##NAME##_it) llist_find(this->_llist, (void*)begin, (void*)end, &value); _update_##NAME(this); return result; }\
-static void _sort_##NAME(ch_llist_##NAME##_t* this)                                        { llist_sort(this->_llist); _update_##NAME(this); }\
-static ch_llist_##NAME##_it _push_front_##NAME(ch_llist_##NAME##_t* this, TYPE value)                       { ch_llist_##NAME##_it result = (ch_llist_##NAME##_it) llist_push_front(this->_llist, &value); _update_##NAME(this); return result; }\
-static ch_llist_##NAME##_it _push_back_##NAME(ch_llist_##NAME##_t* this, TYPE value)                        { ch_llist_##NAME##_it result = (ch_llist_##NAME##_it) llist_push_back(this->_llist, &value); _update_##NAME(this); return result; }\
-static ch_llist_##NAME##_it _insert_after_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it ptr, TYPE value)           { ch_llist_##NAME##_it result = (ch_llist_##NAME##_it) llist_insert_after(this->_llist, ptr, &value); _update_##NAME(this); return result; }\
-static ch_llist_##NAME##_it _insert_before_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it ptr, TYPE value)          { ch_llist_##NAME##_it result = (ch_llist_##NAME##_it) llist_insert_before(this->_llist, ptr, &value); _update_##NAME(this); return result; }\
-static ch_llist_##NAME##_it _remove_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it ptr)                            { ch_llist_##NAME##_it result = (ch_llist_##NAME##_it) llist_remove(this->_llist, ptr); _update_##NAME(this); return result; }\
-static void _pop_front_##NAME(ch_llist_##NAME##_t* this)                                   { llist_pop_front(this->_llist); _update_##NAME(this); }\
-static void _pop_back_##NAME(ch_llist_##NAME##_t* this)                                    { llist_pop_back(this->_llist); _update_##NAME(this); }\
-static ch_llist_##NAME##_it _push_back_carray_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it carray, ch_word count){ ch_llist_##NAME##_it result =  llist_push_back_carray(this->_llist, (void*)carray, count); _update_##NAME(this); return result; }\
-static ch_word _eq_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_t* that)              { ch_word result = llist_eq(this->_llist, that->_llist); _update_##NAME(this); return result;}\
+static ch_llist_##NAME##_it _first_##NAME(ch_llist_##NAME##_t* this)\
+{\
+    const ch_llist_it result = llist_first(this->_llist);\
+    return _to_##NAME##_it(&result);\
+}\
+\
+/*Get the last entry*/\
+static ch_llist_##NAME##_it _last_##NAME(ch_llist_##NAME##_t* this)\
+{\
+    const ch_llist_it result = llist_last(this->_llist);\
+    return _to_##NAME##_it(&result);\
+}\
+\
+/*Get the end*/\
+static ch_llist_##NAME##_it _end_##NAME(ch_llist_##NAME##_t* this){\
+    const ch_llist_it result = llist_end(this->_llist);\
+    return _to_##NAME##_it(&result);\
+}\
+\
+static void  _forward_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr, ch_word amount)\
+{\
+    ch_llist_it base_itr = _from_##NAME##_it(itr);\
+    llist_forward(this->_llist, &base_itr, amount);\
+    *itr = _to_##NAME##_it(&base_itr);\
+}\
+\
+static void  _back_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr, ch_word amount)\
+{\
+    ch_llist_it base_itr = _from_##NAME##_it(itr);\
+    llist_back(this->_llist, &base_itr, amount);\
+    *itr = _to_##NAME##_it(&base_itr);\
+}\
+\
+static void  _next_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr)\
+{\
+    _forward_##NAME(this, itr, 1);\
+}\
+\
+static void  _prev_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr)\
+{\
+    _back_##NAME(this, itr, 1);\
+}\
+\
+static ch_llist_##NAME##_it  _find_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* begin, ch_llist_##NAME##_it* end, TYPE value)\
+{\
+    ch_llist_it base_begin  = _from_##NAME##_it(begin);\
+    ch_llist_it base_end    = _from_##NAME##_it(end);\
+    ch_llist_it result      = llist_find(this->_llist, &base_begin, &base_end, &value);\
+    return _to_##NAME##_it(&result);\
+}\
+\
+\
+static void _sort_##NAME(ch_llist_##NAME##_t* this)\
+{\
+    llist_sort(this->_llist);\
+}\
+\
+\
+static ch_llist_##NAME##_it  _push_front_##NAME(ch_llist_##NAME##_t* this, TYPE value)\
+{\
+    ch_llist_it result = llist_push_front(this->_llist, &value);\
+    _update_##NAME(this);\
+    return _to_##NAME##_it(&result);\
+}\
+\
+static ch_llist_##NAME##_it  _push_back_##NAME(ch_llist_##NAME##_t* this, TYPE value)\
+{\
+    ch_llist_it result = llist_push_back(this->_llist, &value);\
+    _update_##NAME(this);\
+    return _to_##NAME##_it(&result);\
+}\
+\
+static ch_llist_##NAME##_it* _insert_after_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr, TYPE value)\
+{\
+    ch_llist_it base_itr = _from_##NAME##_it(itr);\
+    ch_llist_it* result  =  llist_insert_after(this->_llist, &base_itr, &value);\
+    _update_##NAME(this);\
+    *itr  = _to_##NAME##_it(result);\
+    return itr;\
+\
+}\
+\
+static ch_llist_##NAME##_it*  _insert_before_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr, TYPE value)\
+{\
+    ch_llist_it base_itr = _from_##NAME##_it(itr);\
+    ch_llist_it* result   =  llist_insert_before(this->_llist, &base_itr, &value);\
+    _update_##NAME(this);\
+    *itr  = _to_##NAME##_it(result);\
+    return itr;\
+}\
+\
+static ch_llist_##NAME##_it  _remove_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr)\
+{\
+    ch_llist_it base_itr = _from_##NAME##_it(itr);\
+    ch_llist_it result  =  llist_remove(this->_llist, &base_itr);\
+    _update_##NAME(this);\
+    return _to_##NAME##_it(&result);\
+}\
+\
+static ch_llist_##NAME##_it _pop_front_##NAME(ch_llist_##NAME##_t* this)\
+{\
+    ch_llist_it result = llist_pop_front(this->_llist);\
+    _update_##NAME(this);\
+    return _to_##NAME##_it(&result);\
+}\
+\
+\
+static ch_llist_##NAME##_it _pop_back_##NAME(ch_llist_##NAME##_t* this)\
+{\
+    ch_llist_it result = llist_pop_back(this->_llist);\
+    _update_##NAME(this);\
+    return _to_##NAME##_it(&result);\
+}\
+\
+static ch_llist_##NAME##_it  _push_back_carray_##NAME(ch_llist_##NAME##_t* this, const TYPE* carray, ch_word count)\
+{\
+    ch_llist_it result =  llist_push_back_carray(this->_llist, (void*)carray, count);\
+    _update_##NAME(this);\
+    return _to_##NAME##_it(&result);\
+}\
+\
+static ch_word _eq_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_t* that)\
+{\
+    return llist_eq(this->_llist, that->_llist);\
+}\
+\
 \
 static void _delete_##NAME(ch_llist_##NAME##_t* this)\
 {\
@@ -55,7 +177,7 @@ static void _delete_##NAME(ch_llist_##NAME##_t* this)\
 }\
 \
 \
-ch_llist_##NAME##_t* ch_llist_##NAME##_new(ch_word size, ch_word (*cmp)(ch_llist_##NAME##_it lhs, ch_llist_##NAME##_it rhs) )\
+ch_llist_##NAME##_t* ch_llist_##NAME##_new(ch_word(*cmp)(TYPE* lhs, TYPE* rhs) )\
 {\
 \
     ch_llist_##NAME##_t* result = (ch_llist_##NAME##_t*)calloc(1,sizeof(ch_llist_##NAME##_t));\
@@ -64,29 +186,32 @@ ch_llist_##NAME##_t* ch_llist_##NAME##_new(ch_word size, ch_word (*cmp)(ch_llist
         return ((void *)0);\
     }\
 \
-    result->_llist = ch_llist_new(size, sizeof(TYPE), (cmp_void_f)cmp );\
+    result->_llist = ch_llist_new(sizeof(TYPE), (cmp_void_f)cmp );\
 \
 \
     /*We have memory to play with, now do all the other assignments*/\
-    result->resize                  = _resize_##NAME;\
-    result->eq                      = _eq_##NAME;\
+\
     result->off                     = _off_##NAME;\
+    result->first                   = _first_##NAME;\
+    result->last                    = _last_##NAME;\
+    result->end                     = _end_##NAME;\
+\
     result->next                    = _next_##NAME;\
     result->prev                    = _prev_##NAME;\
     result->forward                 = _forward_##NAME;\
     result->back                    = _back_##NAME;\
-    result->find                    = _find_##NAME;\
-    result->sort                    = _sort_##NAME;\
+\
     result->push_front              = _push_front_##NAME;\
     result->pop_front               = _pop_front_##NAME;\
     result->push_back               = _push_back_##NAME;\
     result->pop_back                = _pop_back_##NAME;\
     result->insert_after            = _insert_after_##NAME;\
     result->insert_before           = _insert_before_##NAME;\
+\
     result->remove                  = _remove_##NAME;\
+\
     result->push_back_carray        = _push_back_carray_##NAME;\
     result->delete                  = _delete_##NAME;\
-\
 \
 \
     /*Fail hard and early if the compare function is NULL*/\
@@ -99,7 +224,9 @@ ch_llist_##NAME##_t* ch_llist_##NAME##_new(ch_word size, ch_word (*cmp)(ch_llist
     _update_##NAME(result);\
 \
     return result;\
-}
+}\
+\
+
 
 //Regular comparison function
 #define define_ch_llist_cmp(NAME, TYPE) \
@@ -109,9 +236,9 @@ ch_word ch_llist_cmp_##NAME(TYPE* lhs, TYPE* rhs)\
 }
 
 //Pointer comparison function
-#define define_ch_llist_cmpp(NAME, TYPE) ch_word ch_llist_cmp_##NAME##p(ch_llist_##NAME##_it lhs, ch_llist_##NAME##_it rhs)\
+#define define_ch_llist_cmpp(NAME, TYPE) ch_word ch_llist_cmp_##NAME##p(TYPE* lhs, TYPE* rhs)\
 { \
     return ch_llist_cmp_##NAME(*lhs, *rhs);\
 }
 
-#endif //VECTOR_TYPED_TEMPLATE_DEFINE_H_
+#endif //LINKED_LIST_TYPED_TEMPLATE_DEFINE_H_
