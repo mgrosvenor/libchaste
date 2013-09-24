@@ -32,8 +32,25 @@ static ch_word hash_cmp(ch_hash_map_node* lhs, ch_hash_map_node* rhs)
         return -1;
     }
 
+    switch(rhs->key_size){
+        case 1: return  *(u8*)lhs->key  ==  *(u8*)rhs->key ? 0 :  * (u8*)lhs->key <  *(u8*)rhs->key ? -1 : 1;
+        case 2: return  *(u16*)lhs->key == *(u16*)rhs->key ? 0 :  *(u16*)lhs->key < *(u16*)rhs->key ? -1 : 1;
+        case 4: return  *(u32*)lhs->key == *(u32*)rhs->key ? 0 :  *(u32*)lhs->key < *(u32*)rhs->key ? -1 : 1;
+        case 8: return  *(u64*)lhs->key == *(u64*)rhs->key ? 0 :  *(u64*)lhs->key < *(u64*)rhs->key ? -1 : 1;
+    }
+
     return strncmp(lhs->key, rhs->key, MIN(lhs->key_size, rhs->key_size));
 }
+
+
+static ch_word hash_cmp_u64(ch_hash_map_node* lhs, ch_hash_map_node* rhs)
+{
+    const ch_word lhs_key_w = *(u64*)lhs->key;
+    const ch_word rhs_key_w = *(u64*)rhs->key;
+    return lhs_key_w == rhs_key_w ? 0 : lhs_key_w < rhs_key_w ? -1 : 1;
+}
+
+
 
 //Return the value associated with key using the comparator function
 ch_hash_map_it hash_map_get_first(ch_hash_map* this, void* key, ch_word key_size)
@@ -135,6 +152,8 @@ ch_hash_map_it hash_map_push_unsafe(ch_hash_map* this,  void* key, ch_word key_s
     result.key      =  result._node->key;
     result.key_size =  result._node->key_size;
 
+    this->count++;
+
     return result;
 }
 
@@ -149,7 +168,7 @@ ch_hash_map_it hash_map_push_unsafe(ch_hash_map* this,  void* key, ch_word key_s
 //Check for equality
 //ch_word hash_map_eq(ch_hash_map* this, ch_hash_map* that);
 
-ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) )
+ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs), ch_bool key_is_u64 )
 {
     if(element_size <= 0){
          printf("Error: invalid element size (<=0), must have *some* data\n");
@@ -167,13 +186,16 @@ ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(
     result->_element_size = element_size;
 
     result->_backing_array = ch_array_new(size, sizeof(ch_llist_t), NULL);
+
+    ch_word (*cmp_fn)(ch_hash_map_node* lhs, ch_hash_map_node* rhs) = key_is_u64 ? hash_cmp_u64 : hash_cmp;
     for(ch_llist_t* it = result->_backing_array->first; it != result->_backing_array->end; it = array_next(result->_backing_array, it)){
-        ch_llist_init(it, sizeof(ch_hash_map_node) + element_size, (cmp_void_f)hash_cmp);
+        ch_llist_init(it, sizeof(ch_hash_map_node) + element_size, (cmp_void_f)cmp_fn);
     }
 
     return result;
 
 }
+
 
 
 //Free the resources associated with this hash_map, assumes that individual items have been freed

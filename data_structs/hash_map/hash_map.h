@@ -20,8 +20,16 @@ typedef struct {
     ch_llist_t* list;
     ch_word offset;
     ch_word key_size;
-    void* key; //This mus always come last
+    void* key; //This must always come last
 } ch_hash_map_node;
+
+typedef struct {
+    ch_llist_t* list;
+    ch_word offset;
+    ch_word key_size;
+    void* key; //This must always come last
+} ch_hash_map_node_u64;
+
 
 typedef struct {
     //These state variables are private
@@ -88,7 +96,7 @@ ch_hash_map_it hash_map_get_next(ch_hash_map_it it);
 //Find the key of the given value
 ch_hash_map_it hash_map_find(ch_hash_map* this, ch_hash_map_it* begin, ch_hash_map_it* end, void* value);
 
-ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) );
+ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs), ch_bool key_is_u64 );
 
 #endif // HASH_MAP_H_
 
