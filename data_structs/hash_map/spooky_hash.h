@@ -58,25 +58,6 @@ typedef  uint8_t   uint8;
 
 
 typedef struct {
-
-//    // number of uint64's in internal state
-//    size_t sc_numVars;
-//
-//    // size of the internal state
-//    size_t sc_blockSize;
-//
-//    // size of buffer of unhashed data, in bytes
-//    size_t sc_bufSize;
-//
-//    //
-//    // sc_const: a constant which:
-//    //  * is not zero
-//    //  * is odd
-//    //  * is a not-very-regular mix of 1's and 0's
-//    //  * does not need any other special mathematical properties
-//    //
-//    uint64 sc_const;
-
     uint64 m_data[2*sc_numVars];   // unhashed data, for partial messages
     uint64 m_state[sc_numVars];  // internal state of the hash
     size_t m_length;             // total length of the input so far

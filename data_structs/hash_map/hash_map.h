@@ -19,13 +19,14 @@ typedef struct ch_hash_map_t ch_hash_map;
 typedef struct {
     ch_llist_t* list;
     ch_word offset;
-    void* key;
     ch_word key_size;
+    void* key; //This mus always come last
 } ch_hash_map_node;
 
 typedef struct {
     //These state variables are private
     ch_hash_map_node* _node;
+    ch_llist_it item;
 
     //This is public
     void* key;
@@ -65,7 +66,7 @@ void hash_map_forward(ch_hash_map* this, ch_hash_map_it* it, ch_word amount);
 void hash_map_back(ch_hash_map* this, ch_hash_map_it* it, ch_word amount);
 
 // Put an element into the table,
-ch_hash_map_it hash_map_push(ch_hash_map* this, const void* key, ch_word key_size, const void* value);
+ch_hash_map_it hash_map_push_unsafe(ch_hash_map* this,  void* key, ch_word key_size, void* value);
 //Remove the given ptr
 ch_hash_map_it hash_map_remove(ch_hash_map* this, ch_hash_map_it* itr);
 
@@ -79,7 +80,10 @@ ch_hash_map_it hash_map_push_back_carray(ch_hash_map* this, const void* keys, ch
 ch_word hash_map_eq(ch_hash_map* this, ch_hash_map* that);
 
 //Return the value associated with key using the comparator function
-ch_hash_map_it hash_map_get(ch_hash_map* this, void* key, ch_word key_size);
+ch_hash_map_it hash_map_get_first(ch_hash_map* this, void* key, ch_word key_size);
+
+//Get the next value with the given key
+ch_hash_map_it hash_map_get_next(ch_hash_map_it it);
 
 //Find the key of the given value
 ch_hash_map_it hash_map_find(ch_hash_map* this, ch_hash_map_it* begin, ch_hash_map_it* end, void* value);

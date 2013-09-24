@@ -313,13 +313,10 @@ ch_llist_it llist_pop_front(ch_llist_t* this)
     return llist_remove(this,&it);
 }
 
-//Free the resources associated with this llist, assumes that individual items have been freed
-void llist_delete(ch_llist_t* this)
-{
-    if(!this){
-        return;
-    }
 
+//Get rid of everything
+void llist_pop_all(ch_llist_t* this)
+{
     ch_llist_node_t* node = this->_first;
 
     while(node){
@@ -327,6 +324,18 @@ void llist_delete(ch_llist_t* this)
         node = node->next;
         free_ch_llist_node_obj(this, tmp);
     }
+}
+
+
+
+//Free the resources associated with this llist, assumes that individual items have been freed
+void llist_delete(ch_llist_t* this)
+{
+    if(!this){
+        return;
+    }
+
+    llist_pop_all(this);
 
     free(this);
 
@@ -414,25 +423,34 @@ void llist_sort(ch_llist_t* this)
 ch_llist_t* ch_llist_new( ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) )
 {
 
-    if(element_size <= 0){
-        printf("Error: invalid element size (<=0), must have *some* data\n");
-        return NULL;
-    }
-
-    ch_llist_t* result = (ch_llist_t*)calloc(1,sizeof(ch_llist_t));
+     ch_llist_t* result = (ch_llist_t*)calloc(1,sizeof(ch_llist_t));
     if(!result){
         printf("Could not allocate memory for new llist structure. Giving up\n");
         return NULL;
     }
 
-
-    /*We have memory to play with, now do all the other assignments*/
-    result->_cmp            = cmp;
-    result->_element_size   = element_size;
-    result->_first          = NULL;
-    result->_last           = NULL;
-    result->count           = 0;
-
-    return result;
+    return ch_llist_init(result, element_size,cmp);
 
 }
+
+ch_llist_t* ch_llist_init( ch_llist_t* this, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) )
+{
+
+    if(element_size <= 0){
+        printf("Error: invalid element size (<=0), must have *some* data\n");
+        return NULL;
+    }
+
+
+    /*We have memory to play with, now do all the other assignments*/
+    this->_cmp            = cmp;
+    this->_element_size   = element_size;
+    this->_first          = NULL;
+    this->_last           = NULL;
+    this->count           = 0;
+
+    return this;
+
+}
+
+

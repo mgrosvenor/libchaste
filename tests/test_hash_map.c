@@ -6,6 +6,7 @@
 #include "../utils/util.h"
 
 #include <stdio.h>
+#include <string.h>
 
 
 static ch_word cmp_i64(void* lhs, void* rhs)
@@ -54,7 +55,11 @@ typedef struct {
 
 static ch_word test2_i64(i64* test_data)
 {
-    char* [2]
+    kv test[3] = {
+        { "key1", "value1" },
+        { "key1", "value2" },
+        { "key2", "value2" }
+    };
 
 
     ch_word result = 1;
@@ -63,13 +68,63 @@ static ch_word test2_i64(i64* test_data)
     //Make an empty hash_map
     ch_hash_map* hm1 = ch_hash_map_new(10,sizeof(void*),cmp_i64);
 
-    hash_map_push_unsafe(hm1,"test1",strlen("test1"), )
+    ch_hash_map_it it1 = hash_map_push_unsafe(hm1,test[0].key,strlen(test[0].key), &test[0].value );
+
+    CH_ASSERT(it1.key == test[0].key);
+    CH_ASSERT(it1.key_size == (ch_word)strlen(test[0].key));
+    CH_ASSERT(*(char**)it1.value == test[0].value);
+
+
+    ch_hash_map_it it2 = hash_map_get_first(hm1,test[0].key, strlen(test[0].key) );
+
+    CH_ASSERT(it2.key == test[0].key);
+    CH_ASSERT(it2.key_size == (ch_word)strlen(test[0].key));
+    CH_ASSERT(*(char**)it2.value == test[0].value);
 
     hash_map_delete(hm1);
 
     return result;
 }
 
+
+static ch_word test3_i64(i64* test_data)
+{
+    kv test[3] = {
+        { "key1", "value1" },
+        { "key1", "value2" },
+        { "key2", "value2" }
+    };
+
+
+    ch_word result = 1;
+    (void)test_data;
+
+    //Make an empty hash_map
+    ch_hash_map* hm1 = ch_hash_map_new(10,sizeof(void*),cmp_i64);
+
+    for(ch_word i = 0; i < 3; i++){
+        //printf("[%li] Pushing %s->%s\n", i, test[i].key, test[i].value);
+        ch_hash_map_it it1 = hash_map_push_unsafe(hm1,test[i].key,strlen(test[i].key), &test[i].value );
+        ch_hash_map_it it2 = hash_map_get_first(hm1,test[i].key, strlen(test[i].key) );
+        ch_hash_map_it tmp;
+        while( (tmp = hash_map_get_next(it2)).value ){
+            it2 = tmp;
+        }
+
+        CH_ASSERT(it1.key == test[i].key);
+        CH_ASSERT(it1.key_size == (ch_word)strlen(test[i].key));
+        CH_ASSERT(*(char**)it1.value == test[i].value);
+
+        //printf("[%li] Got %s->%s\n", i, it2.key,*(char**)it2.value );
+        CH_ASSERT(it2.key == test[i].key);
+        CH_ASSERT(it2.key_size == (ch_word)strlen(test[i].key));
+        CH_ASSERT(*(char**)it2.value == test[i].value);
+    }
+
+    hash_map_delete(hm1);
+
+    return result;
+}
 
 
 ///* Insert an element into an empty hash_map. Use both push back and push front*/
@@ -464,8 +519,8 @@ int main(int argc, char** argv)
     ch_word test_result = 0;
 
     printf("CH Data Structures: Generic Linked List Test 01: ");  printf("%s", (test_result = test1_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-//    printf("CH Data Structures: Generic Linked List Test 02: ");  printf("%s", (test_result = test2_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-//    printf("CH Data Structures: Generic Linked List Test 03: ");  printf("%s", (test_result = test3_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Generic Linked List Test 02: ");  printf("%s", (test_result = test2_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Generic Linked List Test 03: ");  printf("%s", (test_result = test3_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Generic Linked List Test 04: ");  printf("%s", (test_result = test4_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Generic Linked List Test 05: ");  printf("%s", (test_result = test5_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Generic Linked List Test 06: ");  printf("%s", (test_result = test6_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
