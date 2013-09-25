@@ -20,16 +20,10 @@ typedef struct {
     ch_llist_t* list;
     ch_word offset;
     ch_word key_size;
-    void* key; //This must always come last
+    ch_word key_int; 	    //For keys less than or equal to 8bytes, just assign them
+    void* key_ptr;			//For keys that are longer, and not static, alloc memory and copy them here
+    void* key_ptr_unsafe; 	//For keys that are in mapped memory for the life of the program, just keep the pointer here
 } ch_hash_map_node;
-
-typedef struct {
-    ch_llist_t* list;
-    ch_word offset;
-    ch_word key_size;
-    void* key; //This must always come last
-} ch_hash_map_node_u64;
-
 
 typedef struct {
     //These state variables are private
@@ -74,7 +68,8 @@ void hash_map_forward(ch_hash_map* this, ch_hash_map_it* it, ch_word amount);
 void hash_map_back(ch_hash_map* this, ch_hash_map_it* it, ch_word amount);
 
 // Put an element into the table,
-ch_hash_map_it hash_map_push_unsafe(ch_hash_map* this,  void* key, ch_word key_size, void* value);
+ch_hash_map_it hash_map_push_unsafe_ptr(ch_hash_map* this,  void* key, ch_word key_size, void* value);
+ch_hash_map_it hash_map_push(ch_hash_map* this,  void* key, ch_word key_size, void* value);
 //Remove the given ptr
 ch_hash_map_it hash_map_remove(ch_hash_map* this, ch_hash_map_it* itr);
 
@@ -96,7 +91,7 @@ ch_hash_map_it hash_map_get_next(ch_hash_map_it it);
 //Find the key of the given value
 ch_hash_map_it hash_map_find(ch_hash_map* this, ch_hash_map_it* begin, ch_hash_map_it* end, void* value);
 
-ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs), ch_bool key_is_u64 );
+ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) );
 
 #endif // HASH_MAP_H_
 
