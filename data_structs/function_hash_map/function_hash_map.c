@@ -1,5 +1,5 @@
 /*
- * hash_map.c
+ * function_hash_map.c
  *
  *  Created on: Sep 23, 2013
  *      Author: mgrosvenor
@@ -11,7 +11,7 @@
 
 #include "../array/array.h"
 #include "../linked_list/linked_list.h"
-#include "hash_map.h"
+#include "function_hash_map.h"
 #include "../../hash_functions/spooky/spooky_hash.h"
 #include "../../utils/util.h"
 
@@ -22,13 +22,13 @@ static u64 hash(const void* key, ch_word key_size)
 }
 
 
-static inline void* get_key(ch_hash_map_node* node)
+static inline void* get_key(ch_function_hash_map_node* node)
 {
 	return node->key_ptr_unsafe ? node->key_ptr_unsafe : node->key_ptr ? node->key_ptr : &node->key_int;
 }
 
 
-static ch_word hash_cmp(ch_hash_map_node* lhs, ch_hash_map_node* rhs)
+static ch_word hash_cmp(ch_function_hash_map_node* lhs, ch_function_hash_map_node* rhs)
 {
     if(lhs->key_size < rhs->key_size){
         return -1;
@@ -59,7 +59,7 @@ static ch_word hash_cmp(ch_hash_map_node* lhs, ch_hash_map_node* rhs)
     return strncmp(lhs_key, rhs_key, MIN(lhs->key_size, rhs->key_size));
 }
 
-static inline void assign_key(ch_hash_map_node* node, void* key, ch_word size, ch_bool unsafe)
+static inline void assign_key(ch_function_hash_map_node* node, void* key, ch_word size, ch_bool unsafe)
 {
 	//Nice starting state
 	node->key_size = size;
@@ -95,26 +95,26 @@ static inline void assign_key(ch_hash_map_node* node, void* key, ch_word size, c
 
 
 //Return the value associated with key using the comparator function
-ch_hash_map_it hash_map_get_first(ch_hash_map* this, void* key, ch_word key_size)
+ch_function_hash_map_it function_hash_map_get_first(ch_function_hash_map* this, void* key, ch_word key_size)
 {
 
-    ch_hash_map_it result = { 0 };
+    ch_function_hash_map_it result = { 0 };
 
     ch_word idx = hash(key,key_size) % this->_backing_array->size;
     ch_llist_t* items  = array_off(this->_backing_array,idx);
     ch_llist_it first = llist_first(items);
     ch_llist_it end   = llist_end(items);
-    ch_hash_map_node target = { 0 };
+    ch_function_hash_map_node target = { 0 };
     assign_key(&target,key, key_size, true);//Use unsafe mode here, since this node is temporary for the life of the call
-    ch_llist_it hash_map_node = llist_find(items,&first,&end,&target);
+    ch_llist_it function_hash_map_node = llist_find(items,&first,&end,&target);
 
-    if(!hash_map_node.value){
+    if(!function_hash_map_node.value){
         return result;
     }
 
-    result._node = (ch_hash_map_node*)hash_map_node.value;
-    result.item = hash_map_node;
-    result.value = ((u8*)hash_map_node.value) + sizeof(ch_hash_map_node);
+    result._node = (ch_function_hash_map_node*)function_hash_map_node.value;
+    result.item = function_hash_map_node;
+    result.value = ((u8*)function_hash_map_node.value) + sizeof(ch_function_hash_map_node);
     result.key =  get_key(result._node);
     result.key_size =  result._node->key_size;
 
@@ -122,10 +122,10 @@ ch_hash_map_it hash_map_get_first(ch_hash_map* this, void* key, ch_word key_size
 }
 
 //Return the value associated with key using the comparator function
-ch_hash_map_it hash_map_get_next(ch_hash_map_it it)
+ch_function_hash_map_it function_hash_map_get_next(ch_function_hash_map_it it)
 {
 
-    ch_hash_map_it result = { 0 };
+    ch_function_hash_map_it result = { 0 };
 
     if(!it._node){
     	return result;
@@ -136,18 +136,18 @@ ch_hash_map_it hash_map_get_next(ch_hash_map_it it)
     llist_next(items,&it.item);
     ch_llist_it first = it.item;
     ch_llist_it end   = llist_end(items);
-    ch_hash_map_node target = { 0 };
+    ch_function_hash_map_node target = { 0 };
     assign_key(&target,it.key, it.key_size, true);//Use unsafe mode here, since this node is temporary for the life of the call
 
-    ch_llist_it hash_map_node = llist_find(items,&first,&end,&target);
+    ch_llist_it function_hash_map_node = llist_find(items,&first,&end,&target);
 
-    if(!hash_map_node.value){
+    if(!function_hash_map_node.value){
         return result;
     }
 
-    result._node = (ch_hash_map_node*)hash_map_node.value;
-    result.item = hash_map_node;
-    result.value = ((u8*)hash_map_node.value) + sizeof(ch_hash_map_node);
+    result._node = (ch_function_hash_map_node*)function_hash_map_node.value;
+    result.item = function_hash_map_node;
+    result.value = ((u8*)function_hash_map_node.value) + sizeof(ch_function_hash_map_node);
     result.key =  get_key(result._node);
     result.key_size =  result._node->key_size;
 
@@ -157,45 +157,45 @@ ch_hash_map_it hash_map_get_next(ch_hash_map_it it)
 
 
 ////Find the key of the given value
-//ch_hash_map_it hash_map_find(ch_hash_map* this, ch_hash_map_it* begin, ch_hash_map_it* end, void* value);
+//ch_function_hash_map_it function_hash_map_find(ch_function_hash_map* this, ch_function_hash_map_it* begin, ch_function_hash_map_it* end, void* value);
 //
 //
 ////Get the first entry
-//ch_hash_map_it hash_map_first(ch_hash_map* this);
+//ch_function_hash_map_it function_hash_map_first(ch_function_hash_map* this);
 ////Get the last entry
-//ch_hash_map_it hash_map_last(ch_hash_map* this);
+//ch_function_hash_map_it function_hash_map_last(ch_function_hash_map* this);
 ////Get the end
-//ch_hash_map_it hash_map_end(ch_hash_map* this);
+//ch_function_hash_map_it function_hash_map_end(ch_function_hash_map* this);
 //
 ////Step forwards by one entry
-//void hash_map_next (ch_hash_map* this, ch_hash_map_it* it);
+//void function_hash_map_next (ch_function_hash_map* this, ch_function_hash_map_it* it);
 ////Step backwards by one entry
-//void hash_map_prev(ch_hash_map* this, ch_hash_map_it*);
+//void function_hash_map_prev(ch_function_hash_map* this, ch_function_hash_map_it*);
 ////Step forwards by amount
-//void hash_map_forward(ch_hash_map* this, ch_hash_map_it* it, ch_word amount);
+//void function_hash_map_forward(ch_function_hash_map* this, ch_function_hash_map_it* it, ch_word amount);
 ////Step backwards by amount
-//void hash_map_back(ch_hash_map* this, ch_hash_map_it* it, ch_word amount);
+//void function_hash_map_back(ch_function_hash_map* this, ch_function_hash_map_it* it, ch_word amount);
 
 // Put an element into the hash map. Unsafe assumes that the key is a pointer only, which is faster but assumes that storage doesn't go away.
-static ch_hash_map_it _hash_map_push(ch_hash_map* this,  void* key, ch_word key_size, void* value, ch_bool unsafe)
+static ch_function_hash_map_it _function_hash_map_push(ch_function_hash_map* this,  void* key, ch_word key_size, void* value, ch_bool unsafe)
 {
 
-    ch_hash_map_it result = { 0 };
+    ch_function_hash_map_it result = { 0 };
 
     ch_word idx = hash(key,key_size) % this->_backing_array->size;
     ch_llist_t* items  = array_off(this->_backing_array,idx);
 
-    ch_hash_map_node node  = { .list = items, .offset = idx};
+    ch_function_hash_map_node node  = { .list = items, .offset = idx};
     assign_key(&node,key, key_size, unsafe);
 
     ch_llist_it new_node   = llist_push_back(items,&node);
-    memcpy( ((u8*)new_node.value) + sizeof(ch_hash_map_node), value, this->_element_size);
+    memcpy( ((u8*)new_node.value) + sizeof(ch_function_hash_map_node), value, this->_element_size);
 
 
-    result._node    = (ch_hash_map_node*)new_node.value;
+    result._node    = (ch_function_hash_map_node*)new_node.value;
     result.item     = new_node;
 
-    result.value = ((u8*)new_node.value) + sizeof(ch_hash_map_node);
+    result.value = ((u8*)new_node.value) + sizeof(ch_function_hash_map_node);
     result.key =  get_key(result._node);
     result.key_size =  result._node->key_size;
     this->count++;
@@ -204,37 +204,37 @@ static ch_hash_map_it _hash_map_push(ch_hash_map* this,  void* key, ch_word key_
 }
 
 
-ch_hash_map_it hash_map_push(ch_hash_map* this,  void* key, ch_word key_size, void* value)
+ch_function_hash_map_it function_hash_map_push(ch_function_hash_map* this,  void* key, ch_word key_size, void* value)
 {
-	return  _hash_map_push(this, key, key_size, value, false);
+	return  _function_hash_map_push(this, key, key_size, value, false);
 }
 
-ch_hash_map_it hash_map_push_unsafe_ptr(ch_hash_map* this,  void* key, ch_word key_size, void* value)
+ch_function_hash_map_it function_hash_map_push_unsafe_ptr(ch_function_hash_map* this,  void* key, ch_word key_size, void* value)
 {
-	return  _hash_map_push(this, key, key_size, value, true);
+	return  _function_hash_map_push(this, key, key_size, value, true);
 }
 
 
 //Remove the given ptr
-//ch_hash_map_it hash_map_remove(ch_hash_map* this, ch_hash_map_it* itr);
+//ch_function_hash_map_it function_hash_map_remove(ch_function_hash_map* this, ch_function_hash_map_it* itr);
 
 
-//Push back count elements the C hash_map to the back hash_map-list
-//ch_hash_map_it hash_map_push_back_carray(ch_hash_map* this, const void* keys, ch_word* key_sizes, const void* carray, ch_word count);
+//Push back count elements the C function_hash_map to the back function_hash_map-list
+//ch_function_hash_map_it function_hash_map_push_back_carray(ch_function_hash_map* this, const void* keys, ch_word* key_sizes, const void* carray, ch_word count);
 
 //Check for equality
-//ch_word hash_map_eq(ch_hash_map* this, ch_hash_map* that);
+//ch_word function_hash_map_eq(ch_function_hash_map* this, ch_function_hash_map* that);
 
-ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) )
+ch_function_hash_map* ch_function_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) )
 {
     if(element_size <= 0){
          printf("Error: invalid element size (<=0), must have *some* data\n");
          return NULL;
     }
 
-    ch_hash_map* result = (ch_hash_map*)malloc(sizeof(ch_hash_map));
+    ch_function_hash_map* result = (ch_function_hash_map*)malloc(sizeof(ch_function_hash_map));
     if(!result){
-        printf("Could not allocate memory for new hash_map structure. Giving up\n");
+        printf("Could not allocate memory for new function_hash_map structure. Giving up\n");
         return NULL;
     }
 
@@ -245,7 +245,7 @@ ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(
     result->_backing_array = ch_array_new(size, sizeof(ch_llist_t), NULL);
 
     for(ch_llist_t* it = result->_backing_array->first; it != result->_backing_array->end; it = array_next(result->_backing_array, it)){
-        ch_llist_init(it, sizeof(ch_hash_map_node) + element_size, (cmp_void_f)hash_cmp);
+        ch_llist_init(it, sizeof(ch_function_hash_map_node) + element_size, (cmp_void_f)hash_cmp);
     }
 
     return result;
@@ -254,8 +254,8 @@ ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(
 
 
 
-//Free the resources associated with this hash_map, assumes that individual items have been freed
-void hash_map_delete(ch_hash_map* this)
+//Free the resources associated with this function_hash_map, assumes that individual items have been freed
+void function_hash_map_delete(ch_function_hash_map* this)
 {
     if(!this){
         return;
