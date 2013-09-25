@@ -225,27 +225,21 @@ ch_function_hash_map_it function_hash_map_push_unsafe_ptr(ch_function_hash_map* 
 //Check for equality
 //ch_word function_hash_map_eq(ch_function_hash_map* this, ch_function_hash_map* that);
 
-ch_function_hash_map* ch_function_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) )
+ch_function_hash_map* ch_function_hash_map_new( ch_word size, ch_word (*func)(ch_word value, void* data) )
 {
-    if(element_size <= 0){
-         printf("Error: invalid element size (<=0), must have *some* data\n");
-         return NULL;
-    }
-
     ch_function_hash_map* result = (ch_function_hash_map*)malloc(sizeof(ch_function_hash_map));
     if(!result){
         printf("Could not allocate memory for new function_hash_map structure. Giving up\n");
         return NULL;
     }
 
-    result->count         = 0;
-    result->_cmp          = (cmp_void_f)cmp;
-    result->_element_size = element_size;
-
+    result->count          = 0;
+    result->_element_size  = sizeof(ch_word);
     result->_backing_array = ch_array_new(size, sizeof(ch_llist_t), NULL);
+    result->_func          = func;
 
     for(ch_llist_t* it = result->_backing_array->first; it != result->_backing_array->end; it = array_next(result->_backing_array, it)){
-        ch_llist_init(it, sizeof(ch_function_hash_map_node) + element_size, (cmp_void_f)hash_cmp);
+        ch_llist_init(it, sizeof(ch_function_hash_map_node) + sizeof(ch_word), (cmp_void_f)hash_cmp);
     }
 
     return result;
