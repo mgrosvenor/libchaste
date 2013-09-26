@@ -160,8 +160,25 @@ ch_function_hash_map_it function_hash_map_get_next(ch_function_hash_map_it it)
 //ch_function_hash_map_it function_hash_map_find(ch_function_hash_map* this, ch_function_hash_map_it* begin, ch_function_hash_map_it* end, void* value);
 //
 //
-////Get the first entry
-//ch_function_hash_map_it function_hash_map_first(ch_function_hash_map* this);
+//Get the first entry
+ch_function_hash_map_it function_hash_map_first(ch_function_hash_map* this)
+{
+    ch_function_hash_map_it result = { 0 };
+    ch_llist_t* array_it = (ch_llist_t* )this->_backing_array->first;
+    while(array_it){
+        array_it =
+    }
+
+    ch_llist_t* first_ll =
+
+    result._node =
+    result.item = function_hash_map_node;
+    result.value = ((u8*)function_hash_map_node.value) + sizeof(ch_function_hash_map_node);
+    result.key =  get_key(result._node);
+    result.key_size =  result._node->key_size;
+
+
+}
 ////Get the last entry
 //ch_function_hash_map_it function_hash_map_last(ch_function_hash_map* this);
 ////Get the end
@@ -184,21 +201,25 @@ static ch_function_hash_map_it _function_hash_map_push(ch_function_hash_map* thi
 
     ch_word idx = hash(key,key_size) % this->_backing_array->size;
     ch_llist_t* items  = array_off(this->_backing_array,idx);
-
-    ch_function_hash_map_node node  = { .list = items, .offset = idx};
+    ch_function_hash_map_node node  = { .list = items, .offset = idx, .index = 0, .value=0};
     assign_key(&node,key, key_size, unsafe);
+    ch_llist_it first = llist_first(items);
+    ch_llist_it end   = llist_end(items);
+    ch_llist_it it = llist_find(items,&first,&end,&node);
+    if(!it.value){
+        it  = llist_push_back(items,&node);
+        this->count++;
+    }
 
-    ch_llist_it new_node   = llist_push_back(items,&node);
-    memcpy( ((u8*)new_node.value) + sizeof(ch_function_hash_map_node), value, this->_element_size);
+    ch_function_hash_map_node* nodep = it.value;
+    nodep->value = this->_func(nodep->value,key, key_size, value, node->index );
+    nodep->index++;
 
-
-    result._node    = (ch_function_hash_map_node*)new_node.value;
-    result.item     = new_node;
-
-    result.value = ((u8*)new_node.value) + sizeof(ch_function_hash_map_node);
-    result.key =  get_key(result._node);
-    result.key_size =  result._node->key_size;
-    this->count++;
+    result._node     = nodep;
+    result.item      = node;
+    result.value     = nodep->value;
+    result.key       = get_key(result._node);
+    result.key_size  = result._node->key_size;
 
     return result;
 }
@@ -225,7 +246,7 @@ ch_function_hash_map_it function_hash_map_push_unsafe_ptr(ch_function_hash_map* 
 //Check for equality
 //ch_word function_hash_map_eq(ch_function_hash_map* this, ch_function_hash_map* that);
 
-ch_function_hash_map* ch_function_hash_map_new( ch_word size, ch_word (*func)(ch_word value, void* data) )
+ch_function_hash_map* ch_function_hash_map_new( ch_word size, ch_word (*func)(ch_word value, void* key, ch_word key_size, void* data, ch_word index) )
 {
     ch_function_hash_map* result = (ch_function_hash_map*)malloc(sizeof(ch_function_hash_map));
     if(!result){
