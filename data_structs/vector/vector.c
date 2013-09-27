@@ -302,7 +302,12 @@ void* vector_push_back_carray(ch_vector_t* this, void* carray, ch_word count)
     memcpy(this->end, carray, count * this->_array->_element_size );
     this->_array_count += count;
     this->count = this->_array_count;
-    this->last = _vector_forward_unsafe(this,this->last,count);
+    if(this->last == this->first && this->last == this->end){
+        this->last = _vector_forward_unsafe(this,this->last,count - 1);
+    }
+    else{
+        this->last = _vector_forward_unsafe(this,this->last,count);
+    }
     this->end = _vector_forward_unsafe(this, this->last, 1);
 
     return this->last;
