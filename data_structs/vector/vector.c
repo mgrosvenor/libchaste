@@ -290,8 +290,12 @@ void vector_delete(ch_vector_t* this)
 /*Assign at most size elements from the C vector*/
 void* vector_push_back_carray(ch_vector_t* this, void* carray, ch_word count)
 {
+    if(count == 0){
+        return NULL;
+    }
+
     if(this->size - this->_array_count < count){
-        const ch_word new_size = this->size ? this->size * 2 : next_pow2(count);
+        const ch_word new_size = next_pow2(count + this->size);
         vector_resize(this,new_size);
     }
 

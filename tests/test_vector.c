@@ -493,7 +493,7 @@ static ch_word test14_ch_word(ch_word* test_data)
 
 
 /* Found a bug in the equaility operator. This should stimulate it*/
-static ch_word test16_ch_word(ch_word* test_data)
+static ch_word test15_ch_word(ch_word* test_data)
 {
     ch_word result = 1;
 
@@ -525,6 +525,27 @@ static ch_word test16_ch_word(ch_word* test_data)
     return result;
 }
 
+//Found a bug push_back carray. This stimulated it
+static ch_word test16_ch_word(ch_word* test_data)
+{
+    ch_word result = 1;
+
+    ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
+    ch_vector_i64_t* al2 = ch_vector_i64_new(0,cmp_i64);
+    CH_ASSERT(al1->push_back(al1, test_data[0]));
+    CH_ASSERT(al1->push_back_carray(al1, &test_data[1],7));
+    CH_ASSERT(al1->push_back_carray(al1, &test_data[8],7));
+    CH_ASSERT(al2->push_back_carray(al2, &test_data[0],15));
+
+
+    CH_ASSERT(al1->eq(al1,al2));
+    CH_ASSERT(al2->eq(al2,al2));
+    al1->delete(al1);
+    al2->delete(al2);
+    return result;
+}
+
+
 
 
 int main(int argc, char** argv)
@@ -551,7 +572,8 @@ int main(int argc, char** argv)
     printf("CH Data Structures: Vector Test 12: ");  printf("%s", (test_result = test12_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Vector Test 13: ");  printf("%s", (test_result = test13_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Vector Test 14: ");  printf("%s", (test_result = test14_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 15: ");  printf("%s", (test_result = test16_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 15: ");  printf("%s", (test_result = test15_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 16: ");  printf("%s", (test_result = test16_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 
     return 0;
 }

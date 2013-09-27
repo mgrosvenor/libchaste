@@ -20,5 +20,6 @@
 #include "data_structs/vector/vector_std.h"
 #include "data_structs/linked_list/linked_list_std.h"
 #include "data_structs/hash_map/hash_map.h"
+#include "data_structs/function_hash_map/function_hash_map.h"
 
 #endif /* LIBM6_H_ */
