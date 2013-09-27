@@ -46,7 +46,7 @@ struct ch_function_hash_map_t{
    ch_word (*_cmp)(void* lhs, void* rhs); // Comparator function for find and sort operations
    ch_array_t* _backing_array;
    ch_word _element_size;
-   ch_word (*_func)(ch_word value, void*);
+   ch_word (*_func)(ch_word value, void* key, ch_word key_size, void* data, ch_word index);
 };
 
 

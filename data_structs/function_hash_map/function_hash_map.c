@@ -114,7 +114,7 @@ ch_function_hash_map_it function_hash_map_get_first(ch_function_hash_map* this, 
 
     result._node = (ch_function_hash_map_node*)function_hash_map_node.value;
     result.item = function_hash_map_node;
-    result.value = ((u8*)function_hash_map_node.value) + sizeof(ch_function_hash_map_node);
+    result.value = result._node->value;
     result.key =  get_key(result._node);
     result.key_size =  result._node->key_size;
 
@@ -147,7 +147,7 @@ ch_function_hash_map_it function_hash_map_get_next(ch_function_hash_map_it it)
 
     result._node = (ch_function_hash_map_node*)function_hash_map_node.value;
     result.item = function_hash_map_node;
-    result.value = ((u8*)function_hash_map_node.value) + sizeof(ch_function_hash_map_node);
+    result.value = result._node->value;
     result.key =  get_key(result._node);
     result.key_size =  result._node->key_size;
 
@@ -164,28 +164,100 @@ ch_function_hash_map_it function_hash_map_get_next(ch_function_hash_map_it it)
 ch_function_hash_map_it function_hash_map_first(ch_function_hash_map* this)
 {
     ch_function_hash_map_it result = { 0 };
-    ch_llist_t* array_it = (ch_llist_t* )this->_backing_array->first;
-    while(array_it){
-        array_it =
+    ch_llist_t* fm_node_list;
+    ch_llist_it fm_node_list_it;
+    ch_function_hash_map_node * node = NULL;
+
+
+    //Get the first offset that has a node in it
+    for(ch_word i = 0; i < this->_backing_array->size; i++){
+        fm_node_list = (ch_llist_t*)array_off(this->_backing_array, i);
+
+        if(!fm_node_list){
+            continue;
+        }
+
+        fm_node_list_it = llist_first(fm_node_list);
+        if(fm_node_list_it.value){
+            node = fm_node_list_it.value;
+            break;
+        }
+
     }
 
-    ch_llist_t* first_ll =
+    //Nothing found, the hasmap must be empty
+    if(!node){
+        return result;
+    }
 
-    result._node =
-    result.item = function_hash_map_node;
-    result.value = ((u8*)function_hash_map_node.value) + sizeof(ch_function_hash_map_node);
+
+
+    result._node = node;
+    result.item = fm_node_list_it;
+    result.value = result._node->value;
     result.key =  get_key(result._node);
     result.key_size =  result._node->key_size;
 
-
+    return result;
 }
+
 ////Get the last entry
 //ch_function_hash_map_it function_hash_map_last(ch_function_hash_map* this);
 ////Get the end
-//ch_function_hash_map_it function_hash_map_end(ch_function_hash_map* this);
-//
+
+ch_function_hash_map_it function_hash_map_end(ch_function_hash_map* this)
+{
+    (void)this;
+    ch_function_hash_map_it result = { 0 };
+    return result;
+}
+
+
 ////Step forwards by one entry
-//void function_hash_map_next (ch_function_hash_map* this, ch_function_hash_map_it* it);
+void function_hash_map_next (ch_function_hash_map* this, ch_function_hash_map_it* it)
+{
+    ch_function_hash_map_it result = { 0 };
+
+    ch_llist_t* fm_node_list = NULL;
+    ch_llist_it fm_node_list_it = it->item;
+    ch_function_hash_map_node * node = it->_node;
+    ch_word idx = node->offset;
+    node = NULL;
+
+    idx++;
+    if(idx >= this->_backing_array->size){
+        *it = result;
+        return;
+    }
+
+    fm_node_list = (ch_llist_t*)array_off(this->_backing_array, idx);
+    llist_next(fm_node_list, &fm_node_list_it);
+
+    for(;idx < this->_backing_array->size;idx++){
+        if(fm_node_list_it.value){
+            node = fm_node_list_it.value;
+            break;
+        }
+
+        fm_node_list = (ch_llist_t*)array_off(this->_backing_array, idx);
+        fm_node_list_it = llist_first(fm_node_list);
+
+    }
+
+    //Nothing found, the hasmap must be empty
+    if(!node){
+        *it = result;
+        return;
+    }
+
+    result._node = node;
+    result.item = fm_node_list_it;
+    result.value = node->value;
+    result.key =  get_key(result._node);
+    result.key_size =  result._node->key_size;
+    *it = result;
+
+}
 ////Step backwards by one entry
 //void function_hash_map_prev(ch_function_hash_map* this, ch_function_hash_map_it*);
 ////Step forwards by amount
@@ -212,11 +284,11 @@ static ch_function_hash_map_it _function_hash_map_push(ch_function_hash_map* thi
     }
 
     ch_function_hash_map_node* nodep = it.value;
-    nodep->value = this->_func(nodep->value,key, key_size, value, node->index );
+    nodep->value = this->_func(nodep->value,key, key_size, value, nodep->index );
     nodep->index++;
 
     result._node     = nodep;
-    result.item      = node;
+    result.item      = it;
     result.value     = nodep->value;
     result.key       = get_key(result._node);
     result.key_size  = result._node->key_size;
