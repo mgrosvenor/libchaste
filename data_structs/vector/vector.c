@@ -277,6 +277,17 @@ void vector_pop_back(ch_vector_t* this)
     vector_remove(this,this->last);
 }
 
+void vector_clear(ch_vector_t* this)
+{
+    this->_array_count            = 0;
+    this->first                   = this->_array->first;
+    this->last                    = this->first;
+    this->end                     = this->first;
+    this->size                    = this->_array->size;
+    this->count                   = this->_array_count;
+}
+
+
 void vector_delete(ch_vector_t* this)
 {
     if(this->_array){
@@ -290,15 +301,24 @@ void vector_delete(ch_vector_t* this)
 /*Assign at most size elements from the C vector*/
 void* vector_push_back_carray(ch_vector_t* this, void* carray, ch_word count)
 {
+    if(count == 0){
+        return NULL;
+    }
+
     if(this->size - this->_array_count < count){
-        const ch_word new_size = this->size ? this->size * 2 : next_pow2(count);
+        const ch_word new_size = next_pow2(count + this->size);
         vector_resize(this,new_size);
     }
 
     memcpy(this->end, carray, count * this->_array->_element_size );
     this->_array_count += count;
     this->count = this->_array_count;
-    this->last = _vector_forward_unsafe(this,this->last,count);
+    if(this->last == this->first && this->last == this->end){
+        this->last = _vector_forward_unsafe(this,this->last,count - 1);
+    }
+    else{
+        this->last = _vector_forward_unsafe(this,this->last,count);
+    }
     this->end = _vector_forward_unsafe(this, this->last, 1);
 
     return this->last;

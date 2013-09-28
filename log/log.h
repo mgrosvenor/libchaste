@@ -18,7 +18,7 @@ ch_word _ch_log_out_va_(ch_word this_log_lvll, ch_word line_num, const char* fil
 
 
 #ifndef CH_LOG_BUILD_LVL
-    #ifndef NDEBUG
+    #ifdef NDEBUG
         #define CH_LOG_BUILD_LVL   CH_LOG_LVL_INFO    //Output binary to be capable up to "info" level release mode
     #else
         #define CH_LOG_BUILD_LVL   CH_LOG_LVL_DEBUG3  //Output binary to be capable up to "debug3" level debug mode

@@ -493,7 +493,7 @@ static ch_word test14_ch_word(ch_word* test_data)
 
 
 /* Found a bug in the equaility operator. This should stimulate it*/
-static ch_word test16_ch_word(ch_word* test_data)
+static ch_word test15_ch_word(ch_word* test_data)
 {
     ch_word result = 1;
 
@@ -525,7 +525,60 @@ static ch_word test16_ch_word(ch_word* test_data)
     return result;
 }
 
+//Found a bug push_back carray. This stimulated it
+static ch_word test16_ch_word(ch_word* test_data)
+{
+    ch_word result = 1;
 
+    ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
+    ch_vector_i64_t* al2 = ch_vector_i64_new(0,cmp_i64);
+    CH_ASSERT(al1->push_back(al1, test_data[0]));
+    CH_ASSERT(al1->push_back_carray(al1, &test_data[1],7));
+    CH_ASSERT(al1->push_back_carray(al1, &test_data[8],7));
+    CH_ASSERT(al2->push_back_carray(al2, &test_data[0],15));
+
+
+    CH_ASSERT(al1->eq(al1,al2));
+    CH_ASSERT(al2->eq(al2,al1));
+    al1->delete(al1);
+    al2->delete(al2);
+    return result;
+}
+
+//Found another bug push_back carray. This also stimulated it
+static ch_word test17_ch_word(ch_word* test_data)
+{
+    ch_word result = 1;
+    (void)test_data;
+
+    char* data1[2] = { "06", "03" };
+    char* data2 = "0603";
+
+    CH_VECTOR(i8)* key_buff1 = CH_VECTOR_NEW(i8,1024,CH_VECTOR_CMP(i8));
+    key_buff1->push_back_carray(key_buff1,(i8*)data1[0],2);
+    key_buff1->push_back_carray(key_buff1,(i8*)data1[1],2);
+
+    CH_VECTOR(i8)* key_buff2 = CH_VECTOR_NEW(i8,1024,CH_VECTOR_CMP(i8));
+    key_buff2->push_back_carray(key_buff2,(i8*)data2,4);
+
+    CH_ASSERT(key_buff2->eq(key_buff2, key_buff1));
+
+    return result;
+}
+
+/* Testing the new clear method*/
+static ch_word test18_ch_word(ch_word* test_data)
+{
+    ch_word result = 1;
+
+    ch_vector_i64_t* v1 = ch_vector_i64_new(0,cmp_i64);
+    ch_vector_i64_t* v2 = ch_vector_i64_new(0,cmp_i64);
+    CH_ASSERT(v1->push_back_carray(v1, test_data, 15));
+    v1->clear(v1);
+    CH_ASSERT(v1->eq(v1,v2));
+    CH_ASSERT(v2->eq(v2,v1));
+    return result;
+}
 
 int main(int argc, char** argv)
 {
@@ -551,7 +604,10 @@ int main(int argc, char** argv)
     printf("CH Data Structures: Vector Test 12: ");  printf("%s", (test_result = test12_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Vector Test 13: ");  printf("%s", (test_result = test13_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Vector Test 14: ");  printf("%s", (test_result = test14_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 15: ");  printf("%s", (test_result = test16_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 15: ");  printf("%s", (test_result = test15_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 16: ");  printf("%s", (test_result = test16_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 17: ");  printf("%s", (test_result = test17_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 17: ");  printf("%s", (test_result = test18_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 
     return 0;
 }

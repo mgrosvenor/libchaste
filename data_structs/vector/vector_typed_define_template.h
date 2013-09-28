@@ -38,6 +38,7 @@ static TYPE* _insert_before_##NAME(ch_vector_##NAME##_t* this, TYPE* ptr, TYPE v
 static TYPE* _remove_##NAME(ch_vector_##NAME##_t* this, TYPE* ptr)                            { TYPE* result = (TYPE*) vector_remove(this->_vector, ptr); _update_##NAME(this); return result; }\
 static void _pop_front_##NAME(ch_vector_##NAME##_t* this)                                   { vector_pop_front(this->_vector); _update_##NAME(this); }\
 static void _pop_back_##NAME(ch_vector_##NAME##_t* this)                                    { vector_pop_back(this->_vector); _update_##NAME(this); }\
+static void _clear_##NAME(ch_vector_##NAME##_t* this)                                       { vector_clear(this->_vector); _update_##NAME(this); }\
 static TYPE* _push_back_carray_##NAME(ch_vector_##NAME##_t* this, TYPE* carray, ch_word count){ TYPE* result =  vector_push_back_carray(this->_vector, (void*)carray, count); _update_##NAME(this); return result; }\
 \
 static void _delete_##NAME(ch_vector_##NAME##_t* this)\
@@ -80,6 +81,7 @@ ch_vector_##NAME##_t* ch_vector_##NAME##_new(ch_word size, ch_word (*cmp)(TYPE* 
     result->insert_before           = _insert_before_##NAME;\
     result->remove                  = _remove_##NAME;\
     result->push_back_carray        = _push_back_carray_##NAME;\
+    result->clear                   = _clear_##NAME;\
     result->delete                  = _delete_##NAME;\
 \
 \

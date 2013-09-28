@@ -75,6 +75,9 @@ ch_llist_it* llist_insert_before(ch_llist_t* this, ch_llist_it* it, const void* 
 //Remove the given ptr [WARN: In general this is very expensive]
 ch_llist_it llist_remove(ch_llist_t* this, ch_llist_it* itr);
 
+//Remove all elememts from the list
+void llist_pop_all(ch_llist_t* this);
+
 //Free the resources associated with this llist, assumes that individual items have been freed
 void llist_delete(ch_llist_t* this);
 
@@ -89,5 +92,6 @@ ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, v
 void llist_sort(ch_llist_t* this);
 
 ch_llist_t* ch_llist_new( ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) );
+ch_llist_t* ch_llist_init( ch_llist_t* this, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) );
 
 #endif // LINKEDLIST_H_
