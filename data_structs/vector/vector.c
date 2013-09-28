@@ -277,6 +277,17 @@ void vector_pop_back(ch_vector_t* this)
     vector_remove(this,this->last);
 }
 
+void vector_clear(ch_vector_t* this)
+{
+    this->_array_count            = 0;
+    this->first                   = this->_array->first;
+    this->last                    = this->first;
+    this->end                     = this->first;
+    this->size                    = this->_array->size;
+    this->count                   = this->_array_count;
+}
+
+
 void vector_delete(ch_vector_t* this)
 {
     if(this->_array){
