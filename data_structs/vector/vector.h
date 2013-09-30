@@ -60,6 +60,9 @@ void* vector_insert_after(ch_vector_t* this, void* ptr, void* value);
 void* vector_insert_before(ch_vector_t* this, void* ptr, void* value);
 //Remove the given ptr [WARN: In general this is very expensive]
 void* vector_remove(ch_vector_t* this, void* ptr);
+//Pop everything out of the vector
+void vector_clear(ch_vector_t* this);
+
 //Free the resources associated with this vector, assumes that individual items have been freed
 void vector_delete(ch_vector_t* this);
 

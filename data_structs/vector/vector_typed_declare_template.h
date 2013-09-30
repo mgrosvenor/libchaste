@@ -32,6 +32,7 @@ struct ch_vector_##NAME{\
     void (*pop_front)(ch_vector_##NAME##_t* this); /* Push an element off the front of the vector list values, [WARN: In general this is very expensive for an vector] */\
     TYPE* (*push_back)(ch_vector_##NAME##_t* this, TYPE value); /* Put an element at the back of the vector values*/\
     void (*pop_back)(ch_vector_##NAME##_t* this); /* Push an element at the back of the vector values*/\
+    void (*clear)(ch_vector_##NAME##_t* this); /*Pop everything out of the vector*/\
 \
     TYPE* (*insert_after)(ch_vector_##NAME##_t* this, TYPE* ptr, TYPE value); /* Insert an element after the element given by ptr*/\
     TYPE* (*insert_before)(ch_vector_##NAME##_t* this, TYPE* ptr, TYPE value); /* Insert an element before the element giver by ptr [WARN: In general this is very expensive for an vector] */\

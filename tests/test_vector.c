@@ -566,7 +566,19 @@ static ch_word test17_ch_word(ch_word* test_data)
     return result;
 }
 
+/* Testing the new clear method*/
+static ch_word test18_ch_word(ch_word* test_data)
+{
+    ch_word result = 1;
 
+    ch_vector_i64_t* v1 = ch_vector_i64_new(0,cmp_i64);
+    ch_vector_i64_t* v2 = ch_vector_i64_new(0,cmp_i64);
+    CH_ASSERT(v1->push_back_carray(v1, test_data, 15));
+    v1->clear(v1);
+    CH_ASSERT(v1->eq(v1,v2));
+    CH_ASSERT(v2->eq(v2,v1));
+    return result;
+}
 
 int main(int argc, char** argv)
 {
@@ -595,6 +607,7 @@ int main(int argc, char** argv)
     printf("CH Data Structures: Vector Test 15: ");  printf("%s", (test_result = test15_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Vector Test 16: ");  printf("%s", (test_result = test16_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Vector Test 17: ");  printf("%s", (test_result = test17_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 17: ");  printf("%s", (test_result = test18_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 
     return 0;
 }
