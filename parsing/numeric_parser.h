@@ -20,6 +20,7 @@ typedef struct{
         int64_t  val_int;
         double   val_dble;
     };
+    ch_word index; //If the type returned is a valid number, return the index of the first char directly after the number
 } num_result_t;
 
 
