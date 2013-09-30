@@ -161,6 +161,7 @@ num_result_t parse_number(const char* c, size_t i){
                                       state = STATE_END_UINT;                continue; }
                 if( isodigit(c[i])) { uint_accumulator = (c[i] - '0');
                                       state = STATE_GET_OCT_DIGITS;          continue; }
+                if( iswhite(c[i]) ) { state = STATE_FINISHED_UINT;          continue; }
                 else                { state = STATE_NONE_FOUND;              continue; }
             }
 
