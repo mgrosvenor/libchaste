@@ -172,7 +172,6 @@ num_result_t parse_number(const char* c, size_t i){
                                       state = STATE_GET_FLO_DIGITS;         continue; }
                 if( isprefix(c[i])) { prefix = c[i];
                                       state = STATE_END_UINT;               continue; }
-                if( issci(c[i]) )
                 if( iswhite(c[i]) ) { state = STATE_FINISHED_UINT;          continue; }
                 if( isnull(c[i]) )  { state = STATE_FINISHED_UINT;          continue; }
                 else                { state = STATE_NONE_FOUND;             continue; }

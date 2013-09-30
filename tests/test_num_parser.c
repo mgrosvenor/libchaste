@@ -57,6 +57,8 @@ ch_word test_num_parser() {
     "1mi",                      //37
     "3.6G",                     //38
     "2Gi",                      //39
+    //Bug hunting
+    "1 2 3 4",                   //40
     //Scientific notation
 //    "0E0",                      //40
 //    "1E0",                      //41
@@ -123,6 +125,7 @@ ch_word test_num_parser() {
             case 37:num = parse_number(tests[i],0); printf("%s\n",( test_pass = ( num.type == CH_UINT64 && num.val_uint == 1024 * 1024  && num.index == 3)                 ) ? "Pass" : "Fail" ); break;
             case 38:num = parse_number(tests[i],0); printf("%s\n",( test_pass = ( num.type == CH_DOUBLE && num.val_dble == 3.6 * 1000 * 1000 * 1000  && num.index == 4)    ) ? "Pass" : "Fail" ); break;
             case 39:num = parse_number(tests[i],0); printf("%s\n",( test_pass = ( num.type == CH_UINT64 && num.val_uint == 2 * 1024 * 1024 * 1024ULL && num.index == 3)   ) ? "Pass" : "Fail" ); break;
+            case 40:num = parse_number(tests[i],0); printf("%s\n",( test_pass = ( num.type == CH_UINT64 && num.val_uint == 1 && num.index == 1)    ) ? "Pass" : "Fail" ); break;
             default: printf("Fail\n"); break;
         }
 
