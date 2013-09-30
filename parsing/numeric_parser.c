@@ -106,7 +106,7 @@ num_result_t parse_number(const char* c, size_t i){
     double float_base_accumulator   = 1;
     int64_t sign                    = 1;
     char prefix                     = 0;
-
+    ch_word index                   = 0;
     size_t state = STATE_INIT;
     for(    ;
             state != STATE_NONE_FOUND &&
@@ -114,6 +114,8 @@ num_result_t parse_number(const char* c, size_t i){
             state != STATE_FINISHED_UINT &&
             state != STATE_FINISHED_FLOAT;
             i++ ){
+
+        index = i;
 
         switch(state){
             case STATE_INIT:{
@@ -170,8 +172,7 @@ num_result_t parse_number(const char* c, size_t i){
                                       state = STATE_GET_FLO_DIGITS;         continue; }
                 if( isprefix(c[i])) { prefix = c[i];
                                       state = STATE_END_UINT;               continue; }
-                if( issci(c[i]) )
-                if( iswhite(c[i]) ) { state = STATE_END_UINT;               continue; }
+                if( iswhite(c[i]) ) { state = STATE_FINISHED_UINT;          continue; }
                 if( isnull(c[i]) )  { state = STATE_FINISHED_UINT;          continue; }
                 else                { state = STATE_NONE_FOUND;             continue; }
             }
@@ -182,7 +183,7 @@ num_result_t parse_number(const char* c, size_t i){
                                        state = STATE_GET_BIN_DIGITS;        continue; }
                 if( isprefix(c[i]))  { prefix = c[i];
                                        state = STATE_END_UINT;              continue; }
-                if( iswhite(c[i]) )  { state = STATE_END_UINT;              continue; }
+                if( iswhite(c[i]) )  { state = STATE_FINISHED_UINT;         continue; }
                 if( isnull(c[i]) )   { state = STATE_FINISHED_UINT;         continue; }
                 else                 { state = STATE_NONE_FOUND;            continue; }
 
@@ -194,7 +195,7 @@ num_result_t parse_number(const char* c, size_t i){
                                        state = STATE_GET_OCT_DIGITS;        continue; }
                 if( isprefix(c[i]))  { prefix = c[i];
                                        state = STATE_END_UINT;              continue; }
-                if( iswhite(c[i]) )  { state = STATE_END_UINT;              continue; }
+                if( iswhite(c[i]) )  { state = STATE_FINISHED_UINT;         continue; }
                 if( isnull(c[i]) )   { state = STATE_FINISHED_UINT;         continue; }
                 else                 { state = STATE_NONE_FOUND;            continue; }
             }
@@ -208,7 +209,7 @@ num_result_t parse_number(const char* c, size_t i){
                                        state = STATE_GET_HEX_DIGITS;        continue; }
                 if( isprefix(c[i]))  { prefix = c[i];
                                        state = STATE_END_UINT;              continue; }
-                if( iswhite(c[i]) )  { state = STATE_END_UINT;              continue; }
+                if( iswhite(c[i]) )  { state = STATE_FINISHED_UINT;         continue; }
                 if( isnull(c[i]) )   { state = STATE_FINISHED_UINT;         continue; }
 
                 else                 { state = STATE_NONE_FOUND;            continue; }
@@ -226,35 +227,38 @@ num_result_t parse_number(const char* c, size_t i){
             }
 
             case STATE_END_UINT:{
-                if( iswhite(c[i]) )   { state = STATE_END_UINT;             continue; }
                 if( isbin( c[i]) &&
                     isprefix(prefix)) { uint_accumulator *= get_bin_prefix(prefix);
+                                        index += 1;
                                         state = STATE_FINISHED_UINT;        continue; }
                 if( isprefix(prefix)) { uint_accumulator *= get_prefix(prefix);
                                         state = STATE_FINISHED_UINT;        continue; }
+                if( iswhite(c[i]) )   { state = STATE_FINISHED_UINT;        continue; }
                 if( isnull(c[i]) )    { state = STATE_FINISHED_UINT;        continue; }
                 else                  { state = STATE_NONE_FOUND;           continue; }
             }
 
             case STATE_END_INT:  {
-                if( iswhite(c[i]) )   { state = STATE_END_INT;               continue; }
-                if( isprefix(prefix)) { int_accumulator *= get_prefix(prefix);
-                                         state = STATE_FINISHED_INT;         continue; }
                 if( isbin(c[i]) &&
                     isprefix(prefix)) { int_accumulator *= get_bin_prefix(prefix);
+                                        index += 1;
                                         state = STATE_FINISHED_INT;          continue; }
+                if( isprefix(prefix)) { int_accumulator *= get_prefix(prefix);
+                                        state = STATE_FINISHED_INT;          continue; }
+                if( iswhite(c[i]) )   { state = STATE_FINISHED_INT;          continue; }
                 if( isnull(c[i]) )    { state = STATE_FINISHED_INT;          continue; }
                 else                  { state = STATE_NONE_FOUND;            continue; }
             }
 
             case STATE_END_FLOAT: {
-                if( iswhite(c[i]) )    { state = STATE_END_FLOAT;            continue; }
-                if( isprefix(prefix))  { float_accumulator *= get_prefix(prefix);
-                                         state = STATE_FINISHED_FLOAT;       continue; }
                 if( isbin( c[i] &&
                     isprefix(prefix))) { float_accumulator *= get_bin_prefix(prefix);
+                                         index += 1;
+                                         state = STATE_FINISHED_FLOAT;       continue; }
+                if( isprefix(prefix))  { float_accumulator *= get_prefix(prefix);
                                          state = STATE_FINISHED_FLOAT;       continue; }
                 if( isnull(c[i]) )     { state = STATE_FINISHED_FLOAT;       continue; }
+                if( iswhite(c[i]) )    { state = STATE_FINISHED_FLOAT;       continue; }
                 else                   { state = STATE_NONE_FOUND;           continue; }
             }
             default:{
@@ -300,6 +304,10 @@ num_result_t parse_number(const char* c, size_t i){
             num_result.type = CH_NO_TYPE;
             return num_result;
         }
+    }
+
+    if(num_result.type != CH_NO_TYPE){
+        num_result.index = index;
     }
 
     return num_result;
