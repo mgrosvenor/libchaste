@@ -241,6 +241,47 @@ static ch_word test6_i64(kv* test_data)
 }
 
 
+//Try out the new first/next functions for iteration
+static ch_word test7_i64(kv* test_data)
+{
+
+    ch_word result = 1;
+    (void)test_data;
+
+    //Make an empty hash_map
+    ch_hash_map* hm1 = ch_hash_map_new(10,sizeof(void*),cmp_i64);
+
+    for(ch_word i = 0; i < 3; i++){
+        //printf("[%li] Pushing %s->%s\n", i, test_data[i].key, test_data[i].value);
+        uint64_t key = strtoll(test_data[i].key, NULL, 10);
+        hash_map_push(hm1,&key,sizeof(key), &test_data[i].value );
+    }
+
+    //Items can come out of this in any order, since this is a hash-map
+    ch_hash_map_it it1 = hash_map_first(hm1);
+    ch_hash_map_it it2 = it1;
+
+    uint64_t key1 = strtoll(test_data[0].key, NULL, 10);
+    uint64_t key2 = strtoll(test_data[2].key, NULL, 10);
+
+    CH_ASSERT(*(u64*)it1.key == key1 || *(u64*)it1.key == key2);
+    CH_ASSERT(it1.key_size == sizeof(key1) || it1.key_size == sizeof(key2));
+    CH_ASSERT(*(char**)it2.value == test_data[0].value || *(char**)it2.value == test_data[1].value );
+
+    hash_map_next(hm1,&it2);
+    CH_ASSERT(it2.key);
+    CH_ASSERT(*(u64*)it2.key != *(u64*)it1.key);
+    CH_ASSERT(it2.key_size == it1.key_size);
+    CH_ASSERT(it2.value != it1.value);
+
+    //dump_hash_map_i64(hm1);
+
+    return result;
+
+}
+
+
+
 int main(int argc, char** argv)
 {
     (void)argc;
@@ -249,7 +290,7 @@ int main(int argc, char** argv)
     kv test_data[3] = {
         { "111", "value1" },
         { "111", "value2" },
-        { "222", "value2" }
+        { "22", "value2" }
     };
 
 
@@ -261,7 +302,7 @@ int main(int argc, char** argv)
     printf("CH Data Structures: Generic Hash Map Test 04: ");  printf("%s", (test_result = test4_i64(test_data)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Generic Hash Map Test 05: ");  printf("%s", (test_result = test5_i64(test_data)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Generic Hash Map Test 06: ");  printf("%s", (test_result = test6_i64(test_data)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-//    printf("CH Data Structures: Generic Hash Map Test 07: ");  printf("%s", (test_result = test7_i64(test_data)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Generic Hash Map Test 07: ");  printf("%s", (test_result = test7_i64(test_data)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Generic Hash Map Test 08: ");  printf("%s", (test_result = test8_i64(test_data)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Generic Hash Map Test 09: ");  printf("%s", (test_result = test9_i64(test_data)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Generic Hash Map Test 10: ");  printf("%s", (test_result = test10_i64(test_data)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;

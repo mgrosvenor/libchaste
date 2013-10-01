@@ -215,6 +215,105 @@ ch_hash_map_it hash_map_push_unsafe_ptr(ch_hash_map* this,  void* key, ch_word k
 }
 
 
+ch_hash_map_it hash_map_first(ch_hash_map* this)
+{
+    ch_hash_map_it result = { 0 };
+    ch_llist_t* node_list;
+    ch_llist_it node_list_it;
+    ch_hash_map_node * node = NULL;
+
+
+    //Get the first offset that has a node in it
+    for(ch_word i = 0; i < this->_backing_array->size; i++){
+        node_list = (ch_llist_t*)array_off(this->_backing_array, i);
+
+        if(!node_list){
+            continue;
+        }
+
+        node_list_it = llist_first(node_list);
+        if(node_list_it.value){
+            node = node_list_it.value;
+            break;
+        }
+
+    }
+
+    //Nothing found, the hasmap must be empty
+    if(!node){
+        return result;
+    }
+
+
+
+    result._node = node;
+    result.item = node_list_it;
+    result.value =((u8*)node_list_it.value) + sizeof(ch_hash_map_node);
+    result.key =  get_key(result._node);
+    result.key_size =  result._node->key_size;
+
+    return result;
+}
+
+////Get the last entry
+//ch_hash_map_it hash_map_last(ch_hash_map* this);
+////Get the end
+
+ch_hash_map_it hash_map_end(ch_hash_map* this)
+{
+    (void)this;
+    ch_hash_map_it result = { 0 };
+    return result;
+}
+
+
+////Step forwards by one entry
+void hash_map_next (ch_hash_map* this, ch_hash_map_it* it)
+{
+    ch_hash_map_it result = { 0 };
+
+    ch_llist_t* node_list = NULL;
+    ch_llist_it node_list_it = it->item;
+    ch_hash_map_node * node = it->_node;
+    ch_word idx = node->offset;
+    node = NULL;
+
+    idx++;
+    if(idx >= this->_backing_array->size){
+        *it = result;
+        return;
+    }
+
+    node_list = (ch_llist_t*)array_off(this->_backing_array, idx);
+    llist_next(node_list, &node_list_it);
+
+    for(;idx < this->_backing_array->size;idx++){
+        if(node_list_it.value){
+            node = node_list_it.value;
+            break;
+        }
+
+        node_list = (ch_llist_t*)array_off(this->_backing_array, idx);
+        node_list_it = llist_first(node_list);
+
+    }
+
+    //Nothing found, the hasmap must be empty
+    if(!node){
+        *it = result;
+        return;
+    }
+
+    result._node = node;
+    result.item = node_list_it;
+    result.value =((u8*)node_list_it.value) + sizeof(ch_hash_map_node);
+    result.key =  get_key(result._node);
+    result.key_size =  result._node->key_size;
+    *it = result;
+
+}
+
+
 //Remove the given ptr
 //ch_hash_map_it hash_map_remove(ch_hash_map* this, ch_hash_map_it* itr);
 
