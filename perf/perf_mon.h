@@ -50,6 +50,7 @@ typedef struct perf_mod_generic perf_mod_generic_t;
 struct perf_mod_generic{
     ch_word id;
     ch_cstr descr;
+    ch_word descr_len;
 };
 
 

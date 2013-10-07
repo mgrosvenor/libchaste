@@ -3,6 +3,7 @@
 // Licensed under BSD 3 Clause, please see LICENSE for more details. 
 
 #include "../perf/perf_mon.h"
+#include "../log/log.h"
 
 make_perf_module(TSC test1[1]; TSC test2[2]; TSC test3[3];);
 
@@ -53,6 +54,7 @@ void test3(struct some_state* state)
 }
 
 
+USE_CH_LOGGER_DEFAULT;
 
 
 int main(int argc, char** argv)
