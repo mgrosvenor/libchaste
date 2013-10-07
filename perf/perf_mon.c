@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "../log/log.h"
 #include "perf_mon.h"
@@ -372,8 +373,9 @@ void print_ast(ast_node_t* head, ch_word indent)
 
     switch(head->type){
         case AST_NODE_TSC:{
-            printf("%.*s%.*s:%li Count: [%li,%li], Nanos: [%li, %li < %lf < %li], Cycles  [%li, %li < %lf < %li]\n", (int)MIN(whitespace_len,indent), whitespace, (int)head->ident_len, head->ident, head->idx,
-                                                                                    head->tsc->start_count,  head->tsc->end_count,
+            head->tsc->nanos_avg = (double) head->tsc->nanos_total / (double)head->tsc->end_count;
+            printf("%.*s%.*s:%li Count: [%6li], Nanos: [%li, %li < %6.2lf < %li], Cycles  [%li, %li < %6.2lf < %li]\n", (int)MIN(whitespace_len,indent), whitespace, (int)head->ident_len, head->ident, head->idx,
+                                                                                    head->tsc->end_count,
                                                                                     head->tsc->nanos_total, head->tsc->nanos_min, head->tsc->nanos_avg, head->tsc->nanos_max,
                                                                                     head->tsc->cycles_total, head->tsc->cycles_min, head->tsc->cycles_avg, head->tsc->cycles_max);
             if(head->next) print_ast(head->next, indent);
@@ -397,4 +399,13 @@ void print_perf_stats(perf_mod_generic_t* perf_mod)
     ast_node_t* ast_head = NULL;
     perf_stats_parse(perf_mod,&ast_head);
     print_ast(ast_head,0);
+}
+
+
+u64 get_nanos_now()
+{
+    struct timespec ts = { 0 };
+    clock_gettime(CLOCK_REALTIME,&ts);
+    return ts.tv_nsec + ts.tv_sec * 1000 * 1000 * 1000;
+
 }

@@ -25,14 +25,14 @@ typedef struct {
     u64 end_count; //Number of times end counter was called
 
     //Sampling using timestamp counter
-    u64 nanos_start; //Only used for counter 0
+    u64 nanos_tmp; //Only used for counter 0
     u64 nanos_total;
     u64 nanos_max;
     u64 nanos_min;
     double nanos_avg;
 
     //Sampling using cycle counter
-    u64 cycles_start; //Only used for counter 0
+    u64 cycles_tmp; //Only used for counter 0
     u64 cycles_total;
     u64 cycles_max;
     u64 cycles_min;
@@ -65,7 +65,20 @@ struct perf_mod_generic{
 
 #define get_perf_mod_ref (perf_mod_generic_t*)&perf_mod
 
+#define perf_mod_start( NAME ) \
+    perf_mod.NAME[0].start_count += 1; \
+    perf_mod.NAME[0].nanos_tmp = get_nanos_now();
+
+
+#define perf_mod_end( NAME, ID ) \
+    perf_mod.NAME[ID].end_count     += 1; \
+    perf_mod.NAME[0].nanos_tmp      = (get_nanos_now() - perf_mod.NAME[0].nanos_tmp); \
+    perf_mod.NAME[ID].nanos_total   += perf_mod.NAME[0].nanos_tmp; \
+    perf_mod.NAME[ID].nanos_min     = perf_mod.NAME[ID].nanos_min == 0 ? perf_mod.NAME[0].nanos_tmp : perf_mod.NAME[0].nanos_tmp < perf_mod.NAME[ID].nanos_min ? perf_mod.NAME[0].nanos_tmp : perf_mod.NAME[ID].nanos_min ; \
+    perf_mod.NAME[ID].nanos_max     = perf_mod.NAME[0].nanos_tmp > perf_mod.NAME[ID].nanos_max ? perf_mod.NAME[0].nanos_tmp : perf_mod.NAME[ID].nanos_max ;
+
 
 void print_perf_stats(perf_mod_generic_t* perf_mod);
+u64 get_nanos_now();
 
 #endif /* PERF_MON_H_ */
