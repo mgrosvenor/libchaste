@@ -56,9 +56,13 @@ struct ch_llist_##NAME{\
 \
 \
 ch_llist_##NAME##_t* ch_llist_##NAME##_new(ch_word(*cmp)(TYPE* lhs, TYPE* rhs) );
-\
-#define declare_ch_llist_cmp(NAME, TYPE) ch_word ch_llist_cmp_##NAME(TYPE* lhs, TYPE* rhs);\
 
+
+#define declare_ch_llist_cmp(NAME, TYPE) ch_word ch_llist_cmp_##NAME(TYPE* lhs, TYPE* rhs);
+
+
+//**********************************************************************************************************************
+//Shortcuts to make things more accessible
 #define CH_LIST(NAME)  ch_llist_##NAME##_t
 #define CH_LIST_IT(NAME)  ch_llist_##NAME##_it
 #define CH_LIST_NEW(NAME, cmp) ch_llist_##NAME##_new(cmp )

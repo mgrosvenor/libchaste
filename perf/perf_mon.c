@@ -124,7 +124,7 @@ struct ast_node {
     ast_node_t* next;
     ch_cstr ident;
     ch_word ident_len;
-    ch_word idx;
+    ch_word num;
     union {
         TSC* tsc;
         perf_mod_generic_t* child_perf;
@@ -273,23 +273,22 @@ void perf_stats_parse(perf_mod_generic_t* perf_mod, ast_node_t** ast_head_out)
                     case PERF_TOK_SEMI: {
                         //If we've got as far as a semicolon, we've successfully parsed an entire line. So add an entry into the ast
 
+                        if(!ast_head){
+                            ast_head  = (ast_node_t*)calloc(1,sizeof(ast_node_t));
+                            *ast_head_out = ast_head;
+                        }
+                        else if (!ast_head->next){
+                            ast_head->next = (ast_node_t*)calloc(1,sizeof(ast_node_t));
+                            ast_head       = ast_head->next;
+                        }
+
                         if(found_perf){
                             //printf("Found perf struct with ident = \"%.*s\"\n", (int)(ident_end - ident_start), ident_start );
-
-                            if(!ast_head){
-                                ast_head  = (ast_node_t*)calloc(1,sizeof(ast_node_t));
-                                *ast_head_out = ast_head;
-                            }
-                            else if (!ast_head->next){
-                                ast_head->next = (ast_node_t*)calloc(1,sizeof(ast_node_t));
-                                ast_head       = ast_head->next;
-                            }
-
 
                             ast_head->type      = AST_NODE_PERF_STRUCT;
                             ast_head->ident     = ident_start;
                             ast_head->ident_len = (ident_end - ident_start);
-                            ast_head->idx       = 0;
+                            ast_head->num       = 1;
                             ast_head->perf_mod  = perf_mod;
                             ast_head->child_perf = (perf_mod_generic_t*)data;
 
@@ -302,29 +301,19 @@ void perf_stats_parse(perf_mod_generic_t* perf_mod, ast_node_t** ast_head_out)
                         }
                         else if(found_tsc){
                             //printf("Found TSC with ident = \"%.*s\"\n", (int)(ident_end - ident_start), ident_start );
-                            //Step through data pointer
-                            for(ch_word i = 0; i < tsc_num; i++){
 
-                                if(!ast_head){
-                                    ast_head  = (ast_node_t*)calloc(1,sizeof(ast_node_t));
-                                    *ast_head_out = ast_head;
-                                }
-                                else if (!ast_head->next){
-                                    ast_head->next = (ast_node_t*)calloc(1,sizeof(ast_node_t));
-                                    ast_head       = ast_head->next;
-                                }
+                            ast_head->type      = AST_NODE_TSC;
+                            ast_head->ident     = ident_start;
+                            ast_head->ident_len = (ident_end - ident_start);
+                            ast_head->num       = tsc_num;
+                            ast_head->perf_mod  = perf_mod;
+                            ast_head->child     = NULL;
 
-                                ast_head->type      = AST_NODE_TSC;
-                                ast_head->ident     = ident_start;
-                                ast_head->ident_len = (ident_end - ident_start);
-                                ast_head->idx       = i;
-                                ast_head->perf_mod  = perf_mod;
-                                ast_head->child     = NULL;
+                            ast_head->tsc = (TSC*)data;
 
-                                ast_head->tsc = (TSC*)data;
-                                data += sizeof(TSC);
+                            //Move the pointer up to the end of this array
+                            data += sizeof(TSC) * tsc_num;
 
-                            }
                         }
 
                         state       = PAR_STATE_TYPE;
@@ -373,11 +362,17 @@ void print_ast(ast_node_t* head, ch_word indent)
 
     switch(head->type){
         case AST_NODE_TSC:{
-            head->tsc->nanos_avg = (double) head->tsc->nanos_total / (double)head->tsc->end_count;
-            printf("%.*s%.*s:%li Count: [%6li], Nanos: [%li, %li < %6.2lf < %li], Cycles  [%li, %li < %6.2lf < %li]\n", (int)MIN(whitespace_len,indent), whitespace, (int)head->ident_len, head->ident, head->idx,
-                                                                                    head->tsc->end_count,
-                                                                                    head->tsc->nanos_total, head->tsc->nanos_min, head->tsc->nanos_avg, head->tsc->nanos_max,
-                                                                                    head->tsc->cycles_total, head->tsc->cycles_min, head->tsc->cycles_avg, head->tsc->cycles_max);
+            printf("%.*s%.*s\n", (int)MIN(whitespace_len,indent), whitespace, (int)head->ident_len, head->ident);
+            printf("%.*s    Started: %li\n", (int)MIN(whitespace_len,indent), whitespace, head->tsc[0].start_count);
+            for(ch_word i = 0; i < head->num; i++){
+                head->tsc[i].nanos_avg = (double) head->tsc[i].nanos_total / (double)head->tsc[i].end_count;
+
+                printf("%.*s    End %li: %li -  Nanos: [%li, %li < %6.2lf < %li], Cycles  [%li, %li < %6.2lf < %li]\n", (int)MIN(whitespace_len,indent), whitespace, i,
+                                                                                    head->tsc[i].end_count,
+                                                                                    head->tsc[i].nanos_total, head->tsc[i].nanos_min, head->tsc[i].nanos_avg, head->tsc[i].nanos_max,
+                                                                                    head->tsc[i].cycles_total, head->tsc[i].cycles_min, head->tsc[i].cycles_avg, head->tsc[i].cycles_max);
+
+            }
             if(head->next) print_ast(head->next, indent);
             free(head);
             return;

@@ -12,7 +12,6 @@
 #include "../utils/util.h"
 
 
-//Make a new ch_string on the stack, no free is necessary when done with it, but don,t pass it up a function call
 ch_str ch_str_new(const char* s,i64 size, ch_bool is_char)
 {
     ch_str result;

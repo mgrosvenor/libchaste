@@ -15,6 +15,7 @@
 #include "options/options.h"
 #include "perf/perf.h"
 #include "log/log.h"
+#include "perf/perf_mon.h"
 
 #include "data_structs/array/array_std.h"
 #include "data_structs/vector/vector_std.h"

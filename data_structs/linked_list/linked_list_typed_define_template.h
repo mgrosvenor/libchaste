@@ -241,4 +241,7 @@ ch_word ch_llist_cmp_##NAME(TYPE* lhs, TYPE* rhs)\
     return ch_llist_cmp_##NAME(*lhs, *rhs);\
 }
 
+#define define_ch_llist_compare(NAME, TYPE) ch_word ch_llist_cmp_##NAME(TYPE* lhs, TYPE* rhs)
+
+
 #endif //LINKED_LIST_TYPED_TEMPLATE_DEFINE_H_
