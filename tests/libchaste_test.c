@@ -9,7 +9,7 @@
 
 USE_CH_LOGGER_DEFAULT;
 USE_CH_OPTIONS;
-USE_CH_PERF(1);
+//USE_CH_PERF(1);
 
 //A minimal main function to make compilation happen and unit tests run
 int main(int argc, char** argv)

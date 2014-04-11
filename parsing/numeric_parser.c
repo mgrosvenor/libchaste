@@ -8,7 +8,7 @@
 #include "numeric_parser.h"
 #include "utils.h"
 #include "ctype.h"
-#include "../log/log.h"
+//#include "../log/log.h"
 
 
 enum {
@@ -263,7 +263,7 @@ num_result_t parse_number(const char* c, size_t i){
                 else                   { state = STATE_NONE_FOUND;           continue; }
             }
             default:{
-                ch_log_error("Undefined state parsing numeric %lu\n", state);
+                //ch_log_error("Undefined state parsing numeric %lu\n", state);
                 num_result.type = CH_NO_TYPE;
                 return num_result;
             }
@@ -301,7 +301,7 @@ num_result_t parse_number(const char* c, size_t i){
             break;
         }
         default:{
-            ch_log_error("Undefined state parsing numeric %lu\n", state);
+            //ch_log_error("Undefined state parsing numeric %lu\n", state);
             num_result.type = CH_NO_TYPE;
             return num_result;
         }

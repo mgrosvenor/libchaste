@@ -44,7 +44,7 @@ void print_usage(const char* err_tx_fmt, ...){
     if(opts.short_description)
         printf("\n%s:\n\n", opts.short_description);
 
-    opts.opt_defs->sort(opts.opt_defs);
+    //opts.opt_defs->sort(opts.opt_defs);
 
 
     for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
@@ -153,7 +153,7 @@ static ch_word ch_options_add_generic(
 
 
     if(mode == CH_OPTION_FLAG && type != CH_BOOL){
-        ch_log_error( "Flag options must be used with boleans only\n");
+        ch_log_error( "Flag options must be used with booleans only\n");
         return -1;
     }
 
@@ -183,6 +183,7 @@ static ch_word ch_options_add_generic(
     opt_def_new->descr     = descr;
     opt_def_new->type      = type;
     opt_def_new->var       = result_out;
+    //printf("New opt: %c = %p\n", opt_def_new->short_str, opt_def_new->var);
 
 
     for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
@@ -493,14 +494,21 @@ void process_option(char c) {
             }
 
             if (opt_def->mode == CH_OPTION_FLAG) {
-                *(int*)opt_def->var = ! (*(int*)opt_def->var); //invert the default value
-                continue;  //This is all handled by getopts
+                *(bool*)opt_def->var = true; // ! (*(int*)opt_def->var); //invert the default value
+                //printf("Set opt: %c = %p = %u\n", opt_def->short_str, opt_def->var, *(bool*)opt_def->var);
+                break;  //This is all handled by getopts
             }
 
             //Parse and assign the argument
             parse_argument(opt_def);
+            break;
         }
     }
+
+//    printf("****************\n");
+//    for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
+//        printf("Set opt: %c = %p = %u\n", opt_def->short_str, opt_def->var, *(bool*)opt_def->var);
+//    }
 }
 
 
@@ -521,7 +529,7 @@ void generate_unix_opts(char short_opts_str[1024], struct option* long_options) 
             long_options[i].name = opt_def->long_str;
             long_options[i].has_arg = no_argument;
             long_options[i].flag = opt_def->var;
-            long_options[i].val = !(*(int*) opt_def->var);
+            long_options[i].val = true; //!(*(int*) opt_def->var);
         } else {
             long_options[i].name = opt_def->long_str;
             long_options[i].has_arg = required_argument;
