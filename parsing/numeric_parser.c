@@ -51,9 +51,9 @@ static inline int isbin(char c){
     return c == 'i' || c == 'I';
 }
 
-static inline int issci(char c){
-    return c == 'E';
-}
+//static inline int issci(char c){
+//    return c == 'E';
+//}
 
 
 static inline int isnull(char c){
