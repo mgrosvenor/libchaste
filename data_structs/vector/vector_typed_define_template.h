@@ -111,4 +111,6 @@ ch_word ch_vector_cmp_##NAME(TYPE* lhs, TYPE* rhs)\
     return ch_vector_cmp_##NAME(*lhs, *rhs);\
 }
 
+#define define_ch_vector_compare(NAME, TYPE) ch_word ch_vector_cmp_##NAME(TYPE* lhs, TYPE* rhs)
+
 #endif //VECTOR_TYPED_TEMPLATE_DEFINE_H_

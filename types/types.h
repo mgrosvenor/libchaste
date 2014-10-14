@@ -43,7 +43,7 @@ typedef struct {
 } ch_str;
 
 typedef char* ch_cstr; //Use this sparingly, only when it really matters that you are backwards compatible with c-strings
-
+typedef const char* ch_ccstr; //Use this sparingly as well
 
 //#define cstr(bstr) ((char*)(bstr->data))
 

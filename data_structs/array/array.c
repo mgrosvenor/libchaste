@@ -188,7 +188,7 @@ void* array_from_carray(ch_array_t* this, void* carray, ch_word count)
 }
 
 
-ch_array_t* ch_array_new(ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs))
+ch_array_t* ch_array_new(ch_word element_count, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs))
 {
 
     ch_array_t* result = (ch_array_t*)calloc(1,sizeof(ch_array_t));
@@ -197,24 +197,35 @@ ch_array_t* ch_array_new(ch_word size, ch_word element_size, ch_word(*cmp)(void*
         return NULL;
     }
 
-    if(size > 0){
-        result->_array_backing       = calloc(size,element_size);
-        if(!result->_array_backing){
-            printf("Could not allocate memory for new array backing. Giving upn");
+    const ch_word page_size             = getpagesize();
+    const ch_word alignment             = page_size; //Make everything page size aligned, which will also be "cache" aligned
+    //const ch_word aligned_element_size  = ((element_size + alignment -1) / alignment ) * alignment;
+    const ch_word aligned_array_bytes   = next_pow2( element_size * element_count);
+    //const ch_word aligned_element_count = aligned_array_bytes / aligned_element_size;
+
+    //printf("\nRequested %li elements of %li bytes each -- ", element_count, element_size);
+    //printf("Allocating %li elements of %li bytes each, for a total of %li MBytes\n", element_count, element_size, aligned_array_bytes / 1024 / 1024 );
+
+    if(element_count > 0){
+
+        int error = posix_memalign(&result->_array_backing, alignment, aligned_array_bytes);
+        if( error || !result->_array_backing){
+            printf("Could not allocate memory for new array backing. Giving up\n");
             free(result);
             return NULL;
         }
+        bzero(result->_array_backing,aligned_array_bytes);
     }
     else{
         result->_array_backing = NULL;
     }
 
     //We have memory to play with, now do all the other assignments
-    result->_array_backing_size     = size;
+    result->_array_backing_size     = element_count;
     result->_element_size           = element_size;
     result->_cmp                    = cmp;
     result->first                   = result->_array_backing;
-    result->last                    = result->first ? _array_forward_unsafe(result,result->first, size -1) : NULL;
+    result->last                    = result->first ? _array_forward_unsafe(result,result->first, element_count -1) : NULL;
     result->end                     = result->first ? _array_next_unsafe(result,result->last): NULL;
     result->size                    = result->_array_backing_size;
 

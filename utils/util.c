@@ -12,6 +12,7 @@ ch_word next_pow2(ch_word v){
     v |= v >> 4;
     v |= v >> 8;
     v |= v >> 16;
+    v |= v >> 32;
     v++;
     return v;
 }

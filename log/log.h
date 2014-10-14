@@ -137,13 +137,13 @@ ch_log_settings_t ch_log_settings = { \
     .incl_timezone  = false, \
     .subsec_digits  = 0, \
     .lvl_config  = { \
-        { .color = CH_TERM_COL_BRIGHT_RED,      .source = true,  .timestamp = true,  .text = "Fatal Error" }, /*FATAL*/\
-        { .color = CH_TERM_COL_EMPH_RED,        .source = false, .timestamp = true,  .text = "Error"       }, /*ERROR*/\
-        { .color = CH_TERM_COL_BRIGHT_YELLOW,   .source = false, .timestamp = true,  .text = "Warning"     }, /*WARNING*/\
-        { .color = CH_TERM_COL_BRIGHT_GREEN,    .source = false, .timestamp = true,  .text = "Info"        }, /*INFO*/\
-        { .color = CH_TERM_COL_NONE,            .source = false, .timestamp = false, .text = "Debug"       }, /*DEBUG 1*/\
-        { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = false, .text = "Debug"       }, /*DEBUG 2*/\
-        { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = false, .text = NULL          }  /*DEBUG 3*/\
+        { .color = CH_TERM_COL_BRIGHT_RED,      .source = true,  .timestamp = true, .text = "Fatal Error" }, /*FATAL*/\
+        { .color = CH_TERM_COL_EMPH_RED,        .source = true, .timestamp = true,  .text = "      Error"       }, /*ERROR*/\
+        { .color = CH_TERM_COL_BRIGHT_YELLOW,   .source = true, .timestamp = true,  .text = "    Warning"     }, /*WARNING*/\
+        { .color = CH_TERM_COL_BRIGHT_GREEN,    .source = true, .timestamp = true,  .text = "       Info"        }, /*INFO*/\
+        { .color = CH_TERM_COL_NONE,            .source = true, .timestamp = true,  .text = "    Debug 1"       }, /*DEBUG 1*/\
+        { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = true, .text = "    Debug 2"       }, /*DEBUG 2*/\
+        { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = true, .text = "    Debug 3"          }  /*DEBUG 3*/\
     }, \
     .fd = -1,  /*This is private, please don't play with it*/\
 }
