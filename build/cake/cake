@@ -1,9 +1,10 @@
-#!/usr/bin/python -u
+#!/usr/bin/env python
 
 import cPickle
 import sys
 import commands
 import os
+import re
 
 if sys.version_info < (2,6):
     from sets import Set
@@ -295,7 +296,10 @@ def force_get_dependencies_for(deps_file, source_file, quiet, verbose):
     if not quiet:
         print "... " + source_file + " (dependencies)"
     
-    cmd = CPP + CPPFLAGS + " -DCAKE_DEPS -MM -MF " + deps_file + ".tmp " + source_file
+    if source_file.endswith(".c"):
+        cmd = CC + CFLAGS + " -DCAKE_DEPS -MM -MF " + deps_file + ".tmp " + source_file
+    else:
+        cmd = CPP + CPPFLAGS + " -DCAKE_DEPS -MM -MF " + deps_file + ".tmp " + source_file
 
     if verbose:
         print cmd
@@ -556,6 +560,8 @@ def objectname(source, entry):
     else:
         mash_name += CXX
 
+    mash_name = re.sub(r'CAKE_PROJECT_VERSION=\\".*?\\"', "", mash_name)
+
     o = mash_name.split();
     o.sort()
     mash_inc = ""
@@ -601,7 +607,7 @@ def generate_rules(source, output_name, generate_test, makefilename, quiet, verb
         definition.append(obj + " : " + " ".join(headers + [s]))
         if not quiet:
             definition.append("\t" + "@echo ... " + s)
-        if s.endswith(".c"):
+        if s.endswith(".c"):            
             definition.append("\t" + CC + " " + CFLAGS + " " + " ".join(cflags) + " -c " + " " + s + " " " -o " + obj)
         else:
             definition.append("\t" + CXX + " " + CXXFLAGS + " " + " ".join(cxxflags) + " -c " + " " + s + " " " -o " + obj)
@@ -748,7 +754,7 @@ def find_git_root():
 
 
 def main(config_file):
-    global CAKE_ID, CPP, CC, CXX, LINKER
+    global CAKE_DEFAULT_COMPILER_PREFIX, CAKE_ID, CPP, CC, CXX, LINKER
     global CPPFLAGS, CFLAGS, CXXFLAGS, LINKFLAGS
     global TESTPREFIX, POSTPREFIX, BINDIR, OBJDIR, PROJECT_VERSION_CMD
     global PARALLEL
@@ -814,7 +820,7 @@ def main(config_file):
         if a.startswith("--variant="):
             variant = a[a.index("=")+1:]
             if variant.upper() in ["DEBUG","RELEASE","COVERAGE"]:
-                variant = CAKE_ID + "_" + variant
+                variant = CAKE_DEFAULT_COMPILER_PREFIX + "_" + variant
             try_set_variant(variant,static_library)
             args.remove(a)
             continue
@@ -1065,10 +1071,15 @@ def main(config_file):
 try:
 
     # data
-    config_file = os.path.dirname(sys.argv[0]) + "/cake.conf"  # cake.conf file found in the same directory as the cake python script.
+    process = os.popen(os.path.dirname(os.path.abspath(sys.argv[0])) + '/cake-config-chooser')
+    best_guess_config=process.read()
+    process.close() 
+    config_file = os.path.dirname(os.path.abspath(sys.argv[0])) + "/" + best_guess_config.rstrip()  # cake.conf file found in the same directory as the cake python script.
+
     Variant = "gcc46_debug"
 
     CAKE_ID = "GCC46"     # TODO:  Explain what is the difference between an ID and a variant.  Also a better default probably the users $CC 
+    CAKE_DEFAULT_COMPILER_PREFIX = "GCC464"
     CPP = "g++"      # C and C++ preprocessor
     CC = "g++"       # C compiler
     CXX = "g++"      # C++ compiler
@@ -1109,6 +1120,7 @@ try:
     parse_etc( config_file )
     
     Variant = environ("CAKE_DEFAULT_VARIANT", Variant)
+    CAKE_DEFAULT_COMPILER_PREFIX = environ("CAKE_DEFAULT_COMPILER_PREFIX", CAKE_DEFAULT_COMPILER_PREFIX)
     CAKE_ID = environ("CAKE_ID", CAKE_ID)
     CPP = environ("CAKE_CPP", CPP)
     CC = environ("CAKE_CC", CC)

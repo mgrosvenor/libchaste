@@ -37,7 +37,7 @@ ch_word _ch_log_out_va_(ch_word this_log_lvll, ch_word line_num, const char* fil
 #define ch_log_debug3( /*format, args*/...) ch_log_debug3_helper(__VA_ARGS__, "")
 
 #if 1 //Always defined
-    #define ch_log_fatal_helper(format, ...) _ch_log_out_(CH_LOG_LVL_FATAL, __LINE__, __FILE__, format, __VA_ARGS__ )
+    #define ch_log_fatal_helper(format, ...) _ch_log_out_(CH_LOG_LVL_FATAL, __LINE__, __FILE__, format, __VA_ARGS__, "" )
     #define ch_log_fatal_va( format, va_list) _ch_log_out_va_(CH_LOG_LVL_FATAL, __LINE__, __FILE__, format, va_list )
 #else
     #define ch_log_fatal_helper( format, ...)
