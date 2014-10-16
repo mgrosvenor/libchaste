@@ -45,7 +45,11 @@ struct ch_array_##NAME{\
 ch_array_##NAME##_t* ch_array_##NAME##_new(ch_word size, ch_word (*cmp)(TYPE* lhs, TYPE* rhs) );\
 
 
+#define declare_ch_array_cmp(NAME, TYPE) ch_word ch_array_cmp_##NAME(TYPE* lhs, TYPE* rhs);
+
+
 #define CH_ARRAY(NAME)  ch_array_##NAME##_t
+#define CH_ARRAY_CMP(NAME)  ch_array_cmp_##NAME
 #define CH_ARRAY_NEW(NAME, size, cmp) ch_array_##NAME##_new(size, cmp )
 
 #endif //ARRAY_TYPED_TEMPLATE_DECLARE_H_

@@ -79,4 +79,20 @@ ch_array_##NAME##_t* ch_array_##NAME##_new(ch_word size, ch_word (*cmp)(TYPE* lh
     return result;\
 }
 
+//Regular comparison function
+#define define_ch_array_cmp(NAME, TYPE) \
+ch_word ch_array_cmp_##NAME(TYPE* lhs, TYPE* rhs)\
+{ \
+    return ( *lhs == *rhs ? 0 : *lhs < *rhs ? -1 : 1); \
+}
+
+//Pointer comparison function
+#define define_ch_array_cmpp(NAME, TYPE) ch_word ch_array_cmp_##NAME##p(TYPE* lhs, TYPE* rhs)\
+{ \
+    return ch_array_cmp_##NAME(*lhs, *rhs);\
+}
+
+#define define_ch_array_compare(NAME, TYPE) ch_word ch_array_cmp_##NAME(TYPE* lhs, TYPE* rhs)
+
+
 #endif //ARRAY_TYPED_TEMPLATE_DEFINE_H_

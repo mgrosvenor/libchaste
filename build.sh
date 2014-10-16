@@ -30,6 +30,7 @@ build/cake/cake tests/libchaste_test.c --config=build/cake/$CAKECONFIG --append-
 build/cake/cake chaste.c --config=build/cake/$CAKECONFIG --static-library --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@
 
 build/cake/cake demos/demo_options.c --config=build/cake/$CAKECONFIG --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@
+build/cake/cake demos/demo_logger.c --config=build/cake/$CAKECONFIG --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@
 #Something broken about this build :-(
 #build/cake/cake chaste.c --dynamic-library --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@
 
