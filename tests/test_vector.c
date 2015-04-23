@@ -24,9 +24,9 @@ static ch_word cmp_i64(i64* lhs, i64* rhs)
 
 void dump_array_ch_word(ch_vector_i64_t* al)
 {
-    printf("There are %li items in the list\n", al->count);
+    printf("There are %lli items in the list\n", al->count);
     for(ch_word* i = al->first; i < al->end; i = al->next(al, i)){
-        printf("%li,", *i);
+        printf("%lli,", *i);
     }
     printf("\n");
 }

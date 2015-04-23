@@ -81,17 +81,17 @@ void print_usage(const char* err_tx_fmt, ...){
             def_val = CH_STR_CAT_CHAR(&def_val, '[' );
             switch(opt_def->type){
                 case CH_BOOL:       CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%s",  *(ch_bool*)opt_def->var ? "True" : "False");   break;
-                case CH_INT64:      CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%li", *(ch_word*)opt_def->var);   break;
-                case CH_UINT64:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lu", *(u64*)opt_def->var);   break;
+                case CH_INT64:      CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lli", *(ch_word*)opt_def->var);   break;
+                case CH_UINT64:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%llu", *(u64*)opt_def->var);   break;
                 case CH_DOUBLE:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lf", *(double*)opt_def->var);   break;
                 case CH_STRING:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%s",  *(char**)opt_def->var);   break;
-                case CH_HEX:        CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"0x%016lX", *(u64*)opt_def->var);  break;
+                case CH_HEX:        CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"0x%016llX", *(u64*)opt_def->var);  break;
                 case CH_BOOLS:      CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%s",  ( *((CH_VECTOR(ch_bool)*)opt_def->var)->first) ? "True" : "False"); break;
-                case CH_INT64S:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%li", *((CH_VECTOR(word)*)opt_def->var)->first );  break;
-                case CH_UINT64S:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lu", *((CH_VECTOR(u64)*)opt_def->var)->first );  break;
+                case CH_INT64S:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lli", *((CH_VECTOR(word)*)opt_def->var)->first );  break;
+                case CH_UINT64S:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%llu", *((CH_VECTOR(u64)*)opt_def->var)->first );  break;
                 case CH_DOUBLES:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lf", *((CH_VECTOR(float)*)opt_def->var)->first );  break;
                 case CH_STRINGS:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%s", *((CH_VECTOR(cstr)*)opt_def->var)->first );  break;
-                case CH_HEXS:       CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"0x%016lX", *((CH_VECTOR(u64)*)opt_def->var)->first );  break;
+                case CH_HEXS:       CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"0x%016llX", *((CH_VECTOR(u64)*)opt_def->var)->first );  break;
                 case CH_NO_TYPE:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val), "Unknown");  break;
             }
 

@@ -16,9 +16,9 @@
 void dump_list_TYPE(CH_LIST(i64)* ll)
 {
     printf("---------------------------------------------------\n");
-    printf("There are %li items in the list\n", ll->count);
+    printf("There are %lli items in the list\n", ll->count);
     for(CH_LIST_IT(i64) i = ll->first(ll); i.value ;  ll->next(ll, &i)){
-        printf("%li,", *(TYPE*)i.value);
+        printf("%lli,", *(TYPE*)i.value);
     }
     printf("\n");
     printf("---------------------------------------------------\n");

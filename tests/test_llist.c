@@ -12,7 +12,7 @@
 #define NODE_DATA(node)  ( (void*)((u8*)&node + sizeof(ch_llist_node_t)) )
 
 
-static ch_word cmp_i64(void* lhs, void* rhs)
+static int cmp_i64(const void* lhs, const void* rhs)
 {
     if( *(i64*)lhs < *(i64*)rhs ){
         return -1;
@@ -29,9 +29,9 @@ static ch_word cmp_i64(void* lhs, void* rhs)
 void dump_list_i64(ch_llist_t* ll)
 {
     printf("---------------------------------------------------\n");
-    printf("There are %li items in the list\n", ll->count);
+    printf("There are %lli items in the list\n", ll->count);
     for(ch_llist_it i = llist_first(ll); i.value ;  llist_next(ll, &i)){
-        printf("%li,", *(i64*)i.value);
+        printf("%lli,", *(i64*)i.value);
     }
     printf("\n");
     printf("---------------------------------------------------\n");

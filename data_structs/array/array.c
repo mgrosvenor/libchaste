@@ -1,10 +1,12 @@
 #include "array.h"
 #include "../../utils/util.h"
+#include "../../types/types.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdio.h>
+
 
 #define _LAST ( _array_forward_unsafe(this,this->_array_backing, this->_array_backing_size -1))
 
@@ -111,7 +113,7 @@ static inline ch_word range_fix(ch_array_t* this, ch_word idx)
         return idx;
     }
 
-    printf("Index (%li) is out of the valid range [%li,%li]\n", idx, -1 * this->_array_backing_size, this->_array_backing_size - 1 );
+    printf("Index (%lli) is out of the valid range [%lli,%lli]\n", idx, -1 * this->_array_backing_size, this->_array_backing_size - 1 );
     return -1;
 
 }
@@ -122,7 +124,7 @@ void* array_off(ch_array_t* this, ch_word idx)
 {
 
     if(this->_array_backing_size < 1){
-        printf("Index (%li) is out of the valid range [%li,%li]\n", idx, -1 * this->_array_backing_size, this->_array_backing_size - 1 );
+        printf("Index (%lli) is out of the valid range [%lli,%lli]\n", idx, -1 * this->_array_backing_size, this->_array_backing_size - 1 );
         return NULL;
     }
 
@@ -163,7 +165,7 @@ void* array_find(ch_array_t* this, void* begin, void* end, void* value)
 //Sort into order given the comparator function
 void array_sort(ch_array_t* this)
 {
-    qsort(this->_array_backing, this->_array_backing_size, this->_element_size, (__compar_fn_t)this->_cmp);
+    qsort(this->_array_backing, this->_array_backing_size, this->_element_size, this->_cmp);
 }
 
 
@@ -188,7 +190,7 @@ void* array_from_carray(ch_array_t* this, void* carray, ch_word count)
 }
 
 
-ch_array_t* ch_array_new(ch_word element_count, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs))
+ch_array_t* ch_array_new(ch_word element_count, ch_word element_size, cmp_void_f cmp)
 {
 
     ch_array_t* result = (ch_array_t*)calloc(1,sizeof(ch_array_t));
@@ -197,7 +199,7 @@ ch_array_t* ch_array_new(ch_word element_count, ch_word element_size, ch_word(*c
         return NULL;
     }
 
-    const ch_word page_size             = getpagesize();
+    const ch_word page_size             = sysconf(_SC_PAGE_SIZE);
     const ch_word alignment             = page_size; //Make everything page size aligned, which will also be "cache" aligned
     //const ch_word aligned_element_size  = ((element_size + alignment -1) / alignment ) * alignment;
     const ch_word aligned_array_bytes   = next_pow2( element_size * element_count);
@@ -214,7 +216,7 @@ ch_array_t* ch_array_new(ch_word element_count, ch_word element_size, ch_word(*c
             free(result);
             return NULL;
         }
-        bzero(result->_array_backing,aligned_array_bytes);
+        memset(result->_array_backing,0,aligned_array_bytes);
     }
     else{
         result->_array_backing = NULL;

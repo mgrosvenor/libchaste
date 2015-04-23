@@ -20,17 +20,17 @@
 
 set -x
 
-CFLAGS="-Ideps -D_XOPEN_SOURCE=700 -D_BSD_SOURCE -std=c11 -Werror -Wall -Wextra -pedantic -Wno-missing-field-initializers"
-LINKFLAGS="-lrt"
+#CFLAGS="-Ideps -D__DARWIN_C_LEVEL=900000 -D_XOPEN_SOURCE=700 -D_BSD_SOURCE -std=c11 -Werror -Wall -Wextra -pedantic -Wno-missing-field-initializers"
+CFLAGS="-Ideps -std=c11 -Werror -Wall -Wextra -pedantic -Wno-missing-field-initializers"
+#LINKFLAGS="-lrt"
 
-CAKECONFIG=$(build/cake/cake-config-chooser)
-build/cake/cake tests/libchaste_test.c --config=build/cake/$CAKECONFIG --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@ --begintests  tests/*.c --endtests
+cake tests/libchaste_test.c --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@ --begintests  tests/*.c --endtests
 
 #Appears to be a cake bug, unit tests fail if run against static-library or --dyanamic-library
-build/cake/cake chaste.c --config=build/cake/$CAKECONFIG --static-library --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@
+#cake chaste.c --static-library --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@
 
-build/cake/cake demos/demo_options.c --config=build/cake/$CAKECONFIG --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@
-build/cake/cake demos/demo_logger.c --config=build/cake/$CAKECONFIG --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@
+#cake demos/demo_options.c --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@
+#cake demos/demo_logger.c --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@
 #Something broken about this build :-(
 #build/cake/cake chaste.c --dynamic-library --append-CFLAGS="$CFLAGS" --LINKFLAGS="$LINKFLAGS" $@
 

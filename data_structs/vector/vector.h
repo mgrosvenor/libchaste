@@ -24,7 +24,7 @@ struct ch_vector{
     void* end; //Pointer to the one element beyond the end of the valid elements in list. Do not dereference!
 
     // Members prefixed with "_" are nominally "private" Don't touch my privates!
-   ch_word (*_cmp)(void* lhs, void* rhs); // Comparator function for find and sort operations
+   cmp_void_f _cmp; // Comparator function for find and sort operations
    ch_array_t* _array; //Actual vector storage
    ch_word _array_count; //NUmber of elements currently in the vector
 };
@@ -76,6 +76,6 @@ void* vector_find(ch_vector_t* this, void* begin, void* end, void* value);
 //sort into order given the comparator function
 void vector_sort(ch_vector_t* this);
 
-ch_vector_t* ch_vector_new(ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) );
+ch_vector_t* ch_vector_new(ch_word size, ch_word element_size, cmp_void_f cmp );
 
 #endif // VECTOR_H_

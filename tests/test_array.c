@@ -25,9 +25,9 @@ static ch_word cmp_i64(i64* lhs, i64* rhs)
 
 void dump_array_i64(ch_array_i64_t* al)
 {
-    printf("There are %li slots in the array\n", al->size);
+    printf("There are %lli slots in the array\n", al->size);
     for(ch_word* i = al->first; i < al->end; i = al->next(al, i)){
-        printf("%li,", *i);
+        printf("%lli,", *i);
     }
     printf("\n");
 }

@@ -29,9 +29,9 @@ ch_word func(ch_word value, void* key, ch_word key_size, void* data, ch_word ind
 void dump_function_hash_map_i64(ch_function_hash_map* hm)
 {
     printf("---------------------------------------------------\n");
-    printf("%li pushes have been made on the function_hash_map\n", hm->count);
+    printf("%lli pushes have been made on the function_hash_map\n", hm->count);
     for(ch_function_hash_map_it i = function_hash_map_first(hm); i.key ;  function_hash_map_next(hm, &i)){
-        printf("%li --> %li\n", *(i64*)i.key, i.value);
+        printf("%lli --> %lli\n", *(i64*)i.key, i.value);
     }
     printf("\n");
     printf("---------------------------------------------------\n");

@@ -19,7 +19,7 @@ struct ch_array{
     void* end; //Pointer to the one element beyond the end of the valid elements in array. Do not dereference!
 
      // Members prefixed with "_" are nominally "private" Don't touch my privates!
-    ch_word (*_cmp)(void* lhs, void* rhs); // Comparator function for find and sort operations
+    int (*_cmp)(const void *, const void *); // Comparator function for find and sort operations
     void* _array_backing; //Actual array storage
     ch_word _array_backing_size; //Number of elements allocated in the given array
     ch_word _element_size;
@@ -64,6 +64,6 @@ void array_delete(ch_array_t* this);
 void* array_from_carray(ch_array_t* this, void* carray, ch_word count);
 
 
-ch_array_t* ch_array_new(ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs));
+ch_array_t* ch_array_new(ch_word size, ch_word element_size, int(*cmp)(const void* lhs, const void* rhs));
 
 #endif //ARRAY_H_

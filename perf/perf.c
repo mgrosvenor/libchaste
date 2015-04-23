@@ -70,7 +70,7 @@ static int ch_perf_write_event_ascii(const ch_perf_event_t* event, ch_bool use_c
     const char sep = use_csv ? ',' : ' ';
     const char start_stop = event->event_id >= (1ULL<<31) ? 'O' : 'A'; //"stArt", "stOp"
     const uint64_t event_id = event->event_id >= (1ULL<<31) ? event->event_id & ~(1<<31) : event->event_id;
-    return dprintf(ch_perf.fd,"%c%c%lu%c%u%c%lu\n",  start_stop, sep, event_id, sep, event->cond_id, sep, event->ts);
+    return dprintf(ch_perf.fd,"%c%c%llu%c%u%c%llu\n",  start_stop, sep, event_id, sep, event->cond_id, sep, event->ts);
 }
 
 

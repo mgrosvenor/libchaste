@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../sys/sys.h"
 
 
 //Generates an ISO 8601 formatted timestamp with a few options to play with

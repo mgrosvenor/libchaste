@@ -41,7 +41,7 @@ struct ch_hash_map_t{
     ch_word count;  //Return the actual number of elements in the hash_map
 
     // Members prefixed with "_" are nominally "private" Don't touch my privates!
-   ch_word (*_cmp)(void* lhs, void* rhs); // Comparator function for find and sort operations
+   cmp_void_f _cmp; // Comparator function for find and sort operations
    ch_array_t* _backing_array;
    ch_word _element_size;
 };
@@ -91,7 +91,7 @@ ch_hash_map_it hash_map_get_next(ch_hash_map_it it);
 //Find the key of the given value
 ch_hash_map_it hash_map_find(ch_hash_map* this, ch_hash_map_it* begin, ch_hash_map_it* end, void* value);
 
-ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) );
+ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, cmp_void_f cmp );
 
 #endif // HASH_MAP_H_
 

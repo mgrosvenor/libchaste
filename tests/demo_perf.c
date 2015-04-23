@@ -19,7 +19,7 @@ int main(int argc, char** argv)
     (void)argv;
 
     ch_perf_sample_tsc;
-    printf("TSC at start = %lu\n",  ch_perf_get_tsc_sample());
+    printf("TSC at start = %llu\n",  ch_perf_get_tsc_sample());
     ch_perf_timer_reset;
     ch_perf_timer_start;
     ch_perf_event_start(0,0);
@@ -36,10 +36,10 @@ int main(int argc, char** argv)
 
     ch_perf_finish(ch_perf_output_tostdout,ch_perf_format_csv,NULL);
     ch_perf_timer_stop;
-    printf("Timer diff=%lu\n", ch_perf_get_watch_ticks());
+    printf("Timer diff=%llu\n", ch_perf_get_watch_ticks());
 
     ch_perf_sample_tsc;
-    printf("tsc at end = %lu\n",  ch_perf_get_tsc_sample());
+    printf("tsc at end = %llu\n",  ch_perf_get_tsc_sample());
 
     return 0;
 }

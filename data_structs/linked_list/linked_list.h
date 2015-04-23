@@ -25,7 +25,7 @@ struct ch_llist{
     ch_word count;  //Return the actual number of elements in the llist
 
     // Members prefixed with "_" are nominally "private" Don't touch my privates!
-   ch_word (*_cmp)(void* lhs, void* rhs); // Comparator function for find and sort operations
+   cmp_void_f _cmp; // Comparator function for find and sort operations
    ch_llist_node_t* _first;
    ch_llist_node_t* _last;
    ch_word _element_size;
@@ -91,7 +91,7 @@ ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, v
 //sort into order given the comparator function
 void llist_sort(ch_llist_t* this);
 
-ch_llist_t* ch_llist_new( ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) );
-ch_llist_t* ch_llist_init( ch_llist_t* this, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) );
+ch_llist_t* ch_llist_new( ch_word element_size, cmp_void_f cmp );
+ch_llist_t* ch_llist_init( ch_llist_t* this, ch_word element_size, cmp_void_f cmp );
 
 #endif // LINKEDLIST_H_

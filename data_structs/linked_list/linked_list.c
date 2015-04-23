@@ -420,7 +420,7 @@ void llist_sort(ch_llist_t* this)
     exit(1);
 }
 
-ch_llist_t* ch_llist_new( ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) )
+ch_llist_t* ch_llist_new( ch_word element_size, cmp_void_f cmp )
 {
 
      ch_llist_t* result = (ch_llist_t*)calloc(1,sizeof(ch_llist_t));
@@ -433,7 +433,7 @@ ch_llist_t* ch_llist_new( ch_word element_size, ch_word(*cmp)(void* lhs, void* r
 
 }
 
-ch_llist_t* ch_llist_init( ch_llist_t* this, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) )
+ch_llist_t* ch_llist_init( ch_llist_t* this, ch_word element_size, cmp_void_f cmp )
 {
 
     if(element_size <= 0){

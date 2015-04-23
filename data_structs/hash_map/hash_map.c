@@ -324,7 +324,7 @@ void hash_map_next (ch_hash_map* this, ch_hash_map_it* it)
 //Check for equality
 //ch_word hash_map_eq(ch_hash_map* this, ch_hash_map* that);
 
-ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) )
+ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, cmp_void_f cmp )
 {
     if(element_size <= 0){
          printf("Error: invalid element size (<=0), must have *some* data\n");
@@ -338,7 +338,7 @@ ch_hash_map* ch_hash_map_new( ch_word size, ch_word element_size, ch_word(*cmp)(
     }
 
     result->count         = 0;
-    result->_cmp          = (cmp_void_f)cmp;
+    result->_cmp          = cmp;
     result->_element_size = element_size;
 
     result->_backing_array = ch_array_new(size, sizeof(ch_llist_t), NULL);

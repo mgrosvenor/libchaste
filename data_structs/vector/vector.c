@@ -92,7 +92,7 @@ void* vector_off(ch_vector_t* this, ch_word idx)
 {
 
     if(idx >= this->_array_count){
-        printf("Index (%li) is out of the valid range [%li,%li]", idx, -1 * this->_array_count, this->_array_count - 1 );
+        printf("Index (%lli) is out of the valid range [%lli,%lli]", idx, -1 * this->_array_count, this->_array_count - 1 );
         return NULL;
     }
 
@@ -135,7 +135,7 @@ void* vector_find(ch_vector_t* this, void* begin, void* end, void* value)
 /*sort into reverse order given the comparitor function*/
 void vector_sort(ch_vector_t* this)
 {
-    qsort(this->first, this->count, this->_array->_element_size, (__compar_fn_t)this->_array->_cmp);
+    qsort(this->first, this->count, this->_array->_element_size, this->_array->_cmp);
 }
 
 
@@ -325,7 +325,7 @@ void* vector_push_back_carray(ch_vector_t* this, void* carray, ch_word count)
 }
 
 
-ch_vector_t* ch_vector_new(ch_word size, ch_word element_size, ch_word(*cmp)(void* lhs, void* rhs) )
+ch_vector_t* ch_vector_new(ch_word size, ch_word element_size, int(*cmp)(const void* lhs, const void* rhs) )
 {
 
     ch_vector_t* result = (ch_vector_t*)calloc(1,sizeof(ch_vector_t));

@@ -4,13 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <syslog.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
 
 #include <unistd.h>
 #include <fcntl.h>
-#include <syslog.h>
 
 #include "../types/types.h"
 #include "../timing/timestamp.h"
@@ -146,7 +146,7 @@ ch_word _ch_log_out_va_(
     }
 
     if(ch_log_settings.lvl_config[level].source){
-        CH_STR_LEN(final_format) += snprintf( CH_STR_CSTR_END(final_format), CH_STR_AVAIL(final_format), "(%s:%li)", filename, line_num);
+        CH_STR_LEN(final_format) += snprintf( CH_STR_CSTR_END(final_format), CH_STR_AVAIL(final_format), "(%s:%lli)", filename, line_num);
     }
 
 

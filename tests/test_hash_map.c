@@ -16,7 +16,7 @@ typedef struct {
 
 
 
-static ch_word cmp_i64(void* lhs, void* rhs)
+static int cmp_i64(const void* lhs, const void* rhs)
 {
     if( *(i64*)lhs < *(i64*)rhs ){
         return -1;
