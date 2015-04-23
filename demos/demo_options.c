@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 
     ch_opt_parse(argc,argv);
 
-    printf("a=%lu, b=%li, c=%i, d=%s, e=%lf ", options.opt1, options.opt2, options.opt3, options.opt4, options.opt5);
+    printf("a=%llu, b=%lli, c=%i, d=%s, e=%lf ", options.opt1, options.opt2, options.opt3, options.opt4, options.opt5);
     printf("f=[");
     for(ch_cstr* opt = options.opt6->first; opt < options.opt6->end; opt = options.opt6->next(options.opt6, opt)){
         printf("%s,",*opt);
