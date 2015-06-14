@@ -28,24 +28,25 @@ struct ch_vector_##NAME{\
     TYPE* (*forward)(ch_vector_##NAME##_t* this, TYPE* ptr, ch_word amount);  /*Step forwards by amount*/\
     TYPE* (*back)(ch_vector_##NAME##_t* this, TYPE* ptr, ch_word amount);  /*Step backwards by amount*/\
 \
-    TYPE* (*push_front)(ch_vector_##NAME##_t* this, TYPE value); /* Put an element at the front of the vector list values, [WARN: In general this is very expensive for an vector] */\
-    void (*pop_front)(ch_vector_##NAME##_t* this); /* Push an element off the front of the vector list values, [WARN: In general this is very expensive for an vector] */\
+    TYPE* (*push_front)(ch_vector_##NAME##_t* this, TYPE value); /* Put an element at the front of the vector list values, [WARN: In general this is very expensive for a vector] */\
+    void (*pop_front)(ch_vector_##NAME##_t* this); /* Push an element off the front of the vector list values, [WARN: In general this is very expensive for a vector] */\
     TYPE* (*push_back)(ch_vector_##NAME##_t* this, TYPE value); /* Put an element at the back of the vector values*/\
     void (*pop_back)(ch_vector_##NAME##_t* this); /* Push an element at the back of the vector values*/\
     void (*clear)(ch_vector_##NAME##_t* this); /*Pop everything out of the vector*/\
 \
     TYPE* (*insert_after)(ch_vector_##NAME##_t* this, TYPE* ptr, TYPE value); /* Insert an element after the element given by ptr*/\
-    TYPE* (*insert_before)(ch_vector_##NAME##_t* this, TYPE* ptr, TYPE value); /* Insert an element before the element giver by ptr [WARN: In general this is very expensive for an vector] */\
+    TYPE* (*insert_before)(ch_vector_##NAME##_t* this, TYPE* ptr, TYPE value); /* Insert an element before the element giver by ptr [WARN: In general this is very expensive for a vector] */\
     TYPE* (*remove)(ch_vector_##NAME##_t* this, TYPE* ptr); /*Remove the given ptr [WARN: In general this is very expensive] */\
     void (*delete)(ch_vector_##NAME##_t* this); /*Free the resources associated with this vector, assumes that individual items have been freed*/\
 \
     TYPE* (*find)(ch_vector_##NAME##_t* this, TYPE* begin, TYPE* end, TYPE value); /*find the given value using the comparator function*/\
+    int (*get_idx)(ch_vector_##NAME##_t* this, TYPE* value); /*Convert the iterator into an index for use with off() above*/\
     void (*sort)(ch_vector_##NAME##_t* this); /*sort into order given the comparator function*/\
     ch_word (*eq)(ch_vector_##NAME##_t* this, ch_vector_##NAME##_t* that); /*Check for equality*/\
 \
     TYPE* (*push_back_carray)(ch_vector_##NAME##_t* this, TYPE* carray, ch_word count); /*Push back count elements the C vector to the back vector-list*/\
 \
-     /* Members prefixed with "_" are nominally "private" Don't touch my privates!*/\
+     /* Members prefixed with "_" are "private" Don't touch my privates!*/\
     ch_vector_t* _vector; /*Actual vector storage*/\
 \
 };\

@@ -51,6 +51,9 @@ void* array_back(ch_array_t* this, void* ptr, ch_word amount);
 //find the given value using the comparitor function
 void* array_find(ch_array_t* this, void* begin, void* end, void* value);
 
+//return the offset/index of the given item
+int array_get_idx(ch_array_t* this, void* value);
+
 //sort into order given the comparitor function
 void array_sort(ch_array_t* this);
 

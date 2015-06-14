@@ -73,6 +73,8 @@ void* vector_push_back_carray(ch_vector_t* this, void* cvector, ch_word count);
 ch_word vector_eq(ch_vector_t* this, ch_vector_t* that);
 //find the given value using the comparator function
 void* vector_find(ch_vector_t* this, void* begin, void* end, void* value);
+//return the index of the value
+int vector_get_idx(ch_vector_t* this, void* value);
 //sort into order given the comparator function
 void vector_sort(ch_vector_t* this);
 

@@ -62,7 +62,7 @@ static ch_llist_it step_through_list(ch_llist_t*this, ch_llist_node_t* start, ch
 
     const ch_word dir = amount > 0 ? 1 : -1;
 
-    for(ch_word i = 0; i < abs(amount); i++){
+    for(ch_word i = 0; i < llabs(amount); i++){
         if(node){
             node = dir ? node->next : node->prev;
         }

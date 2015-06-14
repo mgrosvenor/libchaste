@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <limits.h>
 
 
 #define _LAST ( _array_forward_unsafe(this,this->_array_backing, this->_array_backing_size -1))
@@ -159,6 +160,17 @@ void* array_find(ch_array_t* this, void* begin, void* end, void* value)
     }
 
     return NULL;
+}
+
+//return the offset/index of the given item
+//Only return a positive number. Values <0 indicate an error
+int array_get_idx(ch_array_t* this, void* value)
+{
+    if(value >= this->first && value <= this->last){
+        return ((char*)value - (char*)this->first);
+    }
+
+    return INT_MIN;
 }
 
 

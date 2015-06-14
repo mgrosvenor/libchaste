@@ -123,14 +123,18 @@ ch_word vector_eq(ch_vector_t* this, ch_vector_t* that)
 
 
 
-
-
-
 /*find the given value using the comparitor function*/
 void* vector_find(ch_vector_t* this, void* begin, void* end, void* value)
 {
     return array_find(this->_array, begin, end, value);
 }
+
+int vector_get_idx(ch_vector_t* this, void* value)
+{
+    return array_get_idx(this->_array, value);
+}
+
+
 
 /*sort into reverse order given the comparitor function*/
 void vector_sort(ch_vector_t* this)
