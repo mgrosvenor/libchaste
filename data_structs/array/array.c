@@ -167,7 +167,7 @@ void* array_find(ch_array_t* this, void* begin, void* end, void* value)
 int array_get_idx(ch_array_t* this, void* value)
 {
     if(value >= this->first && value <= this->last){
-        return ((char*)value - (char*)this->first);
+        return (((char*)value - (char*)this->first)) / this->_element_size;
     }
 
     return INT_MIN;
