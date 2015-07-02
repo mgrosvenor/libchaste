@@ -42,9 +42,9 @@ void ch_perf_open_output(ch_perf_output_e output,const char* filename)
 
 
 // CH PERF LOG Binary Format
-// 0    "CHPLVVV\0" -- MP6PL, followed by version number in XX.X format, followed by a null.
-// 8    Number of events in this file
-// 16   NUmber of events seen -- This is in case the perf logger runs out of space, we can still know that events happened
+// 0    "CHPLVVV\0" -- CHPL, followed by version number in XX.X format, followed by a null.
+// 8    Number of events in this file 64bit int
+// 16   NUmber of events seen 64bit int -- This is in case the perf logger runs out of space
 // 24   Record 0 - Cycles Stamp - 64bits RDTSC counter value
 // 32   Record 0 - Event ID
 // 36   Record 0 - Condition ID
