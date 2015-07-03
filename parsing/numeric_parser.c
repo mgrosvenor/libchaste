@@ -91,9 +91,11 @@ static inline uint64_t get_bin_prefix(char c){
 
 
 
+inline num_result_t parse_number(const char* c, size_t i){
+    return parse_nnumber(c, i, (size_t)-1);
+}
 
-//static inline
-num_result_t parse_number(const char* c, size_t i){
+num_result_t parse_nnumber(const char* c, size_t i, size_t n){
     num_result_t num_result;
     num_result.type = CH_NO_TYPE;
     if( c[i] == '\0'){
@@ -124,6 +126,7 @@ num_result_t parse_number(const char* c, size_t i){
                 float_base_accumulator  = 1;
                 sign                    = 1;
 
+                if( i >= n )        { state = STATE_NONE_FOUND;             continue; }
                 if( c[i] == '-')    { sign  = -1;
                                       state = STATE_FOUND_SIGN;             continue; }
                 if( c[i] == '+')    { state = STATE_FOUND_SIGN;             continue; }
@@ -136,6 +139,7 @@ num_result_t parse_number(const char* c, size_t i){
             }
 
             case STATE_FOUND_SIGN:{
+                if( i >= n )         { state = STATE_NONE_FOUND;             continue; }
                 if( c[i] == '0' )    { state = STATE_MUST_BE_ZERO_OR_PERIOD; continue; }
                 if( c[i] == '.' )    { state = STATE_GET_FLO_DIGITS;         continue; }
                 if( isdigit(c[i]) )  { uint_accumulator = (c[i] - '0');
@@ -144,6 +148,7 @@ num_result_t parse_number(const char* c, size_t i){
             }
 
             case STATE_MUST_BE_ZERO_OR_PERIOD: {
+                if( i >= n )         { state = STATE_NONE_FOUND;             continue; }
                 if( c[i] == '0' )    { state = STATE_MUST_BE_ZERO_OR_PERIOD; continue; }
                 if( c[i] == '.' )    { state = STATE_GET_FLO_DIGITS;         continue; }
                 else                 { state = STATE_NONE_FOUND;             continue; }
@@ -151,6 +156,7 @@ num_result_t parse_number(const char* c, size_t i){
             }
 
             case STATE_FOUND_INIT_ZERO: {
+                if( i >= n )        { state = STATE_FINISHED_UINT;           continue; }
                 if( c[i] == 'x')    { state = STATE_GET_HEX_DIGITS;          continue; }
                 if( c[i] == 'X')    { state = STATE_GET_HEX_DIGITS;          continue; }
                 if( c[i] == 'b')    { state = STATE_GET_BIN_DIGITS;          continue; }
@@ -161,11 +167,12 @@ num_result_t parse_number(const char* c, size_t i){
                                       state = STATE_END_UINT;                continue; }
                 if( isodigit(c[i])) { uint_accumulator = (c[i] - '0');
                                       state = STATE_GET_OCT_DIGITS;          continue; }
-                if( iswhite(c[i]) ) { state = STATE_FINISHED_UINT;          continue; }
+                if( iswhite(c[i]) ) { state = STATE_FINISHED_UINT;           continue; }
                 else                { state = STATE_NONE_FOUND;              continue; }
             }
 
             case STATE_GET_DEC_DIGITS:{
+                if( i >= n )        { state = STATE_FINISHED_UINT;          continue; }
                 if( isdigit(c[i]) ) { uint_accumulator *= 10;
                                       uint_accumulator += c[i] - '0';
                                       state = STATE_GET_DEC_DIGITS;         continue; }
@@ -179,6 +186,7 @@ num_result_t parse_number(const char* c, size_t i){
             }
 
             case STATE_GET_BIN_DIGITS: {
+                if( i >= n )        { state = STATE_FINISHED_UINT;          continue; }
                 if( isbdigit(c[i]) ) { uint_accumulator <<= 1;
                                        uint_accumulator += c[i] - '0';
                                        state = STATE_GET_BIN_DIGITS;        continue; }
@@ -191,6 +199,7 @@ num_result_t parse_number(const char* c, size_t i){
             }
 
             case STATE_GET_OCT_DIGITS: {
+                if( i >= n )        { state = STATE_FINISHED_UINT;          continue; }
                 if( isodigit(c[i]) ) { uint_accumulator *= 8;
                                        uint_accumulator += c[i] - '0';
                                        state = STATE_GET_OCT_DIGITS;        continue; }
@@ -202,6 +211,7 @@ num_result_t parse_number(const char* c, size_t i){
             }
 
             case STATE_GET_HEX_DIGITS: {
+                if( i >= n )         { state = STATE_FINISHED_UINT;         continue; }
                 if( isdigit(c[i]) )  { uint_accumulator *= 16;
                                        uint_accumulator += c[i] - '0';
                                        state = STATE_GET_HEX_DIGITS;        continue; }
@@ -217,6 +227,7 @@ num_result_t parse_number(const char* c, size_t i){
             }
 
             case STATE_GET_FLO_DIGITS: {
+                if( i >= n )        { state = STATE_FINISHED_FLOAT;         continue; }
                 if( isdigit(c[i]) )  { float_base_accumulator  *= 10.0;
                                        float_accumulator += (double)(c[i] - '0') / float_base_accumulator;
                                        state = STATE_GET_FLO_DIGITS;         continue; }
@@ -228,6 +239,7 @@ num_result_t parse_number(const char* c, size_t i){
             }
 
             case STATE_END_UINT:{
+                if( i >= n )          { state = STATE_FINISHED_UINT;        continue; }
                 if( isbin( c[i]) &&
                     isprefix(prefix)) { uint_accumulator *= get_bin_prefix(prefix);
                                         index += 1;
@@ -240,6 +252,7 @@ num_result_t parse_number(const char* c, size_t i){
             }
 
             case STATE_END_INT:  {
+                if( i >= n )         { state = STATE_FINISHED_INT;          continue; }
                 if( isbin(c[i]) &&
                     isprefix(prefix)) { int_accumulator *= get_bin_prefix(prefix);
                                         index += 1;
@@ -252,6 +265,7 @@ num_result_t parse_number(const char* c, size_t i){
             }
 
             case STATE_END_FLOAT: {
+                if( i >= n )         { state = STATE_FINISHED_FLOAT;         continue; }
                 if( isbin( c[i] &&
                     isprefix(prefix))) { float_accumulator *= get_bin_prefix(prefix);
                                          index += 1;

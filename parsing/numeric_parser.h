@@ -25,6 +25,7 @@ typedef struct{
 
 
 num_result_t parse_number(const char* c, size_t i);
+num_result_t parse_nnumber(const char* c, size_t i, size_t n);
 
 
 #endif /* NUMERIC_PARSER_H_ */
