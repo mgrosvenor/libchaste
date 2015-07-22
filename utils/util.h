@@ -36,4 +36,7 @@ ch_word next_pow2(ch_word v);
 
 #define CH_ASSERT(p) do { if(!(p)) { fprintf(stdout, "Error in %s: failed assertion \""#p"\" on line %u\n", __FUNCTION__, __LINE__); result = 0; } } while(0)
 
+//Uses integer division to round up
+#define round_up( value, nearest) ((( value + nearest -1) / nearest ) * nearest )
+
 #endif /* UTIL_H_ */

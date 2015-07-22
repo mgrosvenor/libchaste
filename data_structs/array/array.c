@@ -153,6 +153,12 @@ void* array_find(ch_array_t* this, void* begin, void* end, void* value)
         return NULL;
     }
 
+    if(unlikely(!this->_cmp)){
+        printf("The comparator function is empty. Cannot search\n");
+        return NULL;
+    }
+
+
     for(void* it = begin; it != end; it = array_next(this,it)){
         if(this->_cmp(it,value) == 0 ){
             return it;

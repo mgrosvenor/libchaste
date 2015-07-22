@@ -93,4 +93,4 @@ define_ch_vector_cmpp(float, ch_float*)
 define_ch_vector_cmpp(string, ch_str*)
 define_ch_vector_cmpp(cstr, ch_cstr*)
 
-define_ch_vector_cmp(void,  void*)
+define_ch_vector_cmp(voidp,  void*)
