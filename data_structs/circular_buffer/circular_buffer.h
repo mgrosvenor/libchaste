@@ -35,10 +35,14 @@ void* cbuff_peek_front(ch_cbuff_t* this);
 //Pull an element from the front of the cbuff
 int cbuff_pop_front(ch_cbuff_t* this);
 //Use an item from the front of the queue
-void* cbuff_use_front(ch_cbuff_t* this)
+void* cbuff_use_front(ch_cbuff_t* this);
+//Return an item to the front of the queue
+void cbuff_unuse_front(ch_cbuff_t* this);
 // Put an element at the back of the cbuff values
 int cbuff_push_back(ch_cbuff_t* this, void* value);
 //Push back count elements the C cbuff to the back cbuff-list
+
+void* cbuff_prev(ch_cbuff_t* this, void* curr);
 
 int cbuff_push_back_carray(ch_cbuff_t* this, void* ccbuff, ch_word count);
 

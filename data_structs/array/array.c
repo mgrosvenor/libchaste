@@ -120,7 +120,7 @@ static inline ch_word range_fix(ch_array_t* this, ch_word idx)
 }
 
 
-//Return the element at a given offset, with bounds checking
+//Return a pointer to the element at a given offset, with bounds checking
 void* array_off(ch_array_t* this, ch_word idx)
 {
 
