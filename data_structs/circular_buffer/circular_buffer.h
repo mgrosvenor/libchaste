@@ -39,12 +39,12 @@ void* cbuff_use_front(ch_cbuff_t* this);
 //Return an item to the front of the queue
 void cbuff_unuse_front(ch_cbuff_t* this);
 // Put an element at the back of the cbuff values
-int cbuff_push_back(ch_cbuff_t* this, void* value);
+void* cbuff_push_back(ch_cbuff_t* this, void* value);
 //Push back count elements the C cbuff to the back cbuff-list
 
 void* cbuff_prev(ch_cbuff_t* this, void* curr);
 
-int cbuff_push_back_carray(ch_cbuff_t* this, void* ccbuff, ch_word count);
+void* cbuff_push_back_carray(ch_cbuff_t* this, void* ccbuff, ch_word* count);
 
 //Free the resources associated with this cbuff, assumes that individual items have been freed
 void cbuff_delete(ch_cbuff_t* this);

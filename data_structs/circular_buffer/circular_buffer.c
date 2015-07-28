@@ -132,19 +132,21 @@ void cbuff_delete(ch_cbuff_t* this)
 
 
 /*Assign at most size elements from the C cbuff*/
-int cbuff_push_back_carray(ch_cbuff_t* this, void* carray, ch_word len)
+void* cbuff_push_back_carray(ch_cbuff_t* this, void* carray, ch_word* len_io)
 {
 
+    ch_word len = *len_io;
     //printf("%s:%i #### Pushing back %lli items at %p\n", __FUNCTION__, __LINE__, len, carray);
     //printf("%s:%i #### Pushing count=%lli size=%lli\n", __FUNCTION__, __LINE__, this->count, this->size);
     if(len == 0){
-        return CH_CBUFF_TOOFEW;
+        *len_io = -1;
+        return NULL;
     }
 
-    if(this->count + len > this->size){
-        return CH_CBUFF_TOOMANY;
+    //Trim the len to the amount that we can handle
+    if(len > this->size - this->count){
+        len = this->size - this->count;
     }
-
 
     //Copy items up until the wrap around point
     void* b4_start = array_off(this->_array, this->_write_index);
@@ -169,13 +171,19 @@ int cbuff_push_back_carray(ch_cbuff_t* this, void* carray, ch_word len)
     this->count += len;
     //printf("%s:%i #### count=%lli\n", __FUNCTION__, __LINE__, this->count);
 
-    return 0;
+    *len_io = len;
+    return b4_start;
 }
 
 /* Put an element at the back of the arary values*/
-int cbuff_push_back(ch_cbuff_t* this, void* value)
+void* cbuff_push_back(ch_cbuff_t* this, void* value)
 {
-    return cbuff_push_back_carray(this,value,1);
+    ch_word len = 1; //Throw away value
+    void* result = cbuff_push_back_carray(this,value,len);
+    if(len != 1){
+        return NULL;
+    }
+    return result;
 }
 
 
