@@ -23,9 +23,9 @@ struct ch_cbuff{
     ch_word in_use;
 
     // Members prefixed with "_" are nominally "private" Don't touch my privates!
-    ch_word _write_index;
-    ch_word _read_index;
-    ch_word _used_index;
+    ch_word _add_next_index;
+    ch_word _release_index;
+    ch_word _use_next_index;
 
     ch_array_t* _array; //Actual cbuff storage
 };

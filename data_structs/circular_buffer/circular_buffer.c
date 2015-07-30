@@ -17,7 +17,7 @@
 #include "circular_buffer.h"
 
 
-
+#include <assert.h>
 
 //Remove element from the front of the queue.
 int cbuff_pop_front(ch_cbuff_t* this)
@@ -26,11 +26,18 @@ int cbuff_pop_front(ch_cbuff_t* this)
         return -1;
     }
 
-    this->_read_index++;
-    this->count--;
+    assert(this->in_use <= this->count);
+    assert(this->in_use <= this->size);
+    assert(this->in_use >= 0);
 
-    if(this->_read_index >= this->size){
-        this->_read_index = 0;
+    this->count--;
+    this->_release_index++;
+    if(this->_release_index >= this->size){
+        this->_release_index = 0;
+    }
+
+    if(this->in_use){
+        this->in_use--;
     }
 
     return 0;
@@ -43,14 +50,21 @@ void* cbuff_peek_front(ch_cbuff_t* this)
         return NULL; //Nothing to peek!
     }
 
-    //void* val =array_off(this->_array, this->_read_index);
-    //printf("%s:%i #### Getting items at %lli, pointer=%p val=0x%016lx\n", __FUNCTION__, __LINE__,  this->_read_index, val, *(size_t*)val);
-    return array_off(this->_array, this->_read_index);
+    assert(this->in_use <= this->count);
+    assert(this->in_use <= this->size);
+    assert(this->in_use >= 0);
+
+    return array_off(this->_array, this->_release_index);
 }
 
 //Get a pointer to the front of the queue and mark it as "in use".
 void* cbuff_use_front(ch_cbuff_t* this)
 {
+    assert(this->in_use <= this->count);
+    assert(this->in_use <= this->size);
+    assert(this->in_use >= 0);
+
+
     if(this->count == 0){
         return NULL; //Nothing to use!
     }
@@ -59,10 +73,23 @@ void* cbuff_use_front(ch_cbuff_t* this)
         return NULL; //Everything in use
     }
 
-    void* result = array_off(this->_array,this->_used_index);
-    this->_used_index = this->_used_index + 1 < this->count ? this->_used_index + 1 : 0;
+    //Reset in case the release pointer has moved on us
+    if(this->in_use == 0){
+        this->_use_next_index = this->_release_index;
+    }
+
+    void* result = array_off(this->_array,this->_use_next_index);
+    if(!result){
+        //DBG("Error getting item from array at index %lli\n", this->_use_next_index);
+        return NULL;
+    }
+
+    this->_use_next_index++;
+    if(this->_use_next_index >= this->size){
+        this->_use_next_index = 0;
+    }
     this->in_use++;
-    //printf("%s:%i #### In use now=%lli\n", __FUNCTION__, __LINE__,  this->in_use);
+
     return result;
 
 }
@@ -71,6 +98,11 @@ void* cbuff_use_front(ch_cbuff_t* this)
 //Get a pointer to the front of the queue and mark it as "out of use".
 void cbuff_unuse_front(ch_cbuff_t* this)
 {
+
+    assert(this->in_use <= this->count);
+    assert(this->in_use <= this->size);
+    assert(this->in_use >= 0);
+
     if(this->count == 0){
         return; //Nothing to unuse!
     }
@@ -80,45 +112,14 @@ void cbuff_unuse_front(ch_cbuff_t* this)
     }
 
     this->in_use--;
+    this->_use_next_index--;
+    if(this->_use_next_index < 0){
+        this->_use_next_index = this->size -1;
+    }
     //printf("%s:%i #### In use now=%lli\n", __FUNCTION__, __LINE__,  this->in_use);
 
 }
 
-
-void* cbuff_prev(ch_cbuff_t* this, void* curr)
-{
-    //Calculate the current offset
-    const ch_word idx = array_get_idx(this->_array, curr);
-    if(idx == INT_MIN){
-        return NULL;
-    }
-
-    if(this->count == 0){
-        return NULL; //This is nothing to get prev off!
-    }
-
-    //Special case when the buffer is full
-    if(this->_write_index == this->_read_index){
-        if(!this->count == this->size){
-            printf("Assertion failed! How did we get into this state???\n");
-            return NULL;
-        }
-
-        return array_off(this->_array, idx -1 ); //Array knows how to handle wrap around
-    }
-
-
-    if(idx > this->_write_index || idx < this->_read_index + 1){
-        printf("Your points is out of the space! idx=%lli write_max=%lli, read_min=%lli\n",
-                idx, this->_write_index, this->_read_index + 1
-        );
-
-        return NULL;
-    }
-
-    return array_off(this->_array, idx -1 ); //Array knows how to handle wrap around
-
-}
 
 
 void cbuff_delete(ch_cbuff_t* this)
@@ -136,8 +137,6 @@ void* cbuff_push_back_carray(ch_cbuff_t* this, void* carray, ch_word* len_io)
 {
 
     ch_word len = *len_io;
-    //printf("%s:%i #### Pushing back %lli items at %p\n", __FUNCTION__, __LINE__, len, carray);
-    //printf("%s:%i #### Pushing count=%lli size=%lli\n", __FUNCTION__, __LINE__, this->count, this->size);
     if(len == 0){
         *len_io = -1;
         return NULL;
@@ -149,29 +148,32 @@ void* cbuff_push_back_carray(ch_cbuff_t* this, void* carray, ch_word* len_io)
     }
 
     //Copy items up until the wrap around point
-    void* b4_start = array_off(this->_array, this->_write_index);
-    const ch_word num_b4    = MIN(this->size - this->_write_index,len);
-    //printf("%s:%i #### num_b4=%lli, idx=%lli bytes=%lli start=%p val=0x%016lx\n", __FUNCTION__, __LINE__, num_b4, this->_write_index, num_b4 * this->_array->_element_size, b4_start, *(size_t*)carray);
+    void* b4_start = array_off(this->_array, this->_add_next_index);
+    const ch_word num_b4    = MIN(this->size - this->_add_next_index,len);
     memcpy(b4_start, carray, num_b4 * this->_array->_element_size );
-    this->_write_index += num_b4;
+    this->_add_next_index += num_b4;
 
     //Copy anything left over
     if(num_b4 < len){
         const ch_word num_start = len - num_b4;
         void* start = array_off(this->_array, 0);
-        memcpy(start, (char*)carray + num_b4, num_start * this->_array->_element_size );
-        this->_write_index = num_start;
+        memcpy(start, (char*)carray + num_b4 * this->_array->_element_size, num_start * this->_array->_element_size );
+        this->_add_next_index = num_start;
     }
 
-    if(this->_write_index >= this->size){
-        this->_write_index = this->_write_index - this->size;
+    if(this->_add_next_index >= this->size){
+        this->_add_next_index = this->_add_next_index - this->size;
     }
 
     //now increase the the count
     this->count += len;
-    //printf("%s:%i #### count=%lli\n", __FUNCTION__, __LINE__, this->count);
 
     *len_io = len;
+
+    assert(this->in_use <= this->count);
+    assert(this->in_use <= this->size);
+    assert(this->in_use >= 0);
+
     return b4_start;
 }
 
@@ -179,7 +181,7 @@ void* cbuff_push_back_carray(ch_cbuff_t* this, void* carray, ch_word* len_io)
 void* cbuff_push_back(ch_cbuff_t* this, void* value)
 {
     ch_word len = 1; //Throw away value
-    void* result = cbuff_push_back_carray(this,value,len);
+    void* result = cbuff_push_back_carray(this,value,&len);
     if(len != 1){
         return NULL;
     }
@@ -199,8 +201,8 @@ ch_cbuff_t* ch_cbuff_new(ch_word size, ch_word element_size)
     result->_array       = ch_array_new(size, element_size, NULL);
 
     /*We have memory to play with, now do all the other assignments*/
-    result->size                    = result->_array->size;
-    result->count                   = 0;
+    result->size          = result->_array->size;
+    result->count         = 0;
 
     return result;
 }
