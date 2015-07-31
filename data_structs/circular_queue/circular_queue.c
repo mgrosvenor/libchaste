@@ -1,9 +1,16 @@
 /*
- * cbuff.c
+ * This is the implementation of a circular buffer based queue data structure. The data structure provides a fixed sized
+ * queue with constant time push and pop operations (much like a linked listed) but with out runtime memory allocation
+ * costs. The structure provides the ability to push items on to the queue, to "use" items from that queue and to release
+ * items from the queue. All operations are O(c) time with the size of the queue. The structure also provides the ability to
+ * push an array of times on to the queue which is O(n) with the size of the array.
+ *
+ * cbq.c
  *
  *  Created on: July 22, 2015
  *      Author: mgrosvenor
  */
+
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -14,13 +21,13 @@
 #include "../../utils/util.h"
 #include "../../types/types.h"
 #include "../array/array.h"
-#include "circular_buffer.h"
+#include "circular_queue.h"
 
 
 #include <assert.h>
 
 //Remove element from the front of the queue.
-int cbuff_pop_front(ch_cbuff_t* this)
+int cbq_pop_front(ch_cbq_t* this)
 {
     if(this->count == 0){//Nothing to pop!
         return -1;
@@ -44,7 +51,7 @@ int cbuff_pop_front(ch_cbuff_t* this)
 }
 
 //Return pointer to the front of the buffer do not remove item
-void* cbuff_peek_front(ch_cbuff_t* this)
+void* cbq_peek_front(ch_cbq_t* this)
 {
     if(this->count == 0){
         return NULL; //Nothing to peek!
@@ -58,7 +65,7 @@ void* cbuff_peek_front(ch_cbuff_t* this)
 }
 
 //Get a pointer to the front of the queue and mark it as "in use".
-void* cbuff_use_front(ch_cbuff_t* this)
+void* cbq_use_front(ch_cbq_t* this)
 {
     assert(this->in_use <= this->count);
     assert(this->in_use <= this->size);
@@ -96,7 +103,7 @@ void* cbuff_use_front(ch_cbuff_t* this)
 
 
 //Get a pointer to the front of the queue and mark it as "out of use".
-void cbuff_unuse_front(ch_cbuff_t* this)
+void cbq_unuse_front(ch_cbq_t* this)
 {
 
     assert(this->in_use <= this->count);
@@ -121,19 +128,8 @@ void cbuff_unuse_front(ch_cbuff_t* this)
 }
 
 
-
-void cbuff_delete(ch_cbuff_t* this)
-{
-    if(this->_array){
-        array_delete(this->_array);
-    }
-
-    free(this);
-}
-
-
-/*Assign at most size elements from the C cbuff*/
-void* cbuff_push_back_carray(ch_cbuff_t* this, void* carray, ch_word* len_io)
+/*Assign at most size elements from the C cbq*/
+void* cbq_push_back_carray(ch_cbq_t* this, void* carray, ch_word* len_io)
 {
 
     ch_word len = *len_io;
@@ -178,10 +174,10 @@ void* cbuff_push_back_carray(ch_cbuff_t* this, void* carray, ch_word* len_io)
 }
 
 /* Put an element at the back of the arary values*/
-void* cbuff_push_back(ch_cbuff_t* this, void* value)
+void* cbq_push_back(ch_cbq_t* this, void* value)
 {
     ch_word len = 1; //Throw away value
-    void* result = cbuff_push_back_carray(this,value,&len);
+    void* result = cbq_push_back_carray(this,value,&len);
     if(len != 1){
         return NULL;
     }
@@ -189,12 +185,12 @@ void* cbuff_push_back(ch_cbuff_t* this, void* value)
 }
 
 
-ch_cbuff_t* ch_cbuff_new(ch_word size, ch_word element_size)
+ch_cbq_t* ch_cbq_new(ch_word size, ch_word element_size)
 {
 
-    ch_cbuff_t* result = (ch_cbuff_t*)calloc(1,sizeof(ch_cbuff_t));
+    ch_cbq_t* result = (ch_cbq_t*)calloc(1,sizeof(ch_cbq_t));
     if(!result){
-        printf("Could not allocate memory for new cbuff structure. Giving up\n");
+        printf("Could not allocate memory for new cbq structure. Giving up\n");
         return NULL;
     }
 
@@ -206,4 +202,15 @@ ch_cbuff_t* ch_cbuff_new(ch_word size, ch_word element_size)
 
     return result;
 }
+
+
+void cbq_delete(ch_cbq_t* this)
+{
+    if(this->_array){
+        array_delete(this->_array);
+    }
+
+    free(this);
+}
+
 
