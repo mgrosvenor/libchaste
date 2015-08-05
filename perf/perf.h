@@ -16,6 +16,7 @@
 #include "../utils/util.h"
 
 //#warning "This is all broken and arch specifc. Need to make the logic and impl separate"
+#define uint64_t unsigned long long
 
 typedef struct {
     uint64_t ts;             //Time the event was logged

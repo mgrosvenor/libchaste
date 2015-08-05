@@ -12,12 +12,12 @@
 
 //#include "../deps/libcgen/vector.h"
 
-
 //Unsigned types, use these sparingly
 typedef uint8_t     u8;
 typedef uint16_t    u16;
 typedef uint32_t    u32;
-typedef uint64_t    u64; //Try to avoid this unless absolutely necessary. Too many bugs are caused by int/uint mixups
+//typedef uint64_t    u64; //Try to avoid this unless absolutely necessary. Too many bugs are caused by int/uint mixups
+typedef unsigned long long    u64; //Try to avoid this unless absolutely necessary. Too many bugs are caused by int/uint mixups
 
 //Signed types, use these sparingly
 typedef int8_t      i8;
@@ -30,7 +30,7 @@ typedef int64_t     i64; //Try to avoid this, use ch_word.
 typedef size_t  ch_machine; //Use this sparingly, only when it really matters that the int size is the same as the word size
 typedef i8      ch_char;
 typedef u8      ch_byte;
-typedef i64     ch_word; //Singed int chosen specifically to avoid underrun and signed/unsigned comparisons
+typedef long long int     ch_word; //Singed int chosen specifically to avoid underrun and signed/unsigned comparisons
 typedef bool    ch_bool; //Give the compiler tons of freedom to decide what to do here
 typedef double	ch_float; //Again we preference 64bit machines explicitly
 

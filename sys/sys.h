@@ -10,11 +10,12 @@
 
 #ifdef __APPLE__
 #   include "sys_apple.h"
-#elif __LINUX__
+#else 
 #   include "sys_linux.h"
-#else
-#   warning "LibChaste Needs to be ported to this system"
 #endif
+//#else
+//#   warning "LibChaste Needs to be ported to this system"
+//#endif
 
 
 #endif /* SYS_H_ */
