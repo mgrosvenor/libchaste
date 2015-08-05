@@ -74,7 +74,7 @@ extern ch_perf_t ch_perf;
 //  Flushing the pipeline is an expensive call and not something that we want to do too much
 //  on the critical path. For this reason I've decided to trade a little accuracy for
 //  better overall performance.
-//#ifdef NDEBUG
+#ifndef NDEBUG
         #define ch_perf_event_start(ch_word_event_id, ch_word_cond_id, ch_word_data)         \
         if(likely(ch_perf.event_index < ch_perf.max_events)){                                \
             ch_perf.events[ch_perf.event_index].event_id = (ch_word_event_id);               \
@@ -86,9 +86,9 @@ extern ch_perf_t ch_perf;
             ch_perf.event_index++;                                                           \
         }                                                                                    \
         ch_perf.event_count++;
-//#else
-//    #define ch_perf_event_start(ch_word_event_id, ch_word_cond_id, ch_word_data)
-//#endif
+#else
+    #define ch_perf_event_start(ch_word_event_id, ch_word_cond_id, ch_word_data)
+#endif
 
 
 
@@ -99,7 +99,7 @@ extern ch_perf_t ch_perf;
 //  Flushing the pipeline is an expensive call and not something that we want to do too much
 //  on the critical path. For this reason I've decided to trade a little accuracy for
 //  better overall performance.
-//#ifdef NDEBUG
+#ifndef NDEBUG
     #define ch_perf_event_stop(ch_word_event_id, ch_word_cond_id, ch_word_data)            \
         if(likely(ch_perf.event_index < ch_perf.max_events)){                              \
             DECLARE_ARGS(lo, hi);                                                          \
@@ -111,9 +111,9 @@ extern ch_perf_t ch_perf;
             ch_perf.event_index++;                                                         \
         }                                                                                  \
         ch_perf.event_count++;
-//#else
-//    #define ch_perf_event_stop(ch_word_event_id, ch_word_cond_id, ch_word_data)
-//#endif
+#else
+    #define ch_perf_event_stop(ch_word_event_id, ch_word_cond_id, ch_word_data)
+#endif
 
 typedef enum {
     ch_perf_output_tostdout,
