@@ -166,6 +166,13 @@ void ch_perf_finish_(ch_perf_output_e output, ch_perf_format_e format, const cha
     ch_perf.tsc = EAX_EDX_VAL(lo, hi);                                             \
 }
 
+#define ch_perf_cycles_now(result) {                                                      \
+    DECLARE_ARGS(lo, hi);                                                          \
+    __asm__ __volatile__("rdtsc" : EAX_EDX_RET(lo, hi));                           \
+    result = EAX_EDX_VAL(lo, hi);                                     \
+}
+
+
 u64 ch_perf_get_watch_ticks();
 u64 ch_perf_get_tsc_sample();
 
