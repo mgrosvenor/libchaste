@@ -13,6 +13,7 @@
 #define eqlikely(x)     (x)
 
 #define MIN(x,y) ( (x) < (y) ?  (x) : (y))
+#define MIN3(x,y,z) (MIN(MIN(x,y),z))
 #define MAX(x,y) ( (x) > (y) ?  (x) : (y))
 
 #include "../types/types.h"

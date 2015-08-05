@@ -21,6 +21,7 @@ typedef struct {
     uint64_t ts;             //Time the event was logged
     uint32_t event_id;  //ID of the event, used to tie start and stop operations together
     uint32_t cond_id;   //ID of the event, used to differentiate different start/stop conditions for the same ID.
+    uint64_t data;
 } ch_perf_event_t;
 
 
@@ -72,20 +73,21 @@ extern ch_perf_t ch_perf;
 //  Flushing the pipeline is an expensive call and not something that we want to do too much
 //  on the critical path. For this reason I've decided to trade a little accuracy for
 //  better overall performance.
-#ifndef NDEBUG
-        #define ch_perf_event_start(ch_word_event_id, ch_word_cond_id)                       \
+//#ifdef NDEBUG
+        #define ch_perf_event_start(ch_word_event_id, ch_word_cond_id, ch_word_data)         \
         if(likely(ch_perf.event_index < ch_perf.max_events)){                                \
             ch_perf.events[ch_perf.event_index].event_id = (ch_word_event_id);               \
             ch_perf.events[ch_perf.event_index].cond_id  = (ch_word_cond_id);                \
+            ch_perf.events[ch_perf.event_index].data  = (ch_word_data);                      \
             DECLARE_ARGS(lo, hi);                                                            \
-            __asm__ __volatile__("rdtsc" : EAX_EDX_RET(lo, hi));                                     \
+            __asm__ __volatile__("rdtsc" : EAX_EDX_RET(lo, hi));                             \
             ch_perf.events[ch_perf.event_index].ts       = EAX_EDX_VAL(lo, hi);              \
             ch_perf.event_index++;                                                           \
         }                                                                                    \
         ch_perf.event_count++;
-#else
-    #define ch_perf_event_start(ch_word_event_id, ch_word_cond_id)
-#endif
+//#else
+//    #define ch_perf_event_start(ch_word_event_id, ch_word_cond_id, ch_word_data)
+//#endif
 
 
 
@@ -96,20 +98,21 @@ extern ch_perf_t ch_perf;
 //  Flushing the pipeline is an expensive call and not something that we want to do too much
 //  on the critical path. For this reason I've decided to trade a little accuracy for
 //  better overall performance.
-#ifndef NDEBUG
-    #define ch_perf_event_stop(ch_word_event_id, ch_word_cond_id)                          \
+//#ifdef NDEBUG
+    #define ch_perf_event_stop(ch_word_event_id, ch_word_cond_id, ch_word_data)            \
         if(likely(ch_perf.event_index < ch_perf.max_events)){                              \
             DECLARE_ARGS(lo, hi);                                                          \
-            __asm__ __volatile__("rdtsc" : EAX_EDX_RET(lo, hi));                                   \
+            __asm__ __volatile__("rdtsc" : EAX_EDX_RET(lo, hi));                           \
             ch_perf.events[ch_perf.event_index].ts       = EAX_EDX_VAL(lo, hi);            \
             ch_perf.events[ch_perf.event_index].event_id = (ch_word_event_id) | (1<<31);   \
             ch_perf.events[ch_perf.event_index].cond_id  = (ch_word_cond_id);              \
+            ch_perf.events[ch_perf.event_index].data  = (ch_word_data);                    \
             ch_perf.event_index++;                                                         \
         }                                                                                  \
         ch_perf.event_count++;
-#else
-    #define ch_perf_event_stop(ch_word_event_id, ch_word_cond_id)
-#endif
+//#else
+//    #define ch_perf_event_stop(ch_word_event_id, ch_word_cond_id, ch_word_data)
+//#endif
 
 typedef enum {
     ch_perf_output_tostdout,
@@ -127,7 +130,7 @@ typedef enum {
 } ch_perf_format_e;
 
 
-void ch_perf_finish_(ch_perf_output_e output, ch_perf_format_e format, char* filename);
+void ch_perf_finish_(ch_perf_output_e output, ch_perf_format_e format, const char* filename);
 
 #ifndef NDEBU
 #define ch_perf_finish(ch_perf_output, ch_perf_format, filename)\

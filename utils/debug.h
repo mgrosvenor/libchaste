@@ -14,7 +14,7 @@
 
 typedef enum {
     DBG,
-    ERROR,
+    ERR,
     WARN
 } ch_dbg_mode_e;
 
@@ -27,7 +27,7 @@ ch_word ch_debug_out_(
         const char* function,
         const char* format, ... );
 #define ERR( /*format, args*/...)  camio_err_helper(__VA_ARGS__, "")
-#define camio_err_helper(format, ...) ch_debug_out_(true, DBG, __LINE__, __FILE__, __FUNCTION__, format, __VA_ARGS__ )
+#define camio_err_helper(format, ...) ch_debug_out_(true, ERR, __LINE__, __FILE__, __FUNCTION__, format, __VA_ARGS__ )
 
 
 #ifndef NDEBUG
@@ -37,12 +37,14 @@ ch_word ch_debug_out_(
     #define DBG2( /*format, args*/...)  ch_debug_helper2(__VA_ARGS__, "")
     #define ch_debug_helper2(format, ...) ch_debug_out_(false,DBG,__LINE__, __FILE__, __FUNCTION__, format, __VA_ARGS__ )
     #define WARN( /*format, args*/...)  ch_debug_helper3(__VA_ARGS__, "")
-    #define ch_debug_helper3(format, ...) ch_debug_out_(false,WARN,__LINE__, __FILE__, __FUNCTION__, format, __VA_ARGS__ )
+    #define ch_debug_helper3(format, ...) ch_debug_out_(true,WARN,__LINE__, __FILE__, __FUNCTION__, format, __VA_ARGS__ )
 #else
     #define DBG( /*format, args*/...)
     #define DBG2( /*format, args*/...)
+    #define WARN( /*format, args*/...)
 #endif
 
+void hexdump(void *data, int size);
 
 
 #endif /* DEBUG_H_ */

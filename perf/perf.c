@@ -70,12 +70,12 @@ static int ch_perf_write_event_ascii(const ch_perf_event_t* event, ch_bool use_c
     const char sep = use_csv ? ',' : ' ';
     const char start_stop = event->event_id >= (1ULL<<31) ? 'O' : 'A'; //"stArt", "stOp"
     const uint64_t event_id = event->event_id >= (1ULL<<31) ? event->event_id & ~(1<<31) : event->event_id;
-    return dprintf(ch_perf.fd,"%c%c%llu%c%u%c%llu\n",  start_stop, sep, event_id, sep, event->cond_id, sep, event->ts);
+    return dprintf(ch_perf.fd,"%c%c%llu%c%u%c%llu%c%llu\n",  start_stop, sep, event_id, sep, event->cond_id, sep, event->ts, sep, event->data);
 }
 
 
 static int ch_perf_write_header_csv(){
-    const char* header = "Event Type, Event ID, Condition ID, TSC\n";
+    const char* header = "Event Type, Event ID, Condition ID, TSC, DATA\n";
     return dprintf(ch_perf.fd,header,"%s",header);
 }
 
@@ -159,14 +159,12 @@ void ch_perf_close(ch_perf_output_e output)
 }
 
 
-void ch_perf_finish_(ch_perf_output_e output, ch_perf_format_e format, char* filename){
+void ch_perf_finish_(ch_perf_output_e output, ch_perf_format_e format, const char* filename){
     if(ch_perf.event_index && ch_perf.max_events){
-
-
         ch_perf_open_output(output,filename);
         ch_perf_write_header(format,output);
 
-
+        DBG("Outputting %lli items\n", MIN(ch_perf.event_index, ch_perf.max_events));
         for(u64 i = 0; i < MIN(ch_perf.event_index, ch_perf.max_events); i++ ){
             const ch_perf_event_t* event = ch_perf.events + i;
             ch_perf_write_event(event,format,output);
@@ -177,6 +175,10 @@ void ch_perf_finish_(ch_perf_output_e output, ch_perf_format_e format, char* fil
             ch_perf_close(output);
         }
     }
+    else{
+        ERR("Nothing to output\n");
+    }
+
 }
 
 
