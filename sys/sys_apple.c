@@ -5,7 +5,9 @@
  *      Author: mgrosvenor
  */
 
+#include <stdio.h> //dummy include to shut the compiler up
 
+#ifdef __APPLE__ //These definitions are only required for apple/darwin
 #include "sys_apple.h"
 #include <mach/clock.h>
 #include <mach/mach.h>
@@ -23,3 +25,4 @@ void clock_gettime(int ignored, struct timespec *ts) {
     ts->tv_nsec = mts.tv_nsec;
 }
 
+#endif

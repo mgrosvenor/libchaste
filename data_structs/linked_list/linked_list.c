@@ -263,7 +263,7 @@ ch_llist_it* llist_insert_before(ch_llist_t* this, ch_llist_it* itr, const void*
 }
 
 
-//Remove the given ptr [WARN: In general this is very expensive]
+//Remove the item given by the iterator
 ch_llist_it llist_remove(ch_llist_t* this, ch_llist_it* itr)
 {
     ch_llist_it result = { 0 };
