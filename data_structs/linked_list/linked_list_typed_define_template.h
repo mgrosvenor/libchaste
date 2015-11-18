@@ -131,10 +131,16 @@ static ch_llist_##NAME##_it*  _insert_before_##NAME(ch_llist_##NAME##_t* this, c
     return itr;\
 }\
 \
-static ch_llist_##NAME##_it  _remove_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr)\
+static ch_llist_##NAME##_it  _remove_it_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr)\
 {\
     ch_llist_it base_itr = _from_##NAME##_it(itr);\
-    ch_llist_it result  =  llist_remove(this->_llist, &base_itr);\
+    ch_llist_it result  =  llist_remove_it(this->_llist, &base_itr);\
+    _update_##NAME(this);\
+    return _to_##NAME##_it(&result);\
+}\
+static ch_llist_##NAME##_it  _remove_all_##NAME(ch_llist_##NAME##_t* this, TYPE value)\
+{\
+    ch_llist_it result  =  llist_remove_all(this->_llist, &value);\
     _update_##NAME(this);\
     return _to_##NAME##_it(&result);\
 }\
@@ -208,7 +214,8 @@ ch_llist_##NAME##_t* ch_llist_##NAME##_new(ch_word(*cmp)(TYPE* lhs, TYPE* rhs) )
     result->insert_after            = _insert_after_##NAME;\
     result->insert_before           = _insert_before_##NAME;\
 \
-    result->remove                  = _remove_##NAME;\
+    result->remove_it               = _remove_it_##NAME;\
+    result->remove_all              = _remove_all_##NAME;\
 \
     result->push_back_carray        = _push_back_carray_##NAME;\
     result->delete                  = _delete_##NAME;\

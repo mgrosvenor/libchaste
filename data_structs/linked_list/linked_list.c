@@ -262,9 +262,8 @@ ch_llist_it* llist_insert_before(ch_llist_t* this, ch_llist_it* itr, const void*
 
 }
 
-
-//Remove the given ptr [WARN: In general this is very expensive]
-ch_llist_it llist_remove(ch_llist_t* this, ch_llist_it* itr)
+//Remove the item given by the iterator
+ch_llist_it llist_remove_it(ch_llist_t* this, ch_llist_it* itr)
 {
     ch_llist_it result = { 0 };
     if(!itr){
@@ -298,19 +297,38 @@ ch_llist_it llist_remove(ch_llist_t* this, ch_llist_it* itr)
     return result;
 }
 
+//Remove the item given by the iterator
+ch_llist_it llist_remove_all(ch_llist_t* this,  void* value)
+{
+    ch_llist_it result = { 0 };
+    ch_llist_it first = llist_first(this);
+    ch_llist_it last  = llist_end(this);
+    ch_llist_it found = llist_find(this,&first,&last,value);
+    for(int i = 0; found.value; i++){
+        result = llist_remove_it(this,&found);
+        first = result;
+        llist_next(this,&first);
+        found = llist_find(this,&first,&last,value);
+    }
+
+    return result;
+}
+
+
+
 
 // Push an element at the back of the llist values
 ch_llist_it llist_pop_back(ch_llist_t* this)
 {
     ch_llist_it it = llist_last(this);
-    return llist_remove(this,&it);
+    return llist_remove_it(this,&it);
 }
 
 // Push an element off the front of the llist list values,
 ch_llist_it llist_pop_front(ch_llist_t* this)
 {
     ch_llist_it it = llist_first(this);
-    return llist_remove(this,&it);
+    return llist_remove_it(this,&it);
 }
 
 
@@ -392,7 +410,6 @@ ch_word llist_eq(ch_llist_t* this, ch_llist_t* that)
     return 1;
 }
 
-
 //find the given value using the comparator function
 ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, void* value)
 {
@@ -402,8 +419,13 @@ ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, v
         return result;
     }
 
+
     ch_llist_it it = *begin;
     for(; it._node && it._node != end->_node; llist_next(this,&it) ){
+        if(!this->_cmp){
+            printf("Error, comparator function is null!\n");
+            return result;
+        }
         if(this->_cmp(it.value, value) == 0){
             return it;
         }

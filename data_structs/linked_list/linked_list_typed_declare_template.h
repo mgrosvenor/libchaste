@@ -39,7 +39,8 @@ struct ch_llist_##NAME{\
 \
     ch_llist_##NAME##_it* (*insert_after)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr, TYPE value); /* Insert an element after the element given by ptr*/\
     ch_llist_##NAME##_it* (*insert_before)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* it, TYPE value); /* Insert an element before the element giver by ptr*/\
-    ch_llist_##NAME##_it (*remove)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr); /*Remove the given ptr [WARN: In general this is very expensive]*/\
+    ch_llist_##NAME##_it (*remove_it)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr); /*Remove the given ptr*/\
+    ch_llist_##NAME##_it (*remove_all)(ch_llist_##NAME##_t* this, TYPE value); /*Remove the given ptr*/\
 \
     void (*delete)(ch_llist_##NAME##_t* this); /*Free the resources associated with this llist, assumes that individual items have been freed*/\
 \

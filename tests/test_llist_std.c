@@ -328,7 +328,7 @@ static ch_word test5_TYPE(TYPE* test_data)
     }
 
     CH_LIST_IT(i64) it1 = ll3->off(ll3,8);
-    while( (it1 = ll3->remove(ll3,&it1) )._node ){
+    while( (it1 = ll3->remove_it(ll3,&it1) )._node ){
         //dump_list_TYPE(ll3);
     }
 
@@ -339,7 +339,7 @@ static ch_word test5_TYPE(TYPE* test_data)
     CH_ASSERT(ll3->eq(ll3,ll4));
 
     CH_LIST_IT(i64) it2 = ll3->first(ll3);
-    while( (it2 = ll3->remove(ll3,&it2) )._node ){
+    while( (it2 = ll3->remove_it(ll3,&it2) )._node ){
         //dump_list_TYPE(ll3);
     }
 
@@ -432,6 +432,82 @@ static ch_word test8_TYPE(TYPE* test_data)
 }
 
 
+//Test the two types of remove operations
+static ch_word test9_TYPE()
+{
+    ch_word result = 1;
+    //This is the data we'll use to test on
+    TYPE test_array1[15] = {8,5,1,3,4,6,7,9,7,1,6,1,0,1,6};
+    TYPE test_array2[14] = {8,5,3,4,6,7,9,7,1,6,1,0,1,6};
+    TYPE test_array3[11] = {8,5,3,4,6,7,9,7,6,0,6};
+
+
+    //Make for linked lists, the first two use dataset 1, the second two are the expected results
+    CH_LIST(i64)* ll1 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
+    CH_LIST(i64)* ll2 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
+    CH_LIST(i64)* ll3 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
+    CH_LIST(i64)* ll4 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
+
+    //Populate all lists
+    ll1->push_back_carray(ll1, test_array1, 15);
+    ll2->push_back_carray(ll2, test_array1, 15);
+    ll3->push_back_carray(ll3, test_array2, 14);
+    ll4->push_back_carray(ll4, test_array3, 11);
+
+    //Check that everything has populated as we expect. L1 and L2 should be equal, everything else should not be
+    CH_ASSERT(ll1->eq(ll1,ll2));
+    CH_ASSERT(!ll1->eq(ll1,ll3));
+    CH_ASSERT(!ll1->eq(ll1,ll4));
+    CH_ASSERT(ll2->eq(ll2,ll1));
+    CH_ASSERT(!ll2->eq(ll2,ll3));
+    CH_ASSERT(!ll2->eq(ll2,ll4));
+    CH_ASSERT(!ll3->eq(ll3,ll1));
+    CH_ASSERT(!ll3->eq(ll3,ll2));
+    CH_ASSERT(!ll3->eq(ll3,ll4));
+    CH_ASSERT(!ll4->eq(ll4,ll1));
+    CH_ASSERT(!ll4->eq(ll4,ll2));
+    CH_ASSERT(!ll4->eq(ll4,ll3));
+
+    //Apply the find and delete method
+    CH_LIST_IT(i64) start   = ll1->first(ll1);
+    CH_LIST_IT(i64) end     = ll1->end(ll1);
+    CH_LIST_IT(i64) found   = ll1->find(ll1,&start,&end,1);
+    CH_ASSERT(found.value);
+    CH_ASSERT(*found.value == 1);
+    CH_LIST_IT(i64) next    = ll1->remove_it(ll1,&found);
+    CH_ASSERT(next.value);
+    CH_ASSERT(*next.value == 3);
+    CH_ASSERT(ll1->eq(ll1,ll3));
+
+    //Apply the delete all method
+    ll2->remove_all(ll2,1);
+    CH_ASSERT(ll2->eq(ll2,ll4));
+
+
+    //Now re-check that we've established the state we wanted
+    CH_ASSERT(!ll1->eq(ll1,ll2));
+    CH_ASSERT(ll1->eq(ll1,ll3));
+    CH_ASSERT(!ll1->eq(ll1,ll4));
+    CH_ASSERT(!ll2->eq(ll2,ll1));
+    CH_ASSERT(!ll2->eq(ll2,ll3));
+    CH_ASSERT(ll2->eq(ll2,ll4));
+    CH_ASSERT(ll3->eq(ll3,ll1));
+    CH_ASSERT(!ll3->eq(ll3,ll2));
+    CH_ASSERT(!ll3->eq(ll3,ll4));
+    CH_ASSERT(!ll4->eq(ll4,ll1));
+    CH_ASSERT(ll4->eq(ll4,ll2));
+    CH_ASSERT(!ll4->eq(ll4,ll3));
+
+
+    ll1->delete(ll1);
+    ll2->delete(ll2);
+    ll3->delete(ll3);
+    ll4->delete(ll4);
+
+    return result;
+}
+
+
 
 int main(int argc, char** argv)
 {
@@ -451,7 +527,7 @@ int main(int argc, char** argv)
     printf("CH Data Structures: Typed Linked List Test 06: ");  printf("%s", (test_result = test6_TYPE(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Typed Linked List Test 07: ");  printf("%s", (test_result = test7_TYPE(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Typed Linked List Test 08: ");  printf("%s", (test_result = test8_TYPE(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-//    printf("CH Data Structures: Typed Linked List Test 09: ");  printf("%s", (test_result = test9_TYPE(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Typed Linked List Test 09: ");  printf("%s", (test_result = test9_TYPE()) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Typed Linked List Test 10: ");  printf("%s", (test_result = test10_TYPE(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Typed Linked List Test 11: ");  printf("%s", (test_result = test11_TYPE(test_array, test_array_sorted)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Typed Linked List Test 12: ");  printf("%s", (test_result = test12_TYPE(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;

@@ -72,8 +72,10 @@ ch_llist_it llist_pop_back(ch_llist_t* this);
 ch_llist_it* llist_insert_after(ch_llist_t* this, ch_llist_it* itr, const void* value);
 // Insert an element before the element giver by ptr
 ch_llist_it* llist_insert_before(ch_llist_t* this, ch_llist_it* it, const void* value);
-//Remove the given ptr [WARN: In general this is very expensive]
-ch_llist_it llist_remove(ch_llist_t* this, ch_llist_it* itr);
+//Remove the given iterator
+ch_llist_it llist_remove_it(ch_llist_t* this, ch_llist_it* itr);
+//Remove all items with the given value
+ch_llist_it llist_remove_all(ch_llist_t* this, void* value);
 
 //Remove all elememts from the list
 void llist_pop_all(ch_llist_t* this);
