@@ -209,6 +209,7 @@ ch_llist_it* llist_insert_after(ch_llist_t* this, ch_llist_it* itr, const void* 
     }
     else{
         this->_last = node;
+        node->next = NULL;
     }
 
     node->prev       = itr->_node;
@@ -247,6 +248,7 @@ ch_llist_it* llist_insert_before(ch_llist_t* this, ch_llist_it* itr, const void*
         itr->_node->prev->next = node;
     }
     else{
+        node->prev = NULL;
         this->_first = node;
     }
     node->next       = itr->_node;
@@ -259,6 +261,27 @@ ch_llist_it* llist_insert_before(ch_llist_t* this, ch_llist_it* itr, const void*
     *itr = result;
 
     return itr;
+
+}
+
+// Insert an element into the array in ascending order. Linear time insert
+ch_llist_it llist_insert_inorder(ch_llist_t* this,  void* value)
+{
+    ch_llist_it result = { 0 };
+    const ch_llist_it first  = llist_first(this);
+    const ch_llist_it last   = llist_end(this);
+
+
+    ch_llist_it it = first;
+    for(; it._node && it._node != last._node; llist_next(this,&it)){
+        if(this->_cmp(value, it.value) <= 0){
+            ch_llist_it* res = llist_insert_before(this,&it,value);
+            result = *res;
+            return result;
+        }
+    }
+
+    return llist_push_back(this,value);
 
 }
 
@@ -299,36 +322,31 @@ ch_llist_it llist_remove_it(ch_llist_t* this, ch_llist_it* itr)
 }
 
 //Remove the item given by the iterator
-ch_llist_it llist_remove_all(ch_llist_t* this, const void* value)
+ch_llist_it llist_remove_all(ch_llist_t* this,  void* value)
 {
     ch_llist_it result = { 0 };
-    ch_llist_it* first = llist_first(this);
-    ch_llist_it* last  = llist_end(this);
-    ch_llist_it* found = llist_find(this,first,last,value);
-    while(found->value){
-        result = llist_remove_it(this,found);
-        first = found;
-        llist_next(this,first);
-        found = llist_find(this,first,last,value);
+    ch_llist_it found = llist_find_first(this,value);
+    for(int i = 0; found.value; i++){
+        result = llist_remove_it(this,&found);
+        found = llist_find_next(this,&result,value);
     }
 
     return result;
 }
 
 
-
 // Push an element at the back of the llist values
 ch_llist_it llist_pop_back(ch_llist_t* this)
 {
     ch_llist_it it = llist_last(this);
-    return llist_remove(this,&it);
+    return llist_remove_it(this,&it);
 }
 
 // Push an element off the front of the llist list values,
 ch_llist_it llist_pop_front(ch_llist_t* this)
 {
     ch_llist_it it = llist_first(this);
-    return llist_remove(this,&it);
+    return llist_remove_it(this,&it);
 }
 
 
@@ -375,6 +393,23 @@ ch_llist_it llist_push_back_carray(ch_llist_t* this, const void* carray, ch_word
     return result;
 }
 
+
+//Insert count elements into the linked list in order
+ch_llist_it llist_insert_carray_ordered(ch_llist_t* this, void* carray, ch_word count)
+{
+    ch_llist_it result;
+
+    ch_byte* ptr = carray;
+    for(ch_word i =  0; i < count; i++){
+        result = llist_insert_inorder(this,ptr); //This is a stupid way to do it, simpler is to sort the array first
+        //But this will test the idea
+        ptr += this->_element_size;
+    }
+
+    return result;
+}
+
+
 //Check for equality
 ch_word llist_eq(ch_llist_t* this, ch_llist_t* that)
 {
@@ -410,7 +445,6 @@ ch_word llist_eq(ch_llist_t* this, ch_llist_t* that)
     return 1;
 }
 
-
 //find the given value using the comparator function
 ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, const void* value)
 {
@@ -428,8 +462,24 @@ ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, c
     }
 
     return result;
-
 }
+
+ch_llist_it llist_find_first(ch_llist_t* this, void* value)
+{
+    ch_llist_it first  = llist_first(this);
+    ch_llist_it last   = llist_end(this);
+    ch_llist_it result = llist_find(this,&first,&last,value);
+    return result;
+}
+
+ch_llist_it llist_find_next(ch_llist_t* this,  ch_llist_it* begin, void* value)
+{
+    ch_llist_it last   = llist_end(this);
+    ch_llist_it result = llist_find(this,begin,&last,value);
+    return result;
+}
+
+
 //sort into order given the comparator function
 void llist_sort(ch_llist_t* this)
 {
@@ -441,7 +491,7 @@ void llist_sort(ch_llist_t* this)
 ch_llist_t* ch_llist_new( ch_word element_size, cmp_void_f cmp )
 {
 
-     ch_llist_t* result = (ch_llist_t*)calloc(1,sizeof(ch_llist_t));
+    ch_llist_t* result = (ch_llist_t*)calloc(1,sizeof(ch_llist_t));
     if(!result){
         printf("Could not allocate memory for new llist structure. Giving up\n");
         return NULL;

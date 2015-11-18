@@ -39,7 +39,8 @@ struct ch_llist_##NAME{\
 \
     ch_llist_##NAME##_it* (*insert_after)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr, TYPE value); /* Insert an element after the element given by ptr*/\
     ch_llist_##NAME##_it* (*insert_before)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* it, TYPE value); /* Insert an element before the element giver by ptr*/\
-    ch_llist_##NAME##_it (*remove)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr); /*Remove the item given by the iterator*/\
+    ch_llist_##NAME##_it (*remove_it)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr); /*Remove the given ptr*/\
+    ch_llist_##NAME##_it (*remove_all)(ch_llist_##NAME##_t* this, TYPE value); /*Remove the given ptr*/\
 \
     void (*delete)(ch_llist_##NAME##_t* this); /*Free the resources associated with this llist, assumes that individual items have been freed*/\
 \
@@ -47,6 +48,10 @@ struct ch_llist_##NAME{\
 \
     ch_word (*eq)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_t* that); /*Check for equality*/\
     ch_llist_##NAME##_it (*find)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* begin, ch_llist_##NAME##_it* end, TYPE value); /*find the given value using the comparator function*/\
+    ch_llist_##NAME##_it (*find_first)(ch_llist_##NAME##_t* this, TYPE value); /*find the given value using the comparator function*/\
+    ch_llist_##NAME##_it (*find_next)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* begin, TYPE value); /*find the given value using the comparator function*/\
+    ch_llist_##NAME##_it (*insert_inorder)(ch_llist_##NAME##_t* this, TYPE value); /* Insert an element before the element giver by ptr*/\
+    ch_llist_##NAME##_it (*insert_carray_ordered)(ch_llist_##NAME##_t* this, const TYPE* carray, ch_word count); /*Insert count element in order*/\
     void (*sort)(ch_llist_##NAME##_t* this); /*sort into order given the comparator function*/\
 \
      /* Members prefixed with "_" are nominally "private" Don't touch my privates!*/\

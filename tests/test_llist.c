@@ -374,7 +374,7 @@ static ch_word test5_i64(i64* test_data)
     }
 
     ch_llist_it it1 = llist_off(ll3,8);
-    while( (it1 = llist_remove(ll3,&it1) )._node ){
+    while( (it1 = llist_remove_it(ll3,&it1) )._node ){
         //dump_list_i64(ll3);
     }
 
@@ -385,7 +385,7 @@ static ch_word test5_i64(i64* test_data)
     CH_ASSERT(llist_eq(ll3,ll4));
 
     ch_llist_it it2 = llist_first(ll3);
-    while( (it2 = llist_remove(ll3,&it2) )._node ){
+    while( (it2 = llist_remove_it(ll3,&it2) )._node ){
         //dump_list_i64(ll3);
     }
 

@@ -72,10 +72,17 @@ ch_llist_it llist_pop_back(ch_llist_t* this);
 ch_llist_it* llist_insert_after(ch_llist_t* this, ch_llist_it* itr, const void* value);
 // Insert an element before the element giver by ptr
 ch_llist_it* llist_insert_before(ch_llist_t* this, ch_llist_it* it, const void* value);
+<<<<<<< HEAD
 //Remove the given element with given iterator
 ch_llist_it llist_remove_it(ch_llist_t* this, ch_llist_it* itr);
 //Remove all elements with given value
 ch_llist_it llist_remove_all(ch_llist_t* this, const void* value);
+=======
+//Remove the given iterator
+ch_llist_it llist_remove_it(ch_llist_t* this, ch_llist_it* itr);
+//Remove all items with the given value
+ch_llist_it llist_remove_all(ch_llist_t* this, void* value);
+>>>>>>> mpg39
 
 //Remove all elememts from the list
 void llist_pop_all(ch_llist_t* this);
@@ -90,6 +97,10 @@ ch_llist_it llist_push_back_carray(ch_llist_t* this, const void* carray, ch_word
 ch_word llist_eq(ch_llist_t* this, ch_llist_t* that);
 //find the given value using the comparator function
 ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, void* value);
+ch_llist_it llist_find_first(ch_llist_t* this, void* value);
+ch_llist_it llist_find_next(ch_llist_t* this,  ch_llist_it* begin, void* value);
+ch_llist_it llist_insert_inorder(ch_llist_t* this,  void* value);
+ch_llist_it llist_insert_carray_ordered(ch_llist_t* this, void* carray, ch_word count);
 //sort into order given the comparator function
 void llist_sort(ch_llist_t* this);
 
