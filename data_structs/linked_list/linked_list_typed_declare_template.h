@@ -32,10 +32,10 @@ struct ch_llist_##NAME{\
     void (*forward)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* it, ch_word amount); /*Step forwards by amount*/\
     void (*back)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* it, ch_word amount); /*Step backwards by amount*/\
 \
-    ch_llist_##NAME##_it (*push_front)(ch_llist_##NAME##_t* this, TYPE value); /* Put an element at the front of the llist list values,*/\
-    ch_llist_##NAME##_it (*pop_front)(ch_llist_##NAME##_t* this);/* Push an element off the front of the llist list values,*/\
-    ch_llist_##NAME##_it (*push_back)(ch_llist_##NAME##_t* this, TYPE value); /* Put an element at the back of the llist values*/\
-    ch_llist_##NAME##_it (*pop_back)(ch_llist_##NAME##_t* this); /* Push an element at the back of the llist values*/\
+    ch_llist_##NAME##_it (*push_front)(ch_llist_##NAME##_t* this, TYPE value); /* Put an element at the front of the linked list values,*/\
+    ch_llist_##NAME##_it (*pop_front)(ch_llist_##NAME##_t* this);/* Push an element off the front of the linked list values,*/\
+    ch_llist_##NAME##_it (*push_back)(ch_llist_##NAME##_t* this, TYPE value); /* Put an element at the back of the linked list values*/\
+    ch_llist_##NAME##_it (*pop_back)(ch_llist_##NAME##_t* this); /* Push an element at the back of the linked list values*/\
 \
     ch_llist_##NAME##_it* (*insert_after)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr, TYPE value); /* Insert an element after the element given by ptr*/\
     ch_llist_##NAME##_it* (*insert_before)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* it, TYPE value); /* Insert an element before the element giver by ptr*/\

@@ -264,7 +264,7 @@ ch_llist_it* llist_insert_before(ch_llist_t* this, ch_llist_it* itr, const void*
 
 
 //Remove the item given by the iterator
-ch_llist_it llist_remove(ch_llist_t* this, ch_llist_it* itr)
+ch_llist_it llist_remove_it(ch_llist_t* this, ch_llist_it* itr)
 {
     ch_llist_it result = { 0 };
     if(!itr){
@@ -297,6 +297,24 @@ ch_llist_it llist_remove(ch_llist_t* this, ch_llist_it* itr)
 
     return result;
 }
+
+//Remove the item given by the iterator
+ch_llist_it llist_remove_all(ch_llist_t* this, const void* value)
+{
+    ch_llist_it result = { 0 };
+    ch_llist_it* first = llist_first(this);
+    ch_llist_it* last  = llist_end(this);
+    ch_llist_it* found = llist_find(this,first,last,value);
+    while(found->value){
+        result = llist_remove_it(this,found);
+        first = found;
+        llist_next(this,first);
+        found = llist_find(this,first,last,value);
+    }
+
+    return result;
+}
+
 
 
 // Push an element at the back of the llist values
@@ -394,7 +412,7 @@ ch_word llist_eq(ch_llist_t* this, ch_llist_t* that)
 
 
 //find the given value using the comparator function
-ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, void* value)
+ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, const void* value)
 {
     ch_llist_it result = { 0 };
 
