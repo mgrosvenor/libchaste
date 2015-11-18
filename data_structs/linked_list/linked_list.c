@@ -301,14 +301,10 @@ ch_llist_it llist_remove_it(ch_llist_t* this, ch_llist_it* itr)
 ch_llist_it llist_remove_all(ch_llist_t* this,  void* value)
 {
     ch_llist_it result = { 0 };
-    ch_llist_it first = llist_first(this);
-    ch_llist_it last  = llist_end(this);
-    ch_llist_it found = llist_find(this,&first,&last,value);
+    ch_llist_it found = llist_find_first(this,value);
     for(int i = 0; found.value; i++){
         result = llist_remove_it(this,&found);
-        first = result;
-        llist_next(this,&first);
-        found = llist_find(this,&first,&last,value);
+        found = llist_find_next(this,&result,value);
     }
 
     return result;
@@ -419,21 +415,32 @@ ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, v
         return result;
     }
 
-
     ch_llist_it it = *begin;
     for(; it._node && it._node != end->_node; llist_next(this,&it) ){
-        if(!this->_cmp){
-            printf("Error, comparator function is null!\n");
-            return result;
-        }
         if(this->_cmp(it.value, value) == 0){
             return it;
         }
     }
 
     return result;
-
 }
+
+ch_llist_it llist_find_first(ch_llist_t* this, void* value)
+{
+    ch_llist_it first  = llist_first(this);
+    ch_llist_it last   = llist_end(this);
+    ch_llist_it result = llist_find(this,&first,&last,value);
+    return result;
+}
+
+ch_llist_it llist_find_next(ch_llist_t* this,  ch_llist_it* begin, void* value)
+{
+    ch_llist_it last   = llist_end(this);
+    ch_llist_it result = llist_find(this,begin,&last,value);
+    return result;
+}
+
+
 //sort into order given the comparator function
 void llist_sort(ch_llist_t* this)
 {

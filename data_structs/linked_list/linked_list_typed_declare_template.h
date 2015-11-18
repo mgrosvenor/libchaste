@@ -48,6 +48,8 @@ struct ch_llist_##NAME{\
 \
     ch_word (*eq)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_t* that); /*Check for equality*/\
     ch_llist_##NAME##_it (*find)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* begin, ch_llist_##NAME##_it* end, TYPE value); /*find the given value using the comparator function*/\
+    ch_llist_##NAME##_it (*find_first)(ch_llist_##NAME##_t* this, TYPE value); /*find the given value using the comparator function*/\
+    ch_llist_##NAME##_it (*find_next)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* begin, TYPE value); /*find the given value using the comparator function*/\
     void (*sort)(ch_llist_##NAME##_t* this); /*sort into order given the comparator function*/\
 \
      /* Members prefixed with "_" are nominally "private" Don't touch my privates!*/\

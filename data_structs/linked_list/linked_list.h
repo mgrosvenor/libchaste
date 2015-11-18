@@ -90,6 +90,8 @@ ch_llist_it llist_push_back_carray(ch_llist_t* this, const void* carray, ch_word
 ch_word llist_eq(ch_llist_t* this, ch_llist_t* that);
 //find the given value using the comparator function
 ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, void* value);
+ch_llist_it llist_find_first(ch_llist_t* this, void* value);
+ch_llist_it llist_find_next(ch_llist_t* this,  ch_llist_it* begin, void* value);
 //sort into order given the comparator function
 void llist_sort(ch_llist_t* this);
 

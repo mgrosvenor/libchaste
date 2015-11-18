@@ -90,6 +90,17 @@ static ch_llist_##NAME##_it  _find_##NAME(ch_llist_##NAME##_t* this, ch_llist_##
     ch_llist_it result      = llist_find(this->_llist, &base_begin, &base_end, &value);\
     return _to_##NAME##_it(&result);\
 }\
+static ch_llist_##NAME##_it  _find_first_##NAME(ch_llist_##NAME##_t* this, TYPE value)\
+{\
+    ch_llist_it result      = llist_find_first(this->_llist, &value);\
+    return _to_##NAME##_it(&result);\
+}\
+static ch_llist_##NAME##_it  _find_next_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* begin, TYPE value)\
+{\
+    ch_llist_it base_begin  = _from_##NAME##_it(begin);\
+    ch_llist_it result      = llist_find_next(this->_llist, &base_begin, &value);\
+    return _to_##NAME##_it(&result);\
+}\
 \
 \
 static void _sort_##NAME(ch_llist_##NAME##_t* this)\
@@ -225,6 +236,8 @@ ch_llist_##NAME##_t* ch_llist_##NAME##_new(ch_word(*cmp)(TYPE* lhs, TYPE* rhs) )
     if(cmp){\
         result->eq                      = _eq_##NAME;\
         result->find                    = _find_##NAME;\
+        result->find_first              = _find_first_##NAME;\
+        result->find_next               = _find_next_##NAME;\
         result->sort                    = _sort_##NAME;\
     }\
 \
