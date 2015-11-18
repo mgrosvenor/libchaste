@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# Figure out which cake config is appropriate to use
+
+DISTRIBUTOR_ID=""
+
+# Linux: 
+# Use /etc/os-release but fall back to lsb_release
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    echo etc.cake.$ID.$VERSION_ID	
+    exit 0
+fi
+
+which lsb_release >/dev/null 2>/dev/null 
+if [ "0" = "$?" ]; then
+    DISTRIBUTOR_ID=$(lsb_release -i | cut -f2 |tr -d '\n')
+    
+    if [ "CentOS" = "$DISTRIBUTOR_ID" ]; then
+        MAJOR_RELEASE=$(lsb_release -r | cut -f2 | cut -d. -f1)
+        echo etc.cake.centos.$MAJOR_RELEASE
+        exit 0
+    fi
+    
+    if [ "Fedora" = "$DISTRIBUTOR_ID" ]; then
+        MAJOR_RELEASE=$(lsb_release -r | cut -f2 | cut -d. -f1)
+        echo etc.cake.fedora.$MAJOR_RELEASE
+        exit 0
+    fi
+fi
+
+# Darwin
+
+# FreeBSD
+if [ "FreeBSD" = $(uname -o) ]; then
+    MAJOR_RELEASE=$(uname -r| cut -d- -f1) 
+    echo etc.cake.freebsd.$MAJOR_RELEASE
+    exit 0
+fi
+# Solaris
