@@ -64,6 +64,7 @@ define_ch_llist_cmp(i32, i32)
 define_ch_llist_cmp(i64, i64)
 
 
+
 define_ch_llist_cmpp(i8,  i8*)
 define_ch_llist_cmpp(i16, i16*)
 define_ch_llist_cmpp(i32, i32*)

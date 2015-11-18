@@ -92,6 +92,8 @@ ch_word llist_eq(ch_llist_t* this, ch_llist_t* that);
 ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, void* value);
 ch_llist_it llist_find_first(ch_llist_t* this, void* value);
 ch_llist_it llist_find_next(ch_llist_t* this,  ch_llist_it* begin, void* value);
+ch_llist_it llist_insert_inorder(ch_llist_t* this,  void* value);
+ch_llist_it llist_insert_carray_ordered(ch_llist_t* this, void* carray, ch_word count);
 //sort into order given the comparator function
 void llist_sort(ch_llist_t* this);
 

@@ -50,6 +50,8 @@ struct ch_llist_##NAME{\
     ch_llist_##NAME##_it (*find)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* begin, ch_llist_##NAME##_it* end, TYPE value); /*find the given value using the comparator function*/\
     ch_llist_##NAME##_it (*find_first)(ch_llist_##NAME##_t* this, TYPE value); /*find the given value using the comparator function*/\
     ch_llist_##NAME##_it (*find_next)(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* begin, TYPE value); /*find the given value using the comparator function*/\
+    ch_llist_##NAME##_it (*insert_inorder)(ch_llist_##NAME##_t* this, TYPE value); /* Insert an element before the element giver by ptr*/\
+    ch_llist_##NAME##_it (*insert_carray_ordered)(ch_llist_##NAME##_t* this, const TYPE* carray, ch_word count); /*Insert count element in order*/\
     void (*sort)(ch_llist_##NAME##_t* this); /*sort into order given the comparator function*/\
 \
      /* Members prefixed with "_" are nominally "private" Don't touch my privates!*/\

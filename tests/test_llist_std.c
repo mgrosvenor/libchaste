@@ -507,6 +507,25 @@ static ch_word test9_TYPE()
     return result;
 }
 
+//Test the ordered insert function
+static ch_word test10_TYPE(TYPE* test_data)
+{
+    ch_word result = 1;
+    //This is the data we'll use to test on
+    TYPE result_array[15] = {0,1,1,1,1,3,4,5,6,6,6,7,7,8,9};
+
+
+    CH_LIST(i64)* ll1 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
+    CH_LIST(i64)* ll2 = CH_LIST_NEW(i64,CH_LIST_CMP(i64));
+    ll1->insert_carray_ordered(ll1,test_data,15);
+    ll2->push_back_carray(ll2,result_array,15);
+    CH_ASSERT(ll1->eq(ll1,ll2));
+    CH_ASSERT(ll2->eq(ll2,ll1));
+
+    return result;
+
+}
+
 
 
 int main(int argc, char** argv)
@@ -528,7 +547,7 @@ int main(int argc, char** argv)
     printf("CH Data Structures: Typed Linked List Test 07: ");  printf("%s", (test_result = test7_TYPE(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Typed Linked List Test 08: ");  printf("%s", (test_result = test8_TYPE(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
     printf("CH Data Structures: Typed Linked List Test 09: ");  printf("%s", (test_result = test9_TYPE()) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-//    printf("CH Data Structures: Typed Linked List Test 10: ");  printf("%s", (test_result = test10_TYPE(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Typed Linked List Test 10: ");  printf("%s", (test_result = test10_TYPE(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Typed Linked List Test 11: ");  printf("%s", (test_result = test11_TYPE(test_array, test_array_sorted)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Typed Linked List Test 12: ");  printf("%s", (test_result = test12_TYPE(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 //    printf("CH Data Structures: Typed Linked List Test 13: ");  printf("%s", (test_result = test13_TYPE(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;

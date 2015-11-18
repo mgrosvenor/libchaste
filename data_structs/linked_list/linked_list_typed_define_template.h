@@ -142,6 +142,20 @@ static ch_llist_##NAME##_it*  _insert_before_##NAME(ch_llist_##NAME##_t* this, c
     return itr;\
 }\
 \
+static ch_llist_##NAME##_it  _insert_inorder_##NAME(ch_llist_##NAME##_t* this, TYPE value)\
+{\
+    ch_llist_it result   =  llist_insert_inorder(this->_llist, &value);\
+    _update_##NAME(this);\
+    return _to_##NAME##_it(&result);\
+}\
+\
+static ch_llist_##NAME##_it  _insert_carray_ordered_##NAME(ch_llist_##NAME##_t* this, const TYPE* carray, ch_word count)\
+{\
+    ch_llist_it result =  llist_insert_carray_ordered(this->_llist, (void*)carray, count);\
+    _update_##NAME(this);\
+    return _to_##NAME##_it(&result);\
+}\
+\
 static ch_llist_##NAME##_it  _remove_it_##NAME(ch_llist_##NAME##_t* this, ch_llist_##NAME##_it* itr)\
 {\
     ch_llist_it base_itr = _from_##NAME##_it(itr);\
@@ -149,6 +163,7 @@ static ch_llist_##NAME##_it  _remove_it_##NAME(ch_llist_##NAME##_t* this, ch_lli
     _update_##NAME(this);\
     return _to_##NAME##_it(&result);\
 }\
+\
 static ch_llist_##NAME##_it  _remove_all_##NAME(ch_llist_##NAME##_t* this, TYPE value)\
 {\
     ch_llist_it result  =  llist_remove_all(this->_llist, &value);\
@@ -238,6 +253,8 @@ ch_llist_##NAME##_t* ch_llist_##NAME##_new(ch_word(*cmp)(TYPE* lhs, TYPE* rhs) )
         result->find                    = _find_##NAME;\
         result->find_first              = _find_first_##NAME;\
         result->find_next               = _find_next_##NAME;\
+        result->insert_inorder          = _insert_inorder_##NAME;\
+        result->insert_carray_ordered   = _insert_carray_ordered_##NAME;\
         result->sort                    = _sort_##NAME;\
     }\
 \
