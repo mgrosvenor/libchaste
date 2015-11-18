@@ -23,7 +23,7 @@ typedef unsigned long long    u64; //Try to avoid this unless absolutely necessa
 typedef int8_t      i8;
 typedef int16_t     i16;
 typedef int32_t     i32;
-typedef int64_t     i64; //Try to avoid this, use ch_word.
+typedef long long   i64; //Try to avoid this, use ch_word.
 
 
 //CH Library Preferred Types

@@ -22,19 +22,19 @@ static ch_word cmp_i64(i64* lhs, i64* rhs)
 }
 
 
-void dump_array_ch_word(ch_vector_i64_t* al)
+void dump_array_i64(ch_vector_i64_t* al)
 {
     printf("There are %lli items in the list\n", al->count);
-    for(ch_word* i = al->first; i < al->end; i = al->next(al, i)){
+    for(i64* i = al->first; i < al->end; i = al->next(al, i)){
         printf("%lli,", *i);
     }
     printf("\n");
 }
 
 
-static ch_word test1_ch_word(ch_word* test_data)
+static i64 test1_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
     /* Test the initial conditions and equality of new (empty) array lists*/
     (void)test_data;
     ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
@@ -59,9 +59,9 @@ static ch_word test1_ch_word(ch_word* test_data)
 
 
 /* Test the initial conditions and equality of new non-empty array lists*/
-static ch_word test2_ch_word(ch_word* test_data)
+static i64 test2_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     (void)test_data;
     ch_vector_i64_t* al1 = ch_vector_i64_new(1,cmp_i64);
@@ -87,9 +87,9 @@ static ch_word test2_ch_word(ch_word* test_data)
 }
 
 /* Insert an element into an array of size 0. Use both push back and push front*/
-static ch_word test3_ch_word(ch_word* test_data)
+static i64 test3_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
     CH_ASSERT(al1->push_back(al1, test_data[0]));
@@ -121,9 +121,9 @@ static ch_word test3_ch_word(ch_word* test_data)
 
 
 /* Insrt an element into an array of size 1*/
-static ch_word test4_ch_word(ch_word* test_data)
+static i64 test4_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_vector_i64_t* al1 = ch_vector_i64_new(1,cmp_i64);
     CH_ASSERT(al1->push_back(al1, test_data[0]));
@@ -152,9 +152,9 @@ static ch_word test4_ch_word(ch_word* test_data)
 }
 
 /* Insert an element into an array of size 10*/
-static ch_word test5_ch_word(ch_word* test_data)
+static i64 test5_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_vector_i64_t* al1 = ch_vector_i64_new(10,cmp_i64);
     CH_ASSERT(al1->push_back(al1, test_data[0]));
@@ -184,9 +184,9 @@ static ch_word test5_ch_word(ch_word* test_data)
 
 
 /* Insert 2 elements into an array of size 0 and 1. Use both push back and push front*/
-static ch_word test6_ch_word(ch_word* test_data)
+static i64 test6_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
     CH_ASSERT(al1->push_back(al1, test_data[0]));
@@ -234,17 +234,17 @@ static ch_word test6_ch_word(ch_word* test_data)
 
 
 /* Insert 2 elements into an array of size 0 and 1. Remove the head element. */
-static ch_word test7_ch_word(ch_word* test_data)
+static i64 test7_i64(i64* test_data)
 {
-    ch_word result = 1;
-    ch_word* rmv_1 = NULL;
-    ch_word* rmv_2 = NULL;
+    i64 result = 1;
+    i64* rmv_1 = NULL;
+    i64* rmv_2 = NULL;
 
     ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
     ch_vector_i64_t* al2 = ch_vector_i64_new(2,cmp_i64);
 
     /* Make sure that this works a few times over */
-    for(ch_word i = 0; i < 10; i++){
+    for(i64 i = 0; i < 10; i++){
 
         CH_ASSERT(al1->push_back(al1, test_data[0]));
         CH_ASSERT(al1->push_back(al1, test_data[1]));
@@ -308,9 +308,9 @@ static ch_word test7_ch_word(ch_word* test_data)
 }
 
 
-static ch_word test8_ch_word(ch_word* test_data)
+static i64 test8_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     (void)test_data;
     ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
@@ -336,9 +336,9 @@ static ch_word test8_ch_word(ch_word* test_data)
     return result;
 }
 
-static ch_word test9_ch_word(ch_word* test_data)
+static i64 test9_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
     ch_vector_i64_t* al2 = ch_vector_i64_new(0,cmp_i64);
@@ -367,9 +367,9 @@ static ch_word test9_ch_word(ch_word* test_data)
     return result;
 }
 
-static ch_word test10_ch_word(ch_word* test_data)
+static i64 test10_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
     ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
     ch_vector_i64_t* al2 = ch_vector_i64_new(0,cmp_i64);
 
@@ -400,14 +400,14 @@ static ch_word test10_ch_word(ch_word* test_data)
 }
 
 //Push two carrays on and make sure the results are the same.
-static ch_word test11_ch_word(ch_word* test_data, ch_word* test_result)
+static i64 test11_i64(i64* test_data, i64* test_result)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
     ch_vector_i64_t* al2 = ch_vector_i64_new(0,cmp_i64);
 
-    for(ch_word i = 0; i < 10; i++){
+    for(i64 i = 0; i < 10; i++){
         al1->push_back_carray(al1,test_data, 15);
 
         CH_ASSERT(al1->first == al1->_vector->first);
@@ -444,9 +444,9 @@ static ch_word test11_ch_word(ch_word* test_data, ch_word* test_result)
 }
 
 
-static ch_word test12_ch_word(ch_word* test_data)
+static i64 test12_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
 
@@ -459,9 +459,9 @@ static ch_word test12_ch_word(ch_word* test_data)
 }
 
 
-static ch_word test13_ch_word(ch_word* test_data)
+static i64 test13_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
     al1->push_back_carray(al1, test_data, 3);
@@ -473,9 +473,9 @@ static ch_word test13_ch_word(ch_word* test_data)
     return result;
 }
 
-static ch_word test14_ch_word(ch_word* test_data)
+static i64 test14_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
     al1->push_back_carray(al1, test_data, 3);
@@ -493,9 +493,9 @@ static ch_word test14_ch_word(ch_word* test_data)
 
 
 /* Found a bug in the equaility operator. This should stimulate it*/
-static ch_word test15_ch_word(ch_word* test_data)
+static i64 test15_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
     CH_ASSERT(al1->push_back(al1, test_data[0]));
@@ -526,9 +526,9 @@ static ch_word test15_ch_word(ch_word* test_data)
 }
 
 //Found a bug push_back carray. This stimulated it
-static ch_word test16_ch_word(ch_word* test_data)
+static i64 test16_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_vector_i64_t* al1 = ch_vector_i64_new(0,cmp_i64);
     ch_vector_i64_t* al2 = ch_vector_i64_new(0,cmp_i64);
@@ -546,9 +546,9 @@ static ch_word test16_ch_word(ch_word* test_data)
 }
 
 //Found another bug push_back carray. This also stimulated it
-static ch_word test17_ch_word(ch_word* test_data)
+static i64 test17_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
     (void)test_data;
 
     char* data1[2] = { "06", "03" };
@@ -567,9 +567,9 @@ static ch_word test17_ch_word(ch_word* test_data)
 }
 
 /* Testing the new clear method*/
-static ch_word test18_ch_word(ch_word* test_data)
+static i64 test18_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_vector_i64_t* v1 = ch_vector_i64_new(0,cmp_i64);
     ch_vector_i64_t* v2 = ch_vector_i64_new(0,cmp_i64);
@@ -585,29 +585,29 @@ int main(int argc, char** argv)
     (void)argc;
     (void)argv;
 
-    ch_word test_array[15] = {8,5,1,3,4,6,7,9,7,1,6,1,0,1,6};
-    ch_word test_array_sorted[150] = {0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,9,9};
+    i64 test_array[15] = {8,5,1,3,4,6,7,9,7,1,6,1,0,1,6};
+    i64 test_array_sorted[150] = {0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,9,9};
 
-    ch_word test_result = 0;
+    i64 test_result = 0;
 
-    printf("CH Data Structures: Vector Test 01: ");  printf("%s", (test_result = test1_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 02: ");  printf("%s", (test_result = test2_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 03: ");  printf("%s", (test_result = test3_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 04: ");  printf("%s", (test_result = test4_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 05: ");  printf("%s", (test_result = test5_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 06: ");  printf("%s", (test_result = test6_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 07: ");  printf("%s", (test_result = test7_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 08: ");  printf("%s", (test_result = test8_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 09: ");  printf("%s", (test_result = test9_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 10: ");  printf("%s", (test_result = test10_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 11: ");  printf("%s", (test_result = test11_ch_word(test_array, test_array_sorted)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 12: ");  printf("%s", (test_result = test12_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 13: ");  printf("%s", (test_result = test13_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 14: ");  printf("%s", (test_result = test14_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 15: ");  printf("%s", (test_result = test15_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 16: ");  printf("%s", (test_result = test16_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 17: ");  printf("%s", (test_result = test17_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
-    printf("CH Data Structures: Vector Test 17: ");  printf("%s", (test_result = test18_ch_word(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 01: ");  printf("%s", (test_result = test1_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 02: ");  printf("%s", (test_result = test2_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 03: ");  printf("%s", (test_result = test3_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 04: ");  printf("%s", (test_result = test4_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 05: ");  printf("%s", (test_result = test5_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 06: ");  printf("%s", (test_result = test6_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 07: ");  printf("%s", (test_result = test7_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 08: ");  printf("%s", (test_result = test8_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 09: ");  printf("%s", (test_result = test9_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 10: ");  printf("%s", (test_result = test10_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 11: ");  printf("%s", (test_result = test11_i64(test_array, test_array_sorted)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 12: ");  printf("%s", (test_result = test12_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 13: ");  printf("%s", (test_result = test13_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 14: ");  printf("%s", (test_result = test14_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 15: ");  printf("%s", (test_result = test15_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 16: ");  printf("%s", (test_result = test16_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 17: ");  printf("%s", (test_result = test17_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
+    printf("CH Data Structures: Vector Test 17: ");  printf("%s", (test_result = test18_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_result) return 1;
 
     return 0;
 }

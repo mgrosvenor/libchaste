@@ -10,7 +10,7 @@ USE_CH_OPTIONS;
 
 struct {
     u64     opt1;
-    i64     opt2;
+    ch_word   opt2;
     ch_bool opt3;
     char*   opt4;
     double  opt5;

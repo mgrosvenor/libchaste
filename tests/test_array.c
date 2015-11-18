@@ -26,16 +26,16 @@ static ch_word cmp_i64(i64* lhs, i64* rhs)
 void dump_array_i64(ch_array_i64_t* al)
 {
     printf("There are %lli slots in the array\n", al->size);
-    for(ch_word* i = al->first; i < al->end; i = al->next(al, i)){
+    for(i64* i = al->first; i < al->end; i = al->next(al, i)){
         printf("%lli,", *i);
     }
     printf("\n");
 }
 
 
-static ch_word test1_i64(ch_word* test_data)
+static i64 test1_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
     /* Test the initial conditions and equality of new (empty) array lists*/
     (void)test_data;
     ch_array_i64_t* al1 = ch_array_i64_new(0,cmp_i64);
@@ -58,9 +58,9 @@ static ch_word test1_i64(ch_word* test_data)
 
 
 /* Test the initial conditions and equality of new non-empty array lists*/
-static ch_word test2_i64(ch_word* test_data)
+static i64 test2_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     (void)test_data;
     ch_array_i64_t* al1 = ch_array_i64_new(1,cmp_i64);
@@ -83,7 +83,7 @@ static ch_word test2_i64(ch_word* test_data)
 }
 
 /* Get an element at 0/10 from array of size 0. Use both push back and push front*/
-static ch_word test3_i64(ch_word* test_data)
+static i64 test3_i64(i64* test_data)
 {
 
     printf("....\nExpected output:\n");
@@ -94,9 +94,9 @@ static ch_word test3_i64(ch_word* test_data)
     printf("Actual Output:\n");
     printf("------------------------------------------------------------\n");
     (void)test_data;
-    ch_word result = 1;
+    i64 result = 1;
 
-    ch_word const* ptr = NULL;
+    i64 const* ptr = NULL;
 
     ch_array_i64_t* al1 = ch_array_i64_new(0,cmp_i64);
     CH_ASSERT( (ptr = al1->off(al1, 0)) == NULL);
@@ -126,12 +126,12 @@ static ch_word test3_i64(ch_word* test_data)
 }
 
 /* Get/set an element at 0 from array of size 1.*/
-static ch_word test4_i64(ch_word* test_data)
+static i64 test4_i64(i64* test_data)
 {
 
-    ch_word result = 1;
+    i64 result = 1;
 
-    ch_word* ptr = NULL;
+    i64* ptr = NULL;
 
     ch_array_i64_t* al1 = ch_array_i64_new(1,cmp_i64);
     ch_array_i64_t* al2 = ch_array_i64_new(1,cmp_i64);
@@ -168,11 +168,11 @@ static ch_word test4_i64(ch_word* test_data)
 
 
 /* Get/set an element at 5 from array of size 10. Use both positive and negative indexes */
-static ch_word test5_i64(ch_word* test_data)
+static i64 test5_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
-    ch_word* ptr = NULL;
+    i64* ptr = NULL;
 
     ch_array_i64_t* al1 = ch_array_i64_new(10,cmp_i64);
     ch_array_i64_t* al2 = ch_array_i64_new(10,cmp_i64);
@@ -207,9 +207,9 @@ static ch_word test5_i64(ch_word* test_data)
 }
 
 /* Sort an empty array size 0 */
-static ch_word test6_i64(ch_word* test_data)
+static i64 test6_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     (void)test_data;
     ch_array_i64_t* al1 = ch_array_i64_new(0,cmp_i64);
@@ -236,9 +236,9 @@ static ch_word test6_i64(ch_word* test_data)
 }
 
 /* Sort an empty array. Size 10 */
-static ch_word test7_i64(ch_word* test_data)
+static i64 test7_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     (void)test_data;
     ch_array_i64_t* al1 = ch_array_i64_new(10,cmp_i64);
@@ -256,9 +256,9 @@ static ch_word test7_i64(ch_word* test_data)
 }
 
 /* Sort an array of 10 element. Size 10 */
-static ch_word test8_i64(ch_word* test_data, ch_word* test_data_sorted)
+static i64 test8_i64(i64* test_data, i64* test_data_sorted)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     (void)test_data;
     ch_array_i64_t* al1 = ch_array_i64_new(10,cmp_i64);
@@ -281,9 +281,9 @@ static ch_word test8_i64(ch_word* test_data, ch_word* test_data_sorted)
 }
 
 
-static ch_word test10_i64(ch_word* test_data)
+static i64 test10_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_array_i64_t* al1 = ch_array_i64_new(0,cmp_i64);
 
@@ -296,9 +296,9 @@ static ch_word test10_i64(ch_word* test_data)
 }
 
 
-static ch_word test11_i64(ch_word* test_data)
+static i64 test11_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_array_i64_t* al1 = ch_array_i64_new(10,cmp_i64);
     al1->from_carray(al1, test_data, 3);
@@ -310,9 +310,9 @@ static ch_word test11_i64(ch_word* test_data)
     return result;
 }
 
-static ch_word test12_i64(ch_word* test_data)
+static i64 test12_i64(i64* test_data)
 {
-    ch_word result = 1;
+    i64 result = 1;
 
     ch_array_i64_t* al1 = ch_array_i64_new(10,cmp_i64);
     al1->from_carray(al1, test_data, 3);
@@ -337,10 +337,10 @@ int main(int argc, char** argv)
 
     ch_array_i64_new(10,cmp_i64);
 
-    ch_word test_array[15]         = {8,5,1,3,4,6,7,9,7,1,6,1,0,1,6};
-    ch_word test_array_sorted[15]  = {1,1,3,4,5,6,7,7,8,9,0,0,0,0,0};
+    i64 test_array[15]         = {8,5,1,3,4,6,7,9,7,1,6,1,0,1,6};
+    i64 test_array_sorted[15]  = {1,1,3,4,5,6,7,7,8,9,0,0,0,0,0};
 
-    ch_word test_pass = 0;
+    i64 test_pass = 0;
 
     printf("CH Data Structures: Array Test 01: ");  printf("%s", (test_pass = test1_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_pass) return 1;
     printf("CH Data Structures: Array Test 02: ");  printf("%s", (test_pass = test2_i64(test_array)) ? "PASS\n" : "FAIL\n"); if(!test_pass) return 1;

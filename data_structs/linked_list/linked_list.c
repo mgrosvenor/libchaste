@@ -446,7 +446,7 @@ ch_word llist_eq(ch_llist_t* this, ch_llist_t* that)
 }
 
 //find the given value using the comparator function
-ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, const void* value)
+ch_llist_it llist_find(ch_llist_t* this, ch_llist_it* begin, ch_llist_it* end, void* value)
 {
     ch_llist_it result = { 0 };
 
