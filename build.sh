@@ -1,5 +1,5 @@
 #! /bin/sh
-
+ 
 #use --variant=release to build a release version
 
 #There are lots of options passed to the compiler here, so I'll disect a couple
