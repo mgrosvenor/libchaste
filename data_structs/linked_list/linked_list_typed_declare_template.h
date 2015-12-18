@@ -72,6 +72,8 @@ ch_llist_##NAME##_t* ch_llist_##NAME##_new(ch_word(*cmp)(TYPE* lhs, TYPE* rhs) )
 #define CH_LIST_IT(NAME)  ch_llist_##NAME##_it
 #define CH_LIST_NEW(NAME, cmp) ch_llist_##NAME##_new(cmp )
 #define CH_LIST_CMP(NAME) ch_llist_cmp_##NAME
+#define CH_LIST_FOREACH(TYPE_NAME, LIST_NAME,IT_NAME) \
+    for(CH_LIST_IT(TYPE_NAME) IT_NAME = LIST_NAME->first(LIST_NAME); IT_NAME.value; LIST_NAME->next(LIST_NAME,&IT_NAME))
 
 #endif /*LINKED_LIST_TYPED_TEMPLATE_DECLARE_H_*/
 
