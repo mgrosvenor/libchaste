@@ -44,7 +44,7 @@ ch_str generate_iso_timestamp(ch_bool use_gmt, ch_word subseconds, ch_bool incl_
     //Create the subseconds timestamp component with variable accuracy
     ch_str time_minor = CH_STR("",256);
     if(subseconds > 0){
-        CH_STR_LEN(time_minor) += snprintf(CH_STR_CSTR_END(time_minor), CH_STR_AVAIL(time_minor),".%li", ts.tv_nsec);
+        CH_STR_LEN(time_minor) += snprintf(CH_STR_CSTR_END(time_minor), CH_STR_AVAIL(time_minor),".%09li", ts.tv_nsec);
         ch_str_trunc(&time_minor, MAX(9 - subseconds, 0));
     }
 

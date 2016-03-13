@@ -28,6 +28,9 @@ ch_word ch_debug_out_(
         const char* format, ... );
 #define ERR( /*format, args*/...)  camio_err_helper(__VA_ARGS__, "")
 #define camio_err_helper(format, ...) ch_debug_out_(true, ERR, __LINE__, __FILE__, __FUNCTION__, format, __VA_ARGS__ )
+#define ERR2( /*format, args*/...)  camio_err_helper(__VA_ARGS__, "")
+#define camio_err_helper2(format, ...) ch_debug_out_(false, ERR, __LINE__, __FILE__, __FUNCTION__, format, __VA_ARGS__ )
+
 
 
 #ifndef NDEBUG
@@ -44,7 +47,7 @@ ch_word ch_debug_out_(
     #define WARN( /*format, args*/...)
 #endif
 
-void hexdump(void *data, int size);
+void hexdump(const void *data, int size);
 
 
 #endif /* DEBUG_H_ */

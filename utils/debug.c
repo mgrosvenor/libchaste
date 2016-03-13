@@ -42,13 +42,13 @@ ch_word ch_debug_out_(
     return result;
 }
 
-void hexdump(void *data, int size)
+void hexdump(const void *data, int size)
 {
     /* dumps size bytes of *data to stdout. Looks like:
      * [0000] 75 6E 6B 6E 6F 77 6E 20 30 FF 00 00 00 00 39 00 unknown 0.....9.
      */
 
-    unsigned char *p = data;
+    const unsigned char *p = data;
     unsigned char c;
     int n;
     char bytestr[4] = {0};
@@ -76,7 +76,7 @@ void hexdump(void *data, int size)
 
         if(n%16 == 0) {
             /* line completed */
-            DBG2("[%4.4s]   %-50.50s  %s\n", addrstr, hexstr, charstr);
+            ERR2("[%4.4s]   %-50.50s  %s\n", addrstr, hexstr, charstr);
             hexstr[0] = 0;
             charstr[0] = 0;
         } else if(n%8 == 0) {
@@ -89,6 +89,6 @@ void hexdump(void *data, int size)
 
     if (strlen(hexstr) > 0) {
         /* print rest of buffer if not empty */
-        DBG2("[%4.4s]   %-50.50s  %s\n", addrstr, hexstr, charstr);
+        ERR2("[%4.4s]   %-50.50s  %s\n", addrstr, hexstr, charstr);
     }
 }

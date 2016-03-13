@@ -14,7 +14,8 @@
 
 
 ch_word _ch_log_out_(ch_word this_log_lvll, ch_word line_num, const char* filename, const char* format, ... );
-ch_word _ch_log_out_va_(ch_word this_log_lvll, ch_word line_num, const char* filename, const char* format, va_list args);
+ch_word _ch_log_out_va_(ch_word this_log_lvll, ch_word line_num, const char* filename, const char* format, va_list args)
+ __attribute__((format(printf, 3, 0)));
 
 
 #ifndef CH_LOG_BUILD_LVL
@@ -135,7 +136,7 @@ ch_log_settings_t ch_log_settings = { \
     .filename       = str_filename, \
     .use_utc        = false, \
     .incl_timezone  = false, \
-    .subsec_digits  = 0, \
+    .subsec_digits  = 6, \
     .lvl_config  = { \
         { .color = CH_TERM_COL_BRIGHT_RED,      .source = true,  .timestamp = true, .text = "Fatal Error" }, /*FATAL*/\
         { .color = CH_TERM_COL_EMPH_RED,        .source = true, .timestamp = true,  .text = "      Error"       }, /*ERROR*/\

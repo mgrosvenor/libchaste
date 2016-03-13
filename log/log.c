@@ -9,6 +9,8 @@
 #include <syslog.h>
 #include <stdarg.h>
 
+#include <unistd.h>
+#include <sys/syscall.h>   /* For SYS_xxx definitions */
 
 
 #include <unistd.h>
@@ -144,7 +146,10 @@ ch_word _ch_log_out_va_(
     }
 
     if(ch_log_settings.lvl_config[level].text){
-        CH_STR_LEN(final_format) += snprintf(CH_STR_CSTR_END(final_format), CH_STR_AVAIL(final_format), "[%s]", ch_log_settings.lvl_config[level].text);
+        pid_t tid;
+        tid = syscall(SYS_gettid);
+        pid_t pid = getpid();
+        CH_STR_LEN(final_format) += snprintf(CH_STR_CSTR_END(final_format), CH_STR_AVAIL(final_format), "[%5i][%5i][%s]", pid, tid,ch_log_settings.lvl_config[level].text );
     }
 
     if(ch_log_settings.lvl_config[level].source){
