@@ -12,19 +12,24 @@ See LICENSE file included. TL;DR - BSD 3 Clause.
 
 Main features:
 --------------
+Data structures: generic, type safe array, vector and linked list (hash map partially implemented)
 
-Performance monitoring - tools around rdtsc made easy
+Type safe command line options parser with super simple syntax, usage text etc. 
 
-Type safe command line options parser with super simple syntax. 
+Powerful logging with runtime and compile time log level tuning, coloured output. 
 
-Powerful logging with runtime and compile time log level tuning. 
 
-A string library to efficiently do useful string manipulations. 
+Todo/In progress
+-----------------
+Architecture agnositc performance monitoring and measuring tools around RDTSC/PMC/PDU 
 
-Data structures: generic, type safe array, vector and linked list (hash map and binary tree coming soon)
+Yet another string library to efficiently do useful string manipulations using nice macros to make 
+
 
 Currently builds on:
-    - Linux (Ubtuntu 12.10/13.04)
+---------------------
+    - x86 Linux (Ubtuntu 12.10/13.04) (clang 3.2 and gcc 4.6-4.8)
+    - x86 Darwin (Mac OSX 10.10/10.11) (clang 7.0)
 
 Targeted to build on: 
     - Linux/BSD/Darwin (OS X)
@@ -46,7 +51,7 @@ Building
 
 Libchaste builds on both gcc 4.6 and clang 3.2 against the c11 standard with pedantic warnings and errors using the Posix 2008 system API. 
 
-It includes a swathe of unit tests and infrastructure for making them all running and passing valgrind tests. 
+It includes a set of unit tests and infrastructure for making them all running and passing valgrind tests. 
 
 - run build.sh to build a debug libcahste.a binary in the bin/ directory. 
 - run build_release.sh to build a release binary libcahste.tar.bz 
