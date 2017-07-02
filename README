@@ -56,6 +56,10 @@ It includes a set of unit tests and infrastructure for making them all running a
 - run build.sh to build a debug libcahste.a binary in the bin/ directory. 
 - run build_release.sh to build a release binary libcahste.tar.bz 
 
+Requirements
+-------------
+Cake build system - https://github.com/Zomojo/Cake
+Clang 3.2+ / GCC 4.6+
 
 
 
