@@ -148,26 +148,26 @@ void* vector_insert_before(ch_vector_t* this, void* ptr, void* value)
 {
 
     /*If the backing memory is full, grow the vector*/
-    if(unlikely(this->_array_count == this->_array->size)){
+    ifunlikely(this->_array_count == this->_array->size){
         const ch_word ptr_idx = ptr ? (ch_byte*)ptr - (ch_byte*)this->_array->first: 0;
         const ch_word new_size = this->size ? this->size * 2 : 1;
         vector_resize(this,new_size);
         ptr = (ch_byte*)this->_array->first + ptr_idx;
     }
 
-    if(unlikely(ptr < this->first)){
+    ifunlikely(ptr < this->first){
         printf("ptr supplied is out of range. Too small.\n");
         return NULL;
     }
 
     /* NB: It's ok to insert *before* last + 1. This essentially inserts at last which is the last item. */
-    if(unlikely((ch_byte*)ptr > (ch_byte*)this->last + this->_array->_element_size)){
+    ifunlikely((ch_byte*)ptr > (ch_byte*)this->last + this->_array->_element_size){
         printf("ptr supplied is out of range. Too big.\n");
         return NULL;
     }
 
     /* Optimise for the push_back case*/
-    if(unlikely(this->_array_count  && ptr < this->end )){
+    ifunlikely(this->_array_count  && ptr < this->end ){
         void* dst = _vector_forward_unsafe(this,ptr,1);
         const void* src = ptr;
         const ch_word amount =  ((ch_byte*)this->end - (ch_byte*)ptr );
@@ -176,7 +176,7 @@ void* vector_insert_before(ch_vector_t* this, void* ptr, void* value)
 
     memcpy(ptr,value,this->_array->_element_size);
 
-    if(unlikely(this->_array_count == 0)){
+    ifunlikely(this->_array_count == 0){
         this->first = this->_array->first;
         this->last  = this->first;
         this->end   = _vector_forward_unsafe(this, this->last,1);
@@ -223,23 +223,23 @@ void* vector_push_back(ch_vector_t* this, void* value)
 void* vector_remove(ch_vector_t* this, void* ptr)
 {
 
-    if(unlikely(this->first == this->end)){
+    ifunlikely(this->first == this->end){
         printf("Array list is emptyn");
         return NULL;
     }
 
-    if(unlikely(ptr < this->_array->first)){
+    ifunlikely(ptr < this->_array->first){
         printf("ptr supplied is out of range. Too small.\n");
         return NULL;
     }
 
-    if(unlikely(ptr > this->last)){
+    ifunlikely(ptr > this->last){
         printf("ptr supplied is out of range. Too big.\n");
         return NULL;
     }
 
     /*Slow (but likely), keep the fast path fast*/
-    if(unlikely(ptr != this->last)){
+    ifunlikely(ptr != this->last){
 /*
         printf("ptr:%p[%li], first:%p[%li], last:%p[%li], end:%p:[%li] (%lu)\n",
                 (void*)ptr, ptr - this->first,
@@ -255,7 +255,7 @@ void* vector_remove(ch_vector_t* this, void* ptr)
     this->count--;
 
 
-    if(unlikely(this->_array_count == 0)){
+    ifunlikely(this->_array_count == 0){
         this->first = this->_array->first;
         this->last = this->first;
         this->end  = this->last;

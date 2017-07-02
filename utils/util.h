@@ -8,9 +8,9 @@
 #ifndef CH_UTIL_H_
 #define CH_UTIL_H_
 
-#define likely(x)       __builtin_expect((x),1)
-#define unlikely(x)     __builtin_expect((x),0)
-#define eqlikely(x)     (x)
+#define iflikely(x)       if(__builtin_expect((x),1))
+#define ifunlikely(x)     if(__builtin_expect((x),0))
+#define ifeqlikely(x)     if((x))
 
 #define MIN(x,y) ( (x) < (y) ?  (x) : (y))
 #define MIN3(x,y,z) (MIN(MIN(x,y),z))
@@ -26,9 +26,9 @@
 // * @member: the name of the member within the struct.
 // *
 // */
-//#define container_of(ptr, type, member) ({          \
-//    const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
-//    (type *)( (char *)__mptr - offsetof(type,member) );})
+#define container_of(ptr, type, member) ({          \
+    const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+    (type *)( (char *)__mptr - offsetof(type,member) );})
 
 
 /*
@@ -42,8 +42,6 @@
 #define member_type(type, member) const void
 #endif
 
-#define container_of(ptr, type, member) ((type *)( \
-    (char *)(member_type(type, member) *){ ptr } - offsetof(type, member)))
 
 //#ifndef __clang__
 //    #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)

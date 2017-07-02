@@ -143,17 +143,17 @@ void* array_off(ch_array_t* this, ch_word idx)
 //find the given value using the comparator function
 void* array_find(ch_array_t* this, void* begin, void* end, void* value)
 {
-    if(unlikely(begin < this->first || begin > this->end)){
+    ifunlikely(begin < this->first || begin > this->end){
         printf("Begin iterator supplied is out of range is not a member of this array\n");
         return NULL;
     }
 
-    if(unlikely(end < this->first || end > this->end)){
+    ifunlikely(end < this->first || end > this->end){
         printf("End iterator supplied is out of range is not a member of this array\n");
         return NULL;
     }
 
-    if(unlikely(!this->_cmp)){
+    ifunlikely(!this->_cmp){
         printf("The comparator function is empty. Cannot search\n");
         return NULL;
     }

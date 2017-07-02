@@ -18,7 +18,7 @@ ch_str ch_str_new(const char* s,i64 size, ch_bool is_char)
     result.mlen = MIN( size + 1, getpagesize()); //Put a sensible bound on the size of these things
     result.mlen = next_pow2(result.mlen); //Grow this up a little bit so we don't have to alloc too much
     result.slen = is_char ? 2 : strnlen(s,size);
-    if(unlikely(result.slen > result.mlen - 1)){
+    ifunlikely(result.slen > result.mlen - 1){
         result.slen = result.mlen - 1;
     }
 
@@ -75,7 +75,7 @@ i64 ch_str_resize(ch_str* rhs,i64 newsize)
 
     rhs->mlen = MIN(newsize + 1,getpagesize()); //Put a sensible bound on the size of these things
     rhs->mlen *= 2; //Grow this up a little bit so we don't have to alloc too much
-    if(unlikely(rhs->slen > rhs->mlen - 1)){
+    ifunlikely(rhs->slen > rhs->mlen - 1){
         rhs->slen = rhs->mlen - 1;
     }
 
@@ -105,8 +105,6 @@ ch_str ch_str_trunc(ch_str* lhs, ch_word count)
 
     return ch_str_new(CH_STR_CSTR(*lhs), lhs->slen - count, 0);
 }
-
-
 
 
 //Concatenate rhs onto lhs.
