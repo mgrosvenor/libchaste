@@ -54,7 +54,7 @@ int dprintf_color(int fd, ch_colour_t color, ch_str format, ...)
 {
     va_list arg;
     va_start(arg,format);
-    int result = dprintf_color(fd,color,format,arg);
+    int result = dprintf_color_va(fd,color,format,arg);
     va_end(arg);
     return result;
 }

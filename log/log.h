@@ -100,6 +100,7 @@ typedef struct {
     ch_colour_t color;  //Color for the log level
     ch_bool source;     //Include the source filename and line
     ch_bool timestamp;  //Include the timestamp
+    ch_bool pid;        //Inlcude the PID / TID
     char* text;         //Short text such as "Warning" for each instance of this level
 } ch_log_level_setting_t;
 
@@ -125,7 +126,7 @@ typedef struct {
 } ch_log_settings_t;
 
 
-//Only use this one in your code!
+//Only use this once in your code!
 //You can customize most of these settings after calling this "function" to initialize the defaults
 //DON'T CHANGE THIS HEADER DIRECTLY!!
 #define USE_CH_LOGGER(word_level,bool_use_color,enum_output_mode,str_filename) \
@@ -138,13 +139,13 @@ ch_log_settings_t ch_log_settings = { \
     .incl_timezone  = false, \
     .subsec_digits  = 6, \
     .lvl_config  = { \
-        { .color = CH_TERM_COL_BRIGHT_RED,      .source = true,  .timestamp = true, .text = "Fatal Error" }, /*FATAL*/\
-        { .color = CH_TERM_COL_EMPH_RED,        .source = true, .timestamp = true,  .text = "      Error"       }, /*ERROR*/\
-        { .color = CH_TERM_COL_BRIGHT_YELLOW,   .source = true, .timestamp = true,  .text = "    Warning"     }, /*WARNING*/\
-        { .color = CH_TERM_COL_BRIGHT_GREEN,    .source = true, .timestamp = true,  .text = "       Info"        }, /*INFO*/\
-        { .color = CH_TERM_COL_NONE,            .source = true, .timestamp = true,  .text = "    Debug 1"       }, /*DEBUG 1*/\
-        { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = true, .text = "    Debug 2"       }, /*DEBUG 2*/\
-        { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = true, .text = "    Debug 3"          }  /*DEBUG 3*/\
+        { .color = CH_TERM_COL_BRIGHT_RED,      .source = true,  .timestamp = true, .pid = true,  .text = "Fatal Error" }, /*FATAL*/\
+        { .color = CH_TERM_COL_EMPH_RED,        .source = false, .timestamp = true, .pid = true,  .text = "      Error" }, /*ERROR*/\
+        { .color = CH_TERM_COL_BRIGHT_YELLOW,   .source = false, .timestamp = true, .pid = false, .text = "    Warning" }, /*WARNING*/\
+        { .color = CH_TERM_COL_BRIGHT_GREEN,    .source = false, .timestamp = true, .pid = false, .text = "       Info" }, /*INFO*/\
+        { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = true, .pid = true,  .text = "    Debug 1" }, /*DEBUG 1*/\
+        { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = true, .pid = true,  .text = "    Debug 2" }, /*DEBUG 2*/\
+        { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = true, .pid = true,  .text = "    Debug 3" }  /*DEBUG 3*/\
     }, \
     .fd = -1,  /*This is private, please don't play with it*/\
 }
