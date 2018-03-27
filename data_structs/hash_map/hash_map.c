@@ -35,7 +35,7 @@ static ch_word hash_cmp(ch_hash_map_node* lhs, ch_hash_map_node* rhs)
     }
 
     if(lhs->key_size > rhs->key_size){
-        return -1;
+        return 1;
     }
 
     //Fast path - simple ints
@@ -56,7 +56,7 @@ static ch_word hash_cmp(ch_hash_map_node* lhs, ch_hash_map_node* rhs)
     }
 
     //OK - do it the long way
-    return strncmp(lhs_key, rhs_key, MIN(lhs->key_size, rhs->key_size));
+    return memcmp(lhs_key, rhs_key, MIN(lhs->key_size, rhs->key_size));
 }
 
 static inline void assign_key(ch_hash_map_node* node, void* key, ch_word size, ch_bool unsafe)

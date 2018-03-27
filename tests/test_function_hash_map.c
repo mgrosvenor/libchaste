@@ -225,8 +225,8 @@ static ch_word test6_i64(kv* test_data)
 	CH_ASSERT(it3.key_size == sizeof(key3));
 	CH_ASSERT(it3.value == 0);
 
-	ch_function_hash_map_it tmp2;
-	while( (tmp = function_hash_map_get_next(it2)).value ){
+	ch_function_hash_map_it tmp2 = {0};
+	while( (tmp2 = function_hash_map_get_next(it2)).value ){
 		it2 = tmp2;
 	}
 

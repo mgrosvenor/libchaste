@@ -227,7 +227,7 @@ static ch_word test6_i64(kv* test_data)
 	CH_ASSERT(*(char**)it3.value == test_data[2].value);
 
 	ch_hash_map_it tmp2;
-	while( (tmp = hash_map_get_next(it2)).value ){
+	while( (tmp2 = hash_map_get_next(it2)).value ){
 		it2 = tmp2;
 	}
 
