@@ -8,8 +8,8 @@
 #ifndef CH_UTIL_H_
 #define CH_UTIL_H_
 
-#define iflikely(x)       if(__builtin_expect((x),1))
-#define ifunlikely(x)     if(__builtin_expect((x),0))
+#define iflikely(x)       if(__builtin_expect((long long)(x),1))
+#define ifunlikely(x)     if(__builtin_expect((long long)(x),0))
 #define ifeqlikely(x)     if((x))
 
 #define MIN(x,y) ( (x) < (y) ?  (x) : (y))
