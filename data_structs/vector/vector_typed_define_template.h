@@ -52,7 +52,7 @@ static void _delete_##NAME(ch_vector_##NAME##_t* this)\
 }\
 \
 \
-ch_vector_##NAME##_t* ch_vector_##NAME##_new(ch_word size, ch_word (*cmp)(TYPE* lhs, TYPE* rhs) )\
+ch_vector_##NAME##_t* ch_vector_##NAME##_new(ch_word size, int (*cmp)(TYPE* lhs, TYPE* rhs) )\
 {\
 \
     ch_vector_##NAME##_t* result = (ch_vector_##NAME##_t*)calloc(1,sizeof(ch_vector_##NAME##_t));\
@@ -102,17 +102,17 @@ ch_vector_##NAME##_t* ch_vector_##NAME##_new(ch_word size, ch_word (*cmp)(TYPE* 
 
 //Regular comparison function
 #define define_ch_vector_cmp(NAME, TYPE) \
-ch_word ch_vector_cmp_##NAME(TYPE* lhs, TYPE* rhs)\
+int ch_vector_cmp_##NAME(TYPE* lhs, TYPE* rhs)\
 { \
     return ( *lhs == *rhs ? 0 : *lhs < *rhs ? -1 : 1); \
 }
 
 //Pointer comparison function
-#define define_ch_vector_cmpp(NAME, TYPE) ch_word ch_vector_cmp_##NAME##p(TYPE* lhs, TYPE* rhs)\
+#define define_ch_vector_cmpp(NAME, TYPE) int ch_vector_cmp_##NAME##p(TYPE* lhs, TYPE* rhs)\
 { \
     return ch_vector_cmp_##NAME(*lhs, *rhs);\
 }
 
-#define define_ch_vector_compare(NAME, TYPE) ch_word ch_vector_cmp_##NAME(TYPE* lhs, TYPE* rhs)
+#define define_ch_vector_compare(NAME, TYPE) int ch_vector_cmp_##NAME(TYPE* lhs, TYPE* rhs)
 
 #endif //VECTOR_TYPED_TEMPLATE_DEFINE_H_

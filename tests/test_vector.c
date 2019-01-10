@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 
-static ch_word cmp_i64(i64* lhs, i64* rhs)
+static int cmp_i64(i64* lhs, i64* rhs)
 {
     if(*lhs < *rhs){
         return -1;

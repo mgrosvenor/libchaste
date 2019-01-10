@@ -74,12 +74,12 @@ define_ch_vector_cmp(char, ch_char)
 define_ch_vector_cmp(ch_bool, ch_bool)
 define_ch_vector_cmp(float, ch_float)
 
-ch_word ch_vector_cmp_string(ch_str* lhs, ch_str* rhs)\
+int ch_vector_cmp_string(ch_str* lhs, ch_str* rhs)\
 {
     return strcmp(lhs->cstr, rhs->cstr);
 }
 
-ch_word ch_vector_cmp_cstr(ch_cstr* lhs, ch_cstr* rhs)\
+int ch_vector_cmp_cstr(ch_cstr* lhs, ch_cstr* rhs)\
 {
     return strcmp( (*lhs), (*rhs) ) ;
 }

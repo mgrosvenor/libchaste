@@ -24,7 +24,7 @@
 #include "../data_structs/vector/vector_std.h"
 
 
-ch_word cmp(ch_options_opt_t* lhs, ch_options_opt_t* rhs)
+int cmp(ch_options_opt_t* lhs, ch_options_opt_t* rhs)
 {
     return lhs->short_str == rhs->short_str ? 0 : lhs->short_str < rhs->short_str ? -1 : 1 ;
 }
