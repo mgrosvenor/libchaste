@@ -47,7 +47,9 @@ void print_usage(const char* err_tx_fmt, ...){
     //opts.opt_defs->sort(opts.opt_defs);
 
 
-    for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
+    for (ch_options_opt_t* opt_def = opts.opt_defs->first;
+            opt_def < opts.opt_defs->end;
+            opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
 
         ch_str def_val = CH_STR("",128);
         char* mode = NULL;
@@ -99,7 +101,8 @@ void print_usage(const char* err_tx_fmt, ...){
 
         }
 
-        printf("%-9s (%-11s) -%c  --%-15s %s %s\n", mode, type, opt_def->short_str, opt_def->long_str,  opt_def->descr, CH_STR_CSTR(def_val));
+        const char* short_str = opt_def->short_str ? "-" : "  ";
+        printf("%-9s (%-11s) %s%c  --%-15s %s %s\n", mode, type, short_str, opt_def->short_str, opt_def->long_str,  opt_def->descr, CH_STR_CSTR(def_val));
         ch_str_free(&def_val);
     }
 
@@ -185,10 +188,12 @@ static ch_word ch_options_add_generic(
     opt_def_new->var       = result_out;
     //printf("New opt: %c = %p\n", opt_def_new->short_str, opt_def_new->var);
 
+    //Make sure the option hasn't already been defined
+    for (ch_options_opt_t* opt_def = opts.opt_defs->first;
+            opt_def < opts.opt_defs->end;
+            opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
 
-    for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
-
-        if(opt_def->short_str == opt_def_new->short_str) {
+        if(opt_def->short_str != '\0' && opt_def->short_str == opt_def_new->short_str) {
 
             //Special case 'h' for help as we want it to stick around
             //and its added implicitly so devs will get confused
@@ -483,7 +488,9 @@ void parse_argument(ch_options_opt_t* opt_def) {
 void process_option(char c) {
 
     //int done = 0;
-    for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
+    for (ch_options_opt_t* opt_def = opts.opt_defs->first;
+            opt_def < opts.opt_defs->end;
+            opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
 
         if (opt_def->short_str == c) {
             //done = 1; //Exit the loop when finished
@@ -518,10 +525,15 @@ void generate_unix_opts(char short_opts_str[1024], struct option* long_options) 
 
     char* short_opts_ptr = short_opts_str;
 
-    for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end && short_opts_ptr < &short_opts_str[1024];  opt_def = opts.opt_defs->next(opts.opt_defs, opt_def), i++ ) {
+    for (ch_options_opt_t* opt_def = opts.opt_defs->first;
+            opt_def < opts.opt_defs->end && short_opts_ptr < &short_opts_str[1024];
+            opt_def = opts.opt_defs->next(opts.opt_defs, opt_def), i++ ) {
 
-        *short_opts_ptr = opt_def->short_str;
-        short_opts_ptr++;
+        if(opt_def->short_str != '\0')
+        {
+            *short_opts_ptr = opt_def->short_str;
+            short_opts_ptr++;
+        }
 
         long_options[i].name = opt_def->long_str;
 
@@ -582,7 +594,9 @@ int ch_opt_parse(int argc, char** argv){
     if (optind < argc){ //There are extra parameters
         //Look for an opt_def with type UNLIMITED
         ch_options_opt_t* opt_def = NULL;
-        for (opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
+        for (opt_def = opts.opt_defs->first;
+                opt_def < opts.opt_defs->end;
+                opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
             if(opt_def->mode == CH_OPTION_UNLIMTED){
                 break;
             }
