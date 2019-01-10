@@ -12,90 +12,6 @@
 #ifndef CH_LOG_H_
 #define CH_LOG_H_
 
-
-ch_word _ch_log_out_(ch_word this_log_lvll, ch_word line_num, const char* filename, const char* format, ... );
-ch_word _ch_log_out_va_(ch_word this_log_lvll, ch_word line_num, const char* filename, const char* format, va_list args)
- __attribute__((format(printf, 3, 0)));
-
-
-#ifndef CH_LOG_BUILD_LVL
-    #ifdef NDEBUG
-        #define CH_LOG_BUILD_LVL   CH_LOG_LVL_INFO    //Output binary to be capable up to "info" level release mode
-    #else
-        #define CH_LOG_BUILD_LVL   CH_LOG_LVL_DEBUG3  //Output binary to be capable up to "debug3" level debug mode
-    #endif
-#endif
-
-
-
-//Helper macros to make C99 VAR_ARGS work properly. Yuck! Hacky!
-#define ch_log_fatal( /*format, args*/...)  ch_log_fatal_helper(__VA_ARGS__, "")
-#define ch_log_error( /*format, args*/...)  ch_log_error_helper(__VA_ARGS__, "")
-#define ch_log_warn( /*format, args*/...)   ch_log_warn_helper(__VA_ARGS__, "")
-#define ch_log_info( /*format, args*/...)   ch_log_info_helper(__VA_ARGS__, "")
-#define ch_log_debug1( /*format, args*/...) ch_log_debug1_helper(__VA_ARGS__, "")
-#define ch_log_debug2( /*format, args*/...) ch_log_debug2_helper(__VA_ARGS__, "")
-#define ch_log_debug3( /*format, args*/...) ch_log_debug3_helper(__VA_ARGS__, "")
-
-#if 1 //Always defined
-    #define ch_log_fatal_helper(format, ...) _ch_log_out_(CH_LOG_LVL_FATAL, __LINE__, __FILE__, format, __VA_ARGS__, "" )
-    #define ch_log_fatal_va( format, va_list) _ch_log_out_va_(CH_LOG_LVL_FATAL, __LINE__, __FILE__, format, va_list )
-#else
-    #define ch_log_fatal_helper( format, ...)
-    #define ch_log_fatal_va(format, va_list)
-#endif
-
-
-#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_ERROR
-    #define ch_log_error_helper(format, ...) _ch_log_out_(CH_LOG_LVL_ERROR, __LINE__, __FILE__, format, __VA_ARGS__, "" )
-    #define ch_log_error_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_ERROR, __LINE__, __FILE__, format, va_list )
-#else
-    #define ch_log_error_helper(format, ...)
-    #define ch_log_error_va(format, va_list)
-#endif
-
-
-#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_WARN
-    #define ch_log_warn_helper(format, ...) _ch_log_out_(CH_LOG_LVL_WARN, __LINE__, __FILE__, format, __VA_ARGS__, "" )
-    #define ch_log_warn_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_WARN, __LINE__, __FILE__, format, va_list )
-#else
-    #define ch_log_warn_helper(format, ...)
-    #define ch_log_warn_va(format, va_list)
-#endif
-
-#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_INFO
-    #define ch_log_info_helper(format, ...) _ch_log_out_(CH_LOG_LVL_INFO, __LINE__, __FILE__, format, __VA_ARGS__, "" )
-    #define ch_log_info_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_INFO, __LINE__, __FILE__, format, va_list )
-#else
-    #define ch_log_info_helper(format, ...)
-    #define ch_log_info_va(format, va_list)
-#endif
-
-
-#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_DEBUG1
-    #define ch_log_debug1_helper(format, ...) _ch_log_out_(CH_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, __VA_ARGS__, "" )
-    #define ch_log_debug1_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, va_list )
-#else
-    #define ch_log_debug1_helper(format, ...)
-    #define ch_log_debug1_va(format, va_list)
-#endif
-
-#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_DEBUG2
-    #define ch_log_debug2_helper(format, ...) _ch_log_out_(CH_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, __VA_ARGS__ , "" )
-    #define ch_log_debug2_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, va_list )
-#else
-    #define ch_log_debug2_helper(format, ...)
-    #define ch_log_debug2_va(format, va_list)
-#endif
-
-#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_DEBUG3
-    #define ch_log_debug3_helper(format, ...) _ch_log_out_(CH_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, __VA_ARGS__ , "" )
-    #define ch_log_debug3_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, va_list )
-#else
-    #define ch_log_debug3_helper(format, ...)
-    #define ch_log_debug3_va(format, va_list)
-#endif
-
 typedef struct {
     ch_colour_t color;  //Color for the log level
     ch_bool source;     //Include the source filename and line
@@ -151,9 +67,30 @@ ch_log_settings_t ch_log_settings = { \
 }
 
 
-//Simple, unobtrusive settings that any libch components can use.
-#define USE_CH_LOGGER_DEFAULT \
-ch_log_settings_t ch_log_settings = { \
+#define _ch_log_settings_default_color \
+{ \
+    .log_level      = CH_LOG_LVL_WARN, \
+    .use_color      = true, \
+    .output_mode    = CH_LOG_OUT_STDERR, \
+    .filename       = "", \
+    .use_utc        = false, \
+    .incl_timezone  = false, \
+    .subsec_digits  = 0, \
+    .lvl_config  = { \
+            { .color = CH_TERM_COL_BRIGHT_RED,      .source = true,  .timestamp = true, .pid = true,  .text = "Fatal Error" }, /*FATAL*/\
+            { .color = CH_TERM_COL_EMPH_RED,        .source = false, .timestamp = true, .pid = true,  .text = "      Error" }, /*ERROR*/\
+            { .color = CH_TERM_COL_BRIGHT_YELLOW,   .source = false, .timestamp = true, .pid = false, .text = "    Warning" }, /*WARNING*/\
+            { .color = CH_TERM_COL_BRIGHT_GREEN,    .source = false, .timestamp = true, .pid = false, .text = "       Info" }, /*INFO*/\
+            { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = true, .pid = true,  .text = "    Debug 1" }, /*DEBUG 1*/\
+            { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = true, .pid = true,  .text = "    Debug 2" }, /*DEBUG 2*/\
+            { .color = CH_TERM_COL_NONE,            .source = true,  .timestamp = true, .pid = true,  .text = "    Debug 3" }  /*DEBUG 3*/\
+    }, \
+    .fd = -1,  /*This is private, please don't play with it*/\
+}
+
+
+#define _ch_log_settings_default_min \
+{ \
     .log_level      = CH_LOG_LVL_WARN, \
     .use_color      = false, \
     .output_mode    = CH_LOG_OUT_STDERR, \
@@ -174,6 +111,136 @@ ch_log_settings_t ch_log_settings = { \
 }
 
 
+//Simple, unobtrusive settings that any libch components can use.
+#define USE_CH_LOGGER_DEFAULT \
+ch_log_settings_t ch_log_settings = _ch_log_settings_default_min
+
+#define USE_CH_LOGGER_DEFAULT_COLOR \
+ch_log_settings_t ch_log_settings = _ch_log_settings_default_color
+
+ch_word _ch_log_out_(ch_word this_log_lvll, ch_word line_num, const char* filename, const char* format, ... );
+ch_word _ch_log_out_va_(ch_word this_log_lvll, ch_word line_num, const char* filename, const char* format, va_list args) __attribute__((format(printf, 3, 0)));
+ch_word _ch_elog_out_(ch_log_settings_t* settings, ch_word this_log_lvll, ch_word line_num, const char* filename, const char* format, ... );
+ch_word _ch_elog_out_va_(ch_log_settings_t* settings, ch_word this_log_lvll, ch_word line_num, const char* filename, const char* format, va_list args)__attribute__((format(printf, 4, 0)));
+
+
+#ifndef CH_LOG_BUILD_LVL
+    #ifdef NDEBUG
+        #define CH_LOG_BUILD_LVL   CH_LOG_LVL_INFO    //Output binary to be capable up to "info" level release mode
+    #else
+        #define CH_LOG_BUILD_LVL   CH_LOG_LVL_DEBUG3  //Output binary to be capable up to "debug3" level debug mode
+    #endif
+#endif
+
+
+//Helper macros to make C99 VAR_ARGS work properly. Yuck! Hacky!
+#define ch_log_fatal( /*format, args*/...)  ch_log_fatal_helper(__VA_ARGS__, "")
+#define ch_log_error( /*format, args*/...)  ch_log_error_helper(__VA_ARGS__, "")
+#define ch_log_warn( /*format, args*/...)   ch_log_warn_helper(__VA_ARGS__, "")
+#define ch_log_info( /*format, args*/...)   ch_log_info_helper(__VA_ARGS__, "")
+#define ch_log_debug1( /*format, args*/...) ch_log_debug1_helper(__VA_ARGS__, "")
+#define ch_log_debug2( /*format, args*/...) ch_log_debug2_helper(__VA_ARGS__, "")
+#define ch_log_debug3( /*format, args*/...) ch_log_debug3_helper(__VA_ARGS__, "")
+
+//ch_logf functions allow us to log with explicit settings
+#define ch_elog_fatal( /*format, args*/...)  ch_elog_fatal_helper(__VA_ARGS__, "")
+#define ch_elog_error( /*format, args*/...)  ch_elog_error_helper(__VA_ARGS__, "")
+#define ch_elog_warn( /*format, args*/...)   ch_elog_warn_helper(__VA_ARGS__, "")
+#define ch_elog_info( /*format, args*/...)   ch_elog_info_helper(__VA_ARGS__, "")
+#define ch_elog_debug1( /*format, args*/...) ch_elog_debug1_helper(__VA_ARGS__, "")
+#define ch_elog_debug2( /*format, args*/...) ch_elog_debug2_helper(__VA_ARGS__, "")
+#define ch_elog_debug3( /*format, args*/...) ch_elog_debug3_helper(__VA_ARGS__, "")
+
+
+#if 1 //Always defined
+    #define ch_log_fatal_helper(format, ...)   _ch_log_out_(CH_LOG_LVL_FATAL, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_log_fatal_va( format, va_list)  _ch_log_out_va_(CH_LOG_LVL_FATAL, __LINE__, __FILE__, format, va_list )
+    #define ch_elog_fatal_helper(settings, format, ...) _ch_elog_out_(settings, CH_LOG_LVL_FATAL, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_elog_fatal_va(settings, format, va_list) _ch_elog_out_va_(settings, CH_LOG_LVL_FATAL, __LINE__, __FILE__, format, va_list )
+#else
+    #define ch_log_fatal_helper( format, ...)
+    #define ch_log_fatal_va(format, va_list)
+    #define ch_elog_fatal_helper( format, ...)
+    #define ch_elog_fatal_va(format, va_list)
+#endif
+
+
+#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_ERROR
+    #define ch_log_error_helper(format, ...)  _ch_log_out_(CH_LOG_LVL_ERROR, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_log_error_va(format, va_list)  _ch_log_out_va_(CH_LOG_LVL_ERROR, __LINE__, __FILE__, format, va_list )
+    #define ch_elog_error_helper(settings, format, ...) _ch_elog_out_(settings, CH_LOG_LVL_ERROR, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_elog_error_va(settings, format, va_list) _ch_elog_out_va_(settings, CH_LOG_LVL_ERROR, __LINE__, __FILE__, format, va_list )
+
+#else
+    #define ch_log_error_helper(format, ...)
+    #define ch_log_error_va(format, va_list)
+    #define ch_elog_error_helper(settings, format, ...)
+    #define ch_elog_error_va(settings, format, va_list)
+#endif
+
+
+#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_WARN
+    #define ch_log_warn_helper(format, ...) _ch_log_out_(CH_LOG_LVL_WARN, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_log_warn_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_WARN, __LINE__, __FILE__, format, va_list )
+    #define ch_elog_warn_helper(settings,format, ...)  _ch_elog_out_(settings, CH_LOG_LVL_WARN, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_elog_warn_va(settings, format, va_list) _ch_elog_out_va_(settings, CH_LOG_LVL_WARN, __LINE__, __FILE__, format, va_list )
+
+#else
+    #define ch_log_warn_helper(format, ...)
+    #define ch_log_warn_va(format, va_list)
+    #define ch_log_warn_helper(settings, format, ...)
+    #define ch_log_warn_va(settings, format, va_list)
+#endif
+
+#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_INFO
+    #define ch_log_info_helper(format, ...) _ch_log_out_(CH_LOG_LVL_INFO, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_log_info_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_INFO, __LINE__, __FILE__, format, va_list )
+    #define ch_elog_info_helper(settings,format, ...) _ch_elog_out_(settings,CH_LOG_LVL_INFO, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_elog_info_va(settings,format, va_list) _ch_elog_out_va_(settings,CH_LOG_LVL_INFO, __LINE__, __FILE__, format, va_list )
+
+#else
+    #define ch_log_info_helper(format, ...)
+    #define ch_log_info_va(format, va_list)
+    #define ch_elog_info_helper(settings,format, ...)
+    #define ch_elog_info_va(settings,format, va_list)
+#endif
+
+
+#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_DEBUG1
+    #define ch_log_debug1_helper(format, ...) _ch_log_out_(CH_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_log_debug1_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, va_list )
+    #define ch_elog_debug1_helper(settings,format, ...) _ch_elog_out_(settings,CH_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_elog_debug1_va(settings,format, va_list) _ch_elog_out_va_(settings,CH_LOG_LVL_DEBUG1, __LINE__, __FILE__, format, va_list )
+#else
+    #define ch_log_debug1_helper(format, ...)
+    #define ch_log_debug1_va(format, va_list)
+    #define ch_elog_debug1_helper(settings, format, ...)
+    #define ch_elog_debug1_va(settings, format, va_list)
+#endif
+
+#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_DEBUG2
+    #define ch_log_debug2_helper(format, ...) _ch_log_out_(CH_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_log_debug2_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, va_list )
+    #define ch_elog_debug2_helper(settings,format, ...) _ch_elog_out_(settings,CH_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_elog_debug2_va(settings,format, va_list) _ch_elog_out_va_(settings,CH_LOG_LVL_DEBUG2, __LINE__, __FILE__, format, va_list )
+#else
+    #define ch_log_debug2_helper(format, ...)
+    #define ch_log_debug2_va(format, va_list)
+    #define ch_elog_debug2_helper(settings, format, ...)
+    #define ch_elog_debug2_va(settings, format, va_list)
+#endif
+
+#if CH_LOG_BUILD_LVL >= CH_LOG_LVL_DEBUG3
+    #define ch_log_debug3_helper(format, ...) _ch_log_out_(CH_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_log_debug3_va(format, va_list) _ch_log_out_va_(CH_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, va_list )
+    #define ch_elog_debug3_helper(settings,format, ...) _ch_elog_out_(settings,CH_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, __VA_ARGS__, "" )
+    #define ch_elog_debug3_va(settings,format, va_list) _ch_elog_out_va_(settings,CH_LOG_LVL_DEBUG3, __LINE__, __FILE__, format, va_list )
+#else
+    #define ch_log_debug3_helper(format, ...)
+    #define ch_log_debug3_va(format, va_list)
+    #define ch_elog_debug3_helper(settings, format, ...)
+    #define ch_elog_debug3_va(settings, format, va_list)
+#endif
 
 
 #endif /* CH_LOG_H_ */

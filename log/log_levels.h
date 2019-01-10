@@ -20,5 +20,5 @@
 //Options for output
 #define CH_LOG_OUT_STDOUT 0
 #define CH_LOG_OUT_STDERR 1
-#define CH_LOG_OUT_SYSLOG 2
-#define CH_LOG_OUT_FILE   3
+#define CH_LOG_OUT_FILE   2
+#define CH_LOG_OUT_SYSLOG 3
