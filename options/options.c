@@ -486,14 +486,17 @@ void parse_argument(ch_options_opt_t* opt_def) {
 }
 
 //Search through the options, find the option with the matching character
-void process_option(char c) {
+void process_option(char c, const char* name) {
+
+    printf("name=%s c=%c\n", name, c);
 
     //int done = 0;
     for (ch_options_opt_t* opt_def = opts.opt_defs->first;
             opt_def < opts.opt_defs->end;
             opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
 
-        if (opt_def->short_opt == c) {
+        printf("### name=%s c=%c short=%c long=%s\n", name, c, opt_def->short_opt,opt_def->long_opt );
+        if ( (opt_def->short_opt && opt_def->short_opt == c) || (!c && ((strcmp(name, opt_def->long_opt)) == 0))) {
             //done = 1; //Exit the loop when finished
 
             opt_def->found++; //We found an option of this type
@@ -592,7 +595,8 @@ int ch_opt_parse(int argc, char** argv){
             print_usage("Unknown option or option is missing an argument \"%s\"\n", argv[optind -1]);
         }
 
-        process_option(c);
+        printf("c=%c, name=%s\n", c,long_options[option_index].name);
+        process_option(c, long_options[option_index].name);
 
     }
 
@@ -622,7 +626,9 @@ int ch_opt_parse(int argc, char** argv){
 
 
     //Check the constraints
-    for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
+    for (ch_options_opt_t* opt_def = opts.opt_defs->first;
+                           opt_def < opts.opt_defs->end;
+                            opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
         if(opt_def->mode == CH_OPTION_REQUIRED && opt_def->found < 1){
             printf("Option --%s (-%c) is required but not supplied\n", opt_def->long_opt, opt_def->short_opt);
             print_usage("Option --%s (-%c) is required but not supplied\n", opt_def->long_opt, opt_def->short_opt);
