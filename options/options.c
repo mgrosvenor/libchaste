@@ -60,7 +60,7 @@ void print_usage(const char* err_tx_fmt, ...){
             case CH_OPTION_UNLIMTED:  mode = "Unlimited"; break;
         }
 
-        char* type = ""; //NULL;
+//        char* type = NULL;
 //        switch(opt_def->type){
 //            case CH_BOOL:       type = "Boolean";   break;
 //            case CH_INT64:      type = "Integer";   break;
@@ -102,7 +102,8 @@ void print_usage(const char* err_tx_fmt, ...){
         }
 
         const char* short_str = opt_def->short_str ? "-" : "  ";
-        printf("%-9s (%-11s) %s%c  --%-15s %s %s\n", mode, type, short_str, opt_def->short_str, opt_def->long_str,  opt_def->descr, CH_STR_CSTR(def_val));
+        //printf("%-9s (%-11s) %s%c  --%-15s %s %s\n", mode, type, short_str, opt_def->short_str, opt_def->long_str,  opt_def->descr, CH_STR_CSTR(def_val));
+        printf("%-9s %s%c  --%-15s %s %s\n", mode, short_str, opt_def->short_str, opt_def->long_str,  opt_def->descr, CH_STR_CSTR(def_val));
         ch_str_free(&def_val);
     }
 
