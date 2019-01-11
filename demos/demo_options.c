@@ -17,6 +17,7 @@ struct {
     CH_VECTOR(cstr)*  opt6;
     CH_VECTOR(float)*  opt7;
     u64     opt8;
+    bool opt9;
 } options;
 
 
@@ -31,7 +32,8 @@ int main(int argc, char** argv)
     ch_opt_addii(CH_OPTION_OPTIONAL,'b',"second","This is the 2nd option", &options.opt2, -42);
     ch_opt_addSI(CH_OPTION_OPTIONAL,'f',"sixth","This is the 6th option", &options.opt6, "init strig vector");
     ch_opt_addSI(CH_OPTION_OPTIONAL, 0,"tenth","This is the 10th option", &options.opt6, "init strig vector");
-    ch_opt_addSI(CH_OPTION_OPTIONAL, 0,"ninth","This is the 9th option", &options.opt6, "init strig vector");
+    ch_opt_addbi(CH_OPTION_FLAG, 0,"ninth","This is the 9th option", &options.opt9, false);
+    ch_opt_addbi(CH_OPTION_FLAG, 0,"eleventh","This is the 9th option", &options.opt9, false);
     ch_opt_parse(argc,argv);
 
     printf("a=%llu, b=%lli, c=%i, d=%s, e=%lf ", options.opt1, options.opt2, options.opt3, options.opt4, options.opt5);

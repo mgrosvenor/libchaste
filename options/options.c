@@ -60,22 +60,22 @@ void print_usage(const char* err_tx_fmt, ...){
             case CH_OPTION_UNLIMTED:  mode = "Unlimited"; break;
         }
 
-        char* type = NULL;
-        switch(opt_def->type){
-            case CH_BOOL:       type = "Boolean";   break;
-            case CH_INT64:      type = "Integer";   break;
-            case CH_UINT64:     type = "Unsigned";  break;
-            case CH_DOUBLE:     type = "Float";     break;
-            case CH_STRING:     type = "String";    break;
-            case CH_HEX:        type = "Unsigned";  break;
-            case CH_BOOLS:      type = "Boolean List";  break;
-            case CH_INT64S:     type = "Integers List"; break;
-            case CH_UINT64S:    type = "Unsigned List"; break;
-            case CH_DOUBLES:    type = "Float List";    break;
-            case CH_STRINGS:    type = "String List";   break;
-            case CH_HEXS:       type = "Unsigned List"; break;
-            case CH_NO_TYPE:    type = "error";     break;
-        }
+        char* type = ""; //NULL;
+//        switch(opt_def->type){
+//            case CH_BOOL:       type = "Boolean";   break;
+//            case CH_INT64:      type = "Integer";   break;
+//            case CH_UINT64:     type = "Unsigned";  break;
+//            case CH_DOUBLE:     type = "Float";     break;
+//            case CH_STRING:     type = "String";    break;
+//            case CH_HEX:        type = "Unsigned";  break;
+//            case CH_BOOLS:      type = "Boolean List";  break;
+//            case CH_INT64S:     type = "Integers List"; break;
+//            case CH_UINT64S:    type = "Unsigned List"; break;
+//            case CH_DOUBLES:    type = "Float List";    break;
+//            case CH_STRINGS:    type = "String List";   break;
+//            case CH_HEXS:       type = "Unsigned List"; break;
+//            case CH_NO_TYPE:    type = "error";     break;
+//        }
 
 
         if(opt_def->mode == CH_OPTION_OPTIONAL){
