@@ -25,14 +25,14 @@ int main(int argc, char** argv)
 {
     ch_opt_addfi(CH_OPTION_OPTIONAL,'e',"fifth","This is the 5th option", &options.opt5, 42.0);
     ch_opt_addxi(CH_OPTION_OPTIONAL,'i',"eighth","This is the 8th option", &options.opt8, 0xDEADBEEF);
+    ch_opt_addSI(CH_OPTION_OPTIONAL, 0,"tenth","This is the 10th option", &options.opt6, "init strig vector");
     ch_opt_addbi(CH_OPTION_FLAG,    'c',"third","This is the 3rd option", &options.opt3, false);
     ch_opt_adduu(CH_OPTION_REQUIRED,'a',"first","This is the 1st option", &options.opt1);
+    ch_opt_addbi(CH_OPTION_FLAG, 0,"ninth","This is the 9th option", &options.opt9, false);
     ch_opt_addFU(CH_OPTION_UNLIMTED,'g',"seventh","This is the 7th option", &options.opt7);
     ch_opt_addsi(CH_OPTION_OPTIONAL,'d',"fourth","This is the 4th option", &options.opt4, "init string");
     ch_opt_addii(CH_OPTION_OPTIONAL,'b',"second","This is the 2nd option", &options.opt2, -42);
     ch_opt_addSI(CH_OPTION_OPTIONAL,'f',"sixth","This is the 6th option", &options.opt6, "init strig vector");
-    ch_opt_addSI(CH_OPTION_OPTIONAL, 0,"tenth","This is the 10th option", &options.opt6, "init strig vector");
-    ch_opt_addbi(CH_OPTION_FLAG, 0,"ninth","This is the 9th option", &options.opt9, false);
     ch_opt_addbi(CH_OPTION_FLAG, 0,"eleventh","This is the 9th option", &options.opt9, false);
     ch_opt_parse(argc,argv);
 

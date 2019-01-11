@@ -26,7 +26,7 @@
 
 int cmp(ch_options_opt_t* lhs, ch_options_opt_t* rhs)
 {
-    return lhs->short_str == rhs->short_str ? 0 : lhs->short_str < rhs->short_str ? -1 : 1 ;
+    return lhs->short_opt == rhs->short_opt ? 0 : lhs->short_opt < rhs->short_opt ? -1 : 1 ;
 }
 
 
@@ -101,9 +101,9 @@ void print_usage(const char* err_tx_fmt, ...){
 
         }
 
-        const char* short_str = opt_def->short_str ? "-" : "  ";
-        //printf("%-9s (%-11s) %s%c  --%-15s %s %s\n", mode, type, short_str, opt_def->short_str, opt_def->long_str,  opt_def->descr, CH_STR_CSTR(def_val));
-        printf("%-9s %s%c  --%-15s %s %s\n", mode, short_str, opt_def->short_str, opt_def->long_str,  opt_def->descr, CH_STR_CSTR(def_val));
+        const char* short_opt = opt_def->short_opt ? "-" : "  ";
+        //printf("%-9s (%-11s) %s%c  --%-15s %s %s\n", mode, type, short_opt, opt_def->short_opt, opt_def->long_opt,  opt_def->descr, CH_STR_CSTR(def_val));
+        printf("%-9s %s%c  --%-15s %s %s\n", mode, short_opt, opt_def->short_opt, opt_def->long_opt,  opt_def->descr, CH_STR_CSTR(def_val));
         ch_str_free(&def_val);
     }
 
@@ -144,8 +144,8 @@ int ch_options_long_description(char* description){
 static ch_word ch_options_add_generic(
         ch_options_opt_t* opt_def_new,
         ch_options_mode_e mode,
-        char short_str,
-        char* long_str,
+        char short_opt,
+        char* long_opt,
         char* descr,
         ch_types_e type,
         void* result_out)
@@ -182,36 +182,36 @@ static ch_word ch_options_add_generic(
 
     opts.count++;
     opt_def_new->mode      = mode;
-    opt_def_new->short_str = short_str;
-    opt_def_new->long_str  = long_str;
+    opt_def_new->short_opt = short_opt;
+    opt_def_new->long_opt  = long_opt;
     opt_def_new->descr     = descr;
     opt_def_new->type      = type;
     opt_def_new->var       = result_out;
-    //printf("New opt: %c = %p\n", opt_def_new->short_str, opt_def_new->var);
+    //printf("New opt: %c = %p\n", opt_def_new->short_opt, opt_def_new->var);
 
     //Make sure the option hasn't already been defined
     for (ch_options_opt_t* opt_def = opts.opt_defs->first;
             opt_def < opts.opt_defs->end;
             opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
 
-        if(opt_def->short_str != '\0' && opt_def->short_str == opt_def_new->short_str) {
+        if(opt_def->short_opt != '\0' && opt_def->short_opt == opt_def_new->short_opt) {
 
             //Special case 'h' for help as we want it to stick around
             //and its added implicitly so devs will get confused
-            const char* long_str = opt_def->short_str != 'h' ? opt_def_new->long_str : opt_def->long_str;
+            const char* long_opt = opt_def->short_opt != 'h' ? opt_def_new->long_opt : opt_def->long_opt;
             ch_log_fatal("Could not add option. \"--%s\". The short name \"-%c\" conflicts with an existing option's short name \"-%c\" \n",
-                    long_str,
-                    opt_def_new->short_str,
-                    opt_def->short_str);
+                    long_opt,
+                    opt_def_new->short_opt,
+                    opt_def->short_opt);
 
             return -1;
         }
-        if(!strcmp(opt_def->long_str, opt_def_new->long_str)) {
-            const char short_str = strcmp("help",opt_def->long_str) ? opt_def_new->short_str : opt_def->short_str;
+        if(!strcmp(opt_def->long_opt, opt_def_new->long_opt)) {
+            const char short_opt = strcmp("help",opt_def->long_opt) ? opt_def_new->short_opt : opt_def->short_opt;
             ch_log_fatal("Could not add option. \"-%c\" . The long name \"--%s\" conflicts with an existing option's long name \"--%s\" \n",
-                    short_str,
-                    opt_def_new->long_str,
-                    opt_def->long_str);
+                    short_opt,
+                    opt_def_new->long_opt,
+                    opt_def->long_opt);
             return -1;
         }
 
@@ -229,7 +229,7 @@ ch_opt_add_declare_i(ch_type_name, c_type_name, short_name, long_name)\
     ch_options_opt_t opt_new = (const struct ch_options_opt){0};\
     *result_out = default_val;\
     \
-    ch_word result = ch_options_add_generic(&opt_new, mode, short_str, long_str, descr, ch_type_name, result_out);\
+    ch_word result = ch_options_add_generic(&opt_new, mode, short_opt, long_opt, descr, ch_type_name, result_out);\
     if(result){ /*Catch errors inside add generic, it prints it's own message*/\
         return result;\
     }\
@@ -261,7 +261,7 @@ ch_opt_add_declare_u(ch_type_name, c_type_name, short_name, long_name)\
     \
     ch_options_opt_t opt_new = {0};\
     \
-    ch_word result = ch_options_add_generic(&opt_new, mode, short_str, long_str, descr, ch_type_name, result_out);\
+    ch_word result = ch_options_add_generic(&opt_new, mode, short_opt, long_opt, descr, ch_type_name, result_out);\
     if(result){ /*Catch errors inside add generic, it prints it's own message*/\
         return result;\
     }\
@@ -289,7 +289,7 @@ ch_opt_add_declare_VI(ch_type_name, vector_name, c_type_name_default, short_name
     *result_out = CH_VECTOR_NEW(vector_name, 4, CH_VECTOR_CMP(vector_name));\
     (*result_out)->push_back(*result_out, default_val);\
     \
-    ch_word result = ch_options_add_generic(&opt_new, mode, short_str, long_str, descr, ch_type_name, *result_out);\
+    ch_word result = ch_options_add_generic(&opt_new, mode, short_opt, long_opt, descr, ch_type_name, *result_out);\
     if(result){ /*Catch errors inside add generic, it prints it's own message*/\
         return result;\
     }\
@@ -321,7 +321,7 @@ ch_opt_add_declare_VU(ch_type_name, vector_name, short_name, long_name)\
     ch_options_opt_t opt_new = {0};\
     *result_out = CH_VECTOR_NEW(vector_name, 4, CH_VECTOR_CMP(vector_name));\
     \
-    ch_word result = ch_options_add_generic(&opt_new, mode, short_str, long_str, descr, ch_type_name, *result_out);\
+    ch_word result = ch_options_add_generic(&opt_new, mode, short_opt, long_opt, descr, ch_type_name, *result_out);\
     if(result){ /*Catch errors inside add generic, it prints it's own message*/\
         return result;\
     }\
@@ -349,12 +349,12 @@ void parse_argument(ch_options_opt_t* opt_def) {
         case CH_INT64:
         case CH_INT64S: {
             //Sanity check
-            if (!optarg) { print_usage( "Option --%s (-%c) Expected argument of type INT64 but none found.\n", opt_def->long_str, opt_def->short_str); }
+            if (!optarg) { print_usage( "Option --%s (-%c) Expected argument of type INT64 but none found.\n", opt_def->long_opt, opt_def->short_opt); }
 
             //Get the number
             num_result = parse_number(optarg, 0);
             if(num_result.type == CH_UINT64){ num_result.type = CH_INT64;  } //Type promote uint to int
-            if (num_result.type != CH_INT64) { print_usage( "Option --%s (-%c) Expected argument of type INT64 but \"%s\" found\n", opt_def->long_str, opt_def->short_str, optarg);}
+            if (num_result.type != CH_INT64) { print_usage( "Option --%s (-%c) Expected argument of type INT64 but \"%s\" found\n", opt_def->long_opt, opt_def->short_opt, optarg);}
 
             //Assign it
             if (opt_def->type == CH_INT64) {
@@ -375,11 +375,11 @@ void parse_argument(ch_options_opt_t* opt_def) {
         case CH_HEX:
         case CH_HEXS: {
             //Sanity check
-            if (!optarg) { print_usage( "Option  --%s (-%c) Expected argument of type UINT64 but none found.\n", opt_def->long_str, opt_def->short_str); }
+            if (!optarg) { print_usage( "Option  --%s (-%c) Expected argument of type UINT64 but none found.\n", opt_def->long_opt, opt_def->short_opt); }
 
             //Get the number
             num_result = parse_number(optarg, 0);
-            if (num_result.type != CH_UINT64) { print_usage("Option  --%s (-%c) Expected argument of type UINT64 but \"%s\" found\n", opt_def->long_str, opt_def->short_str, optarg);}
+            if (num_result.type != CH_UINT64) { print_usage("Option  --%s (-%c) Expected argument of type UINT64 but \"%s\" found\n", opt_def->long_opt, opt_def->short_opt, optarg);}
 
             //Assign it
             if (opt_def->type == CH_UINT64 || opt_def->type == CH_HEX){
@@ -398,7 +398,7 @@ void parse_argument(ch_options_opt_t* opt_def) {
         case CH_DOUBLE:
         case CH_DOUBLES: {
             //Sanity check
-            if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type DOUBLE but none found.\n", opt_def->long_str, opt_def->short_str);}
+            if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type DOUBLE but none found.\n", opt_def->long_opt, opt_def->short_opt);}
 
             //Get the number
             num_result = parse_number(optarg, 0);
@@ -416,7 +416,7 @@ void parse_argument(ch_options_opt_t* opt_def) {
             }
             //No Suitable type found
             else{
-                print_usage("Option --%s (-%c) Expected argument of type DOUBLE but \"%s\" found\n", opt_def->long_str, opt_def->short_str, optarg);
+                print_usage("Option --%s (-%c) Expected argument of type DOUBLE but \"%s\" found\n", opt_def->long_opt, opt_def->short_opt, optarg);
             }
 
             //Assign it
@@ -437,11 +437,11 @@ void parse_argument(ch_options_opt_t* opt_def) {
         case CH_BOOL:
         case CH_BOOLS: {
             //Sanity check
-            if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type BOOL but none found.\n", opt_def->long_str, opt_def->short_str);}
+            if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type BOOL but none found.\n", opt_def->long_opt, opt_def->short_opt);}
 
             //Get the number
             num_result = parse_bool(optarg, strlen(optarg), 0);
-            if (num_result.type != CH_INT64) { print_usage("Option --%s (-%c) Expected argument of type BOOL but \"%s\" found\n", opt_def->long_str, opt_def->short_str,  optarg);}
+            if (num_result.type != CH_INT64) { print_usage("Option --%s (-%c) Expected argument of type BOOL but \"%s\" found\n", opt_def->long_opt, opt_def->short_opt,  optarg);}
 
             //Assign it
             if (opt_def->type == CH_BOOL){
@@ -461,7 +461,7 @@ void parse_argument(ch_options_opt_t* opt_def) {
         case CH_STRING:
         case CH_STRINGS: {
             //Sanity check
-            if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type STRING but none found.\n", opt_def->long_str, opt_def->short_str);}
+            if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type STRING but none found.\n", opt_def->long_opt, opt_def->short_opt);}
 
             //Assign it
             if (opt_def->type == CH_STRING) {
@@ -479,7 +479,7 @@ void parse_argument(ch_options_opt_t* opt_def) {
         }
 
         default: {
-            print_usage("Option --%s (-%c) argument has unknown type (%s)\n", opt_def->long_str, opt_def->short_str, optarg);
+            print_usage("Option --%s (-%c) argument has unknown type (%s)\n", opt_def->long_opt, opt_def->short_opt, optarg);
             break;
         }
     }
@@ -493,17 +493,17 @@ void process_option(char c) {
             opt_def < opts.opt_defs->end;
             opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
 
-        if (opt_def->short_str == c) {
+        if (opt_def->short_opt == c) {
             //done = 1; //Exit the loop when finished
 
             opt_def->found++; //We found an option of this type
             if (opt_def->found > 1 && !is_vector(opt_def->type)) {
-                print_usage("Option --%s (-%c), only one instance expected but multiple found.\n", opt_def->long_str, opt_def->short_str);
+                print_usage("Option --%s (-%c), only one instance expected but multiple found.\n", opt_def->long_opt, opt_def->short_opt);
             }
 
             if (opt_def->mode == CH_OPTION_FLAG) {
                 *(bool*)opt_def->var = true; // ! (*(int*)opt_def->var); //invert the default value
-                //printf("Set opt: %c = %p = %u\n", opt_def->short_str, opt_def->var, *(bool*)opt_def->var);
+                //printf("Set opt: %c = %p = %u\n", opt_def->short_opt, opt_def->var, *(bool*)opt_def->var);
                 break;  //This is all handled by getopts
             }
 
@@ -515,7 +515,7 @@ void process_option(char c) {
 
 //    printf("****************\n");
 //    for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
-//        printf("Set opt: %c = %p = %u\n", opt_def->short_str, opt_def->var, *(bool*)opt_def->var);
+//        printf("Set opt: %c = %p = %u\n", opt_def->short_opt, opt_def->var, *(bool*)opt_def->var);
 //    }
 }
 
@@ -530,26 +530,30 @@ void generate_unix_opts(char short_opts_str[1024], struct option* long_options) 
             opt_def < opts.opt_defs->end && short_opts_ptr < &short_opts_str[1024];
             opt_def = opts.opt_defs->next(opts.opt_defs, opt_def), i++ ) {
 
-        if(opt_def->short_str != '\0')
+        if(opt_def->short_opt != 0)
         {
-            *short_opts_ptr = opt_def->short_str;
+            *short_opts_ptr = opt_def->short_opt;
             short_opts_ptr++;
         }
 
-        long_options[i].name = opt_def->long_str;
+        long_options[i].name = opt_def->long_opt;
 
         if (opt_def->mode == CH_OPTION_FLAG) {
-            long_options[i].name = opt_def->long_str;
+            long_options[i].name = opt_def->long_opt;
             long_options[i].has_arg = no_argument;
             long_options[i].flag = opt_def->var;
             long_options[i].val = true; //!(*(int*) opt_def->var);
         } else {
-            long_options[i].name = opt_def->long_str;
+            long_options[i].name = opt_def->long_opt;
             long_options[i].has_arg = required_argument;
             long_options[i].flag = NULL;
-            long_options[i].val = opt_def->short_str;
-            *short_opts_ptr = ':';
-            short_opts_ptr++;
+            long_options[i].val = opt_def->short_opt;
+
+            if(opt_def->short_opt != 0)
+            {
+                *short_opts_ptr = ':';
+                short_opts_ptr++;
+            }
         }
 
 
@@ -620,8 +624,8 @@ int ch_opt_parse(int argc, char** argv){
     //Check the constraints
     for (ch_options_opt_t* opt_def = opts.opt_defs->first; opt_def < opts.opt_defs->end; opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
         if(opt_def->mode == CH_OPTION_REQUIRED && opt_def->found < 1){
-            printf("Option --%s (-%c) is required but not supplied\n", opt_def->long_str, opt_def->short_str);
-            print_usage("Option --%s (-%c) is required but not supplied\n", opt_def->long_str, opt_def->short_str);
+            printf("Option --%s (-%c) is required but not supplied\n", opt_def->long_opt, opt_def->short_opt);
+            print_usage("Option --%s (-%c) is required but not supplied\n", opt_def->long_opt, opt_def->short_opt);
         }
     }
 

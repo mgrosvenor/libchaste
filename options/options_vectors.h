@@ -22,8 +22,8 @@ typedef struct ch_options_opt{
     ch_options_mode_e mode;
     ch_types_e type;
     void* var;
-    char short_str;
-    char* long_str;
+    char short_opt;
+    char* long_opt;
     char* descr;
     int found;
 } ch_options_opt_t;
