@@ -382,7 +382,7 @@ void parse_argument(ch_options_opt_t* opt_def) {
             if (num_result.type != CH_UINT64) { print_usage("Option  --%s (-%c) Expected argument of type UINT64 but \"%s\" found\n", opt_def->long_str, opt_def->short_str, optarg);}
 
             //Assign it
-            if (opt_def->type == CH_UINT64){
+            if (opt_def->type == CH_UINT64 || opt_def->type == CH_HEX){
                 *((uint64_t*)opt_def->var) = num_result.val_uint;
             }
             else{
