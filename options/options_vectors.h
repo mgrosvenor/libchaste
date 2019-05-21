@@ -13,8 +13,10 @@
 typedef enum {
     CH_OPTION_REQUIRED,       //This option is required for the program to run
     CH_OPTION_OPTIONAL,       //This option is not required but has a default value
+    CH_OPTION_MANUAL,         //This option is not required or optional, it will be checked by user
     CH_OPTION_UNLIMTED,       //This option produces a list of outputs
     CH_OPTION_FLAG,           //This option is optional, and has no arguments
+
 } ch_options_mode_e;
 
 
@@ -26,6 +28,7 @@ typedef struct ch_options_opt{
     char* long_opt;
     char* descr;
     int found;
+    int has_default;
 } ch_options_opt_t;
 
 

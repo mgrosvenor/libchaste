@@ -41,8 +41,10 @@ void ch_options_init()
 
 void ch_opt_print_usage(const char* err_tx_fmt, ...){
 
+    FILE* outfd = err_tx_fmt ? stderr : stdout;
+
     if(!opts.noprint_short && opts.short_description){
-        printf("\n%s:\n\n", opts.short_description);
+        fprintf(outfd, "\n%s:\n\n", opts.short_description);
     }
 
     //opts.opt_defs->sort(opts.opt_defs);
@@ -59,8 +61,9 @@ void ch_opt_print_usage(const char* err_tx_fmt, ...){
                 case CH_OPTION_REQUIRED:  mode = "Required"; break;
                 case CH_OPTION_OPTIONAL:  mode = "Optional"; break;
                 case CH_OPTION_UNLIMTED:  mode = "Unlimited"; break;
+                case CH_OPTION_MANUAL:    mode = "Manual"; break;
             }
-            printf("%-9s ", mode);
+            fprintf(outfd, "%-9s ", mode);
 
         }
 
@@ -81,46 +84,45 @@ void ch_opt_print_usage(const char* err_tx_fmt, ...){
                 case CH_HEXS:       type = "Unsigned List"; break;
                 case CH_NO_TYPE:    type = "error";     break;
             }
-            printf("(%-11s) ", type);
+            fprintf(outfd, "(%-11s) ", type);
         }
 
         const char* short_opt = opt_def->short_opt ? "-" : "  ";
-        printf("%s%c  --%*s  %*s  ", short_opt, opt_def->short_opt,
+        fprintf(outfd, "%s%c  --%*s  %*s  ", short_opt, opt_def->short_opt,
                 -opts.max_long_opt_len, opt_def->long_opt,
                 -opts.max_descr_len, opt_def->descr);
 
 
-        if(!opts.noprint_defualt && opt_def->mode == CH_OPTION_OPTIONAL){
-            ch_str def_val = CH_STR("",128);
+        if(!opts.noprint_defualt && opt_def->has_default &&
+                (opt_def->mode == CH_OPTION_OPTIONAL || opt_def->mode == CH_OPTION_MANUAL)){
             switch(opt_def->type){
-                case CH_BOOL:       CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%s",  *(ch_bool*)opt_def->var ? "True" : "False");   break;
-                case CH_INT64:      CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lli", *(ch_word*)opt_def->var);   break;
-                case CH_UINT64:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%llu", *(u64*)opt_def->var);   break;
-                case CH_DOUBLE:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lf", *(double*)opt_def->var);   break;
-                case CH_STRING:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%s",  *(char**)opt_def->var);   break;
-                case CH_HEX:        CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"0x%016llX", *(u64*)opt_def->var);  break;
-                case CH_BOOLS:      CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%s",  ( *((CH_VECTOR(ch_bool)*)opt_def->var)->first) ? "True" : "False"); break;
-                case CH_INT64S:     CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lli", *((CH_VECTOR(word)*)opt_def->var)->first );  break;
-                case CH_UINT64S:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%llu", *((CH_VECTOR(u64)*)opt_def->var)->first );  break;
-                case CH_DOUBLES:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lf", *((CH_VECTOR(float)*)opt_def->var)->first );  break;
-                case CH_STRINGS:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%s", *((CH_VECTOR(cstr)*)opt_def->var)->first );  break;
-                case CH_HEXS:       CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"0x%016llX", *((CH_VECTOR(u64)*)opt_def->var)->first );  break;
-                case CH_NO_TYPE:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val), "Unknown");  break;
+                case CH_BOOL:       fprintf(outfd,"[%s]",  *(ch_bool*)opt_def->var ? "True" : "False");   break;
+                case CH_INT64:      fprintf(outfd,"[%lli]", *(ch_word*)opt_def->var);   break;
+                case CH_UINT64:     fprintf(outfd,"[%llu]", *(u64*)opt_def->var);   break;
+                case CH_DOUBLE:     fprintf(outfd,"[%lf]", *(double*)opt_def->var);   break;
+                case CH_STRING:     fprintf(outfd,"[%s]",  *(char**)opt_def->var);   break;
+                case CH_HEX:        fprintf(outfd,"[0x%016llX]", *(u64*)opt_def->var);  break;
+                case CH_BOOLS:      fprintf(outfd,"[%s]",  ( *((CH_VECTOR(ch_bool)*)opt_def->var)->first) ? "True" : "False"); break;
+                case CH_INT64S:     fprintf(outfd,"[%lli]", *((CH_VECTOR(word)*)opt_def->var)->first );  break;
+                case CH_UINT64S:    fprintf(outfd,"[%llu]", *((CH_VECTOR(u64)*)opt_def->var)->first );  break;
+                case CH_DOUBLES:    fprintf(outfd,"[%lf]", *((CH_VECTOR(float)*)opt_def->var)->first );  break;
+                case CH_STRINGS:    fprintf(outfd,"[%s]", *((CH_VECTOR(cstr)*)opt_def->var)->first );  break;
+                case CH_HEXS:       fprintf(outfd,"[0x%016llX]", *((CH_VECTOR(u64)*)opt_def->var)->first );  break;
+                case CH_NO_TYPE:    fprintf(outfd, "[Unknown]");  break;
             }
-            printf("[%s]", CH_STR_CSTR(def_val));
-            ch_str_free(&def_val);
+
         }
 
-        printf("\n");
+        fprintf(outfd,"\n");
     }
 
     if(!opts.noprint_long && opts.long_description)
-        printf("\n%s\n\n", opts.long_description);
+        fprintf(outfd,"\n%s\n\n", opts.long_description);
 
     if(err_tx_fmt){
         va_list args;
         va_start(args, err_tx_fmt);
-        ch_log_error_va(err_tx_fmt,args);
+        vfprintf(stderr, err_tx_fmt,args);
         va_end(args);
         exit(-1);
     }
@@ -156,7 +158,8 @@ static ch_word ch_options_add_generic(
         char* long_opt,
         char* descr,
         ch_types_e type,
-        void* result_out)
+        void* result_out,
+        int has_default)
 {
 
     if(!opts.done_init){
@@ -191,12 +194,13 @@ static ch_word ch_options_add_generic(
     opts.max_long_opt_len = MAX(opts.max_long_opt_len, strlen(long_opt));
     opts.max_descr_len = MAX(opts.max_descr_len, strlen(descr));
     opts.count++;
-    opt_def_new->mode      = mode;
-    opt_def_new->short_opt = short_opt;
-    opt_def_new->long_opt  = long_opt;
-    opt_def_new->descr     = descr;
-    opt_def_new->type      = type;
-    opt_def_new->var       = result_out;
+    opt_def_new->mode        = mode;
+    opt_def_new->short_opt   = short_opt;
+    opt_def_new->long_opt    = long_opt;
+    opt_def_new->descr       = descr;
+    opt_def_new->type        = type;
+    opt_def_new->var         = result_out;
+    opt_def_new->has_default = has_default;
     //printf("New opt: %c = %p\n", opt_def_new->short_opt, opt_def_new->var);
 
     //Make sure the option hasn't already been defined
@@ -239,7 +243,7 @@ ch_opt_add_declare_i(ch_type_name, c_type_name, short_name, long_name)\
     ch_options_opt_t opt_new = (const struct ch_options_opt){0};\
     *result_out = default_val;\
     \
-    ch_word result = ch_options_add_generic(&opt_new, mode, short_opt, long_opt, descr, ch_type_name, result_out);\
+    ch_word result = ch_options_add_generic(&opt_new, mode, short_opt, long_opt, descr, ch_type_name, result_out, true);\
     if(result){ /*Catch errors inside add generic, it prints it's own message*/\
         return result;\
     }\
@@ -271,7 +275,7 @@ ch_opt_add_declare_u(ch_type_name, c_type_name, short_name, long_name)\
     \
     ch_options_opt_t opt_new = {0};\
     \
-    ch_word result = ch_options_add_generic(&opt_new, mode, short_opt, long_opt, descr, ch_type_name, result_out);\
+    ch_word result = ch_options_add_generic(&opt_new, mode, short_opt, long_opt, descr, ch_type_name, result_out, false);\
     if(result){ /*Catch errors inside add generic, it prints it's own message*/\
         return result;\
     }\
@@ -299,7 +303,7 @@ ch_opt_add_declare_VI(ch_type_name, vector_name, c_type_name_default, short_name
     *result_out = CH_VECTOR_NEW(vector_name, 4, CH_VECTOR_CMP(vector_name));\
     (*result_out)->push_back(*result_out, default_val);\
     \
-    ch_word result = ch_options_add_generic(&opt_new, mode, short_opt, long_opt, descr, ch_type_name, *result_out);\
+    ch_word result = ch_options_add_generic(&opt_new, mode, short_opt, long_opt, descr, ch_type_name, *result_out, true);\
     if(result){ /*Catch errors inside add generic, it prints it's own message*/\
         return result;\
     }\
@@ -331,7 +335,7 @@ ch_opt_add_declare_VU(ch_type_name, vector_name, short_name, long_name)\
     ch_options_opt_t opt_new = {0};\
     *result_out = CH_VECTOR_NEW(vector_name, 4, CH_VECTOR_CMP(vector_name));\
     \
-    ch_word result = ch_options_add_generic(&opt_new, mode, short_opt, long_opt, descr, ch_type_name, *result_out);\
+    ch_word result = ch_options_add_generic(&opt_new, mode, short_opt, long_opt, descr, ch_type_name, *result_out, false);\
     if(result){ /*Catch errors inside add generic, it prints it's own message*/\
         return result;\
     }\

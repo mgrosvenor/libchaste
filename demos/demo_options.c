@@ -18,6 +18,8 @@ struct {
     CH_VECTOR(float)*  opt7;
     u64     opt8;
     bool opt9;
+    u64 opt10;
+    u64 opt11;
 } options;
 
 
@@ -35,6 +37,9 @@ int main(int argc, char** argv)
     ch_opt_addii(CH_OPTION_OPTIONAL,'b',"second","This is the 2nd option", &options.opt2, -42);
     ch_opt_addSI(CH_OPTION_OPTIONAL,'f',"sixth","This is the 6th option", &options.opt6, "init strig vector");
     ch_opt_addbi(CH_OPTION_FLAG, 0,"eleventh","This is the 9th option", &options.opt9, false);
+    ch_opt_adduu(CH_OPTION_MANUAL,0,"manual-no-default","A manual option with no default", &options.opt10);
+    ch_opt_addui(CH_OPTION_MANUAL,0,"manual-default","A manual option with default", &options.opt11,42);
+
     ch_opt_long_description(
             "This application shows of all the things that can be\n"
             "done with ch_options. It shows how options modes can be\n"
