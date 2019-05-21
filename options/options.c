@@ -87,8 +87,14 @@ void ch_opt_print_usage(const char* err_tx_fmt, ...){
             fprintf(outfd, "(%-11s) ", type);
         }
 
-        const char* short_opt = opt_def->short_opt ? "-" : "  ";
-        fprintf(outfd, "%s%c  --%*s  %*s  ", short_opt, opt_def->short_opt,
+        if(opt_def->short_opt){
+            fprintf(outfd, "-%c  ", opt_def->short_opt);
+        }
+        else{
+            fprintf(outfd, "    ");
+        }
+
+        fprintf(outfd, "--%*s  %*s  ",
                 -opts.max_long_opt_len, opt_def->long_opt,
                 -opts.max_descr_len, opt_def->descr);
 
