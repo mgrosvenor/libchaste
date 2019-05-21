@@ -39,10 +39,11 @@ void ch_options_init()
 }
 
 
-void print_usage(const char* err_tx_fmt, ...){
+void ch_opt_print_usage(const char* err_tx_fmt, ...){
 
-    if(opts.short_description)
+    if(!opts.noprint_short && opts.short_description){
         printf("\n%s:\n\n", opts.short_description);
+    }
 
     //opts.opt_defs->sort(opts.opt_defs);
 
@@ -51,36 +52,46 @@ void print_usage(const char* err_tx_fmt, ...){
             opt_def < opts.opt_defs->end;
             opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
 
-        ch_str def_val = CH_STR("",128);
-        char* mode = NULL;
-        switch(opt_def->mode){
-            case CH_OPTION_FLAG:      mode = "Flag"; break;
-            case CH_OPTION_REQUIRED:  mode = "Required"; break;
-            case CH_OPTION_OPTIONAL:  mode = "Optional"; break;
-            case CH_OPTION_UNLIMTED:  mode = "Unlimited"; break;
+        if(opts.print_mode){
+            char* mode = NULL;
+            switch(opt_def->mode){
+                case CH_OPTION_FLAG:      mode = "Flag"; break;
+                case CH_OPTION_REQUIRED:  mode = "Required"; break;
+                case CH_OPTION_OPTIONAL:  mode = "Optional"; break;
+                case CH_OPTION_UNLIMTED:  mode = "Unlimited"; break;
+            }
+            printf("%-9s ", mode);
+
         }
 
-//        char* type = NULL;
-//        switch(opt_def->type){
-//            case CH_BOOL:       type = "Boolean";   break;
-//            case CH_INT64:      type = "Integer";   break;
-//            case CH_UINT64:     type = "Unsigned";  break;
-//            case CH_DOUBLE:     type = "Float";     break;
-//            case CH_STRING:     type = "String";    break;
-//            case CH_HEX:        type = "Unsigned";  break;
-//            case CH_BOOLS:      type = "Boolean List";  break;
-//            case CH_INT64S:     type = "Integers List"; break;
-//            case CH_UINT64S:    type = "Unsigned List"; break;
-//            case CH_DOUBLES:    type = "Float List";    break;
-//            case CH_STRINGS:    type = "String List";   break;
-//            case CH_HEXS:       type = "Unsigned List"; break;
-//            case CH_NO_TYPE:    type = "error";     break;
-//        }
+        if(opts.print_type){
+            char* type = NULL;
+            switch(opt_def->type){
+                case CH_BOOL:       type = "Boolean";   break;
+                case CH_INT64:      type = "Integer";   break;
+                case CH_UINT64:     type = "Unsigned";  break;
+                case CH_DOUBLE:     type = "Float";     break;
+                case CH_STRING:     type = "String";    break;
+                case CH_HEX:        type = "Unsigned";  break;
+                case CH_BOOLS:      type = "Boolean List";  break;
+                case CH_INT64S:     type = "Integers List"; break;
+                case CH_UINT64S:    type = "Unsigned List"; break;
+                case CH_DOUBLES:    type = "Float List";    break;
+                case CH_STRINGS:    type = "String List";   break;
+                case CH_HEXS:       type = "Unsigned List"; break;
+                case CH_NO_TYPE:    type = "error";     break;
+            }
+            printf("(%-11s) ", type);
+        }
+
+        const char* short_opt = opt_def->short_opt ? "-" : "  ";
+        printf("%s%c  --%*s  %*s  ", short_opt, opt_def->short_opt,
+                -opts.max_long_opt_len, opt_def->long_opt,
+                -opts.max_descr_len, opt_def->descr);
 
 
-        if(opt_def->mode == CH_OPTION_OPTIONAL){
-
-            def_val = CH_STR_CAT_CHAR(&def_val, '[' );
+        if(!opts.noprint_defualt && opt_def->mode == CH_OPTION_OPTIONAL){
+            ch_str def_val = CH_STR("",128);
             switch(opt_def->type){
                 case CH_BOOL:       CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%s",  *(ch_bool*)opt_def->var ? "True" : "False");   break;
                 case CH_INT64:      CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"%lli", *(ch_word*)opt_def->var);   break;
@@ -96,19 +107,15 @@ void print_usage(const char* err_tx_fmt, ...){
                 case CH_HEXS:       CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val),"0x%016llX", *((CH_VECTOR(u64)*)opt_def->var)->first );  break;
                 case CH_NO_TYPE:    CH_STR_LEN(def_val)  += snprintf(CH_STR_CSTR_END(def_val), CH_STR_AVAIL(def_val), "Unknown");  break;
             }
-
-            def_val = CH_STR_CAT_CHAR(&def_val, ']' );
-
+            printf("[%s]", CH_STR_CSTR(def_val));
+            ch_str_free(&def_val);
         }
 
-        const char* short_opt = opt_def->short_opt ? "-" : "  ";
-        //printf("%-9s (%-11s) %s%c  --%-15s %s %s\n", mode, type, short_opt, opt_def->short_opt, opt_def->long_opt,  opt_def->descr, CH_STR_CSTR(def_val));
-        printf("%-9s %s%c  --%-15s %s %s\n", mode, short_opt, opt_def->short_opt, opt_def->long_opt,  opt_def->descr, CH_STR_CSTR(def_val));
-        ch_str_free(&def_val);
+        printf("\n");
     }
 
-    if(opts.long_description)
-        printf("%s\n\n", opts.long_description);
+    if(!opts.noprint_long && opts.long_description)
+        printf("\n%s\n\n", opts.long_description);
 
     if(err_tx_fmt){
         va_list args;
@@ -118,7 +125,8 @@ void print_usage(const char* err_tx_fmt, ...){
         exit(-1);
     }
 
-    exit(0);
+    if(!opts.noexit)
+        exit(0);
 }
 
 
@@ -129,13 +137,13 @@ int ch_options_tail(char* description){
     return 0;
 }
 
-int ch_options_short_description(char* description){
+int ch_opt_short_description(char* description){
     opts.short_description = description;
     return 0;
 }
 
-int ch_options_long_description(char* description){
-    opts.long_description= description;
+int ch_opt_long_description(char* description){
+    opts.long_description = description;
     return 0;
 }
 
@@ -180,6 +188,8 @@ static ch_word ch_options_add_generic(
     //Create a new opt def
     bzero(opt_def_new,sizeof(ch_options_opt_t));
 
+    opts.max_long_opt_len = MAX(opts.max_long_opt_len, strlen(long_opt));
+    opts.max_descr_len = MAX(opts.max_descr_len, strlen(descr));
     opts.count++;
     opt_def_new->mode      = mode;
     opt_def_new->short_opt = short_opt;
@@ -349,12 +359,12 @@ void parse_argument(ch_options_opt_t* opt_def) {
         case CH_INT64:
         case CH_INT64S: {
             //Sanity check
-            if (!optarg) { print_usage( "Option --%s (-%c) Expected argument of type INT64 but none found.\n", opt_def->long_opt, opt_def->short_opt); }
+            if (!optarg) { ch_opt_print_usage( "Option --%s (-%c) Expected argument of type INT64 but none found.\n", opt_def->long_opt, opt_def->short_opt); }
 
             //Get the number
             num_result = parse_number(optarg, 0);
             if(num_result.type == CH_UINT64){ num_result.type = CH_INT64;  } //Type promote uint to int
-            if (num_result.type != CH_INT64) { print_usage( "Option --%s (-%c) Expected argument of type INT64 but \"%s\" found\n", opt_def->long_opt, opt_def->short_opt, optarg);}
+            if (num_result.type != CH_INT64) { ch_opt_print_usage( "Option --%s (-%c) Expected argument of type INT64 but \"%s\" found\n", opt_def->long_opt, opt_def->short_opt, optarg);}
 
             //Assign it
             if (opt_def->type == CH_INT64) {
@@ -375,11 +385,11 @@ void parse_argument(ch_options_opt_t* opt_def) {
         case CH_HEX:
         case CH_HEXS: {
             //Sanity check
-            if (!optarg) { print_usage( "Option  --%s (-%c) Expected argument of type UINT64 but none found.\n", opt_def->long_opt, opt_def->short_opt); }
+            if (!optarg) { ch_opt_print_usage( "Option  --%s (-%c) Expected argument of type UINT64 but none found.\n", opt_def->long_opt, opt_def->short_opt); }
 
             //Get the number
             num_result = parse_number(optarg, 0);
-            if (num_result.type != CH_UINT64) { print_usage("Option  --%s (-%c) Expected argument of type UINT64 but \"%s\" found\n", opt_def->long_opt, opt_def->short_opt, optarg);}
+            if (num_result.type != CH_UINT64) { ch_opt_print_usage("Option  --%s (-%c) Expected argument of type UINT64 but \"%s\" found\n", opt_def->long_opt, opt_def->short_opt, optarg);}
 
             //Assign it
             if (opt_def->type == CH_UINT64 || opt_def->type == CH_HEX){
@@ -398,7 +408,7 @@ void parse_argument(ch_options_opt_t* opt_def) {
         case CH_DOUBLE:
         case CH_DOUBLES: {
             //Sanity check
-            if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type DOUBLE but none found.\n", opt_def->long_opt, opt_def->short_opt);}
+            if (!optarg) { ch_opt_print_usage("Option --%s (-%c) Expected argument of type DOUBLE but none found.\n", opt_def->long_opt, opt_def->short_opt);}
 
             //Get the number
             num_result = parse_number(optarg, 0);
@@ -416,7 +426,7 @@ void parse_argument(ch_options_opt_t* opt_def) {
             }
             //No Suitable type found
             else{
-                print_usage("Option --%s (-%c) Expected argument of type DOUBLE but \"%s\" found\n", opt_def->long_opt, opt_def->short_opt, optarg);
+                ch_opt_print_usage("Option --%s (-%c) Expected argument of type DOUBLE but \"%s\" found\n", opt_def->long_opt, opt_def->short_opt, optarg);
             }
 
             //Assign it
@@ -437,11 +447,11 @@ void parse_argument(ch_options_opt_t* opt_def) {
         case CH_BOOL:
         case CH_BOOLS: {
             //Sanity check
-            if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type BOOL but none found.\n", opt_def->long_opt, opt_def->short_opt);}
+            if (!optarg) { ch_opt_print_usage("Option --%s (-%c) Expected argument of type BOOL but none found.\n", opt_def->long_opt, opt_def->short_opt);}
 
             //Get the number
             num_result = parse_bool(optarg, strlen(optarg), 0);
-            if (num_result.type != CH_INT64) { print_usage("Option --%s (-%c) Expected argument of type BOOL but \"%s\" found\n", opt_def->long_opt, opt_def->short_opt,  optarg);}
+            if (num_result.type != CH_INT64) { ch_opt_print_usage("Option --%s (-%c) Expected argument of type BOOL but \"%s\" found\n", opt_def->long_opt, opt_def->short_opt,  optarg);}
 
             //Assign it
             if (opt_def->type == CH_BOOL){
@@ -461,7 +471,7 @@ void parse_argument(ch_options_opt_t* opt_def) {
         case CH_STRING:
         case CH_STRINGS: {
             //Sanity check
-            if (!optarg) { print_usage("Option --%s (-%c) Expected argument of type STRING but none found.\n", opt_def->long_opt, opt_def->short_opt);}
+            if (!optarg) { ch_opt_print_usage("Option --%s (-%c) Expected argument of type STRING but none found.\n", opt_def->long_opt, opt_def->short_opt);}
 
             //Assign it
             if (opt_def->type == CH_STRING) {
@@ -479,7 +489,7 @@ void parse_argument(ch_options_opt_t* opt_def) {
         }
 
         default: {
-            print_usage("Option --%s (-%c) argument has unknown type (%s)\n", opt_def->long_opt, opt_def->short_opt, optarg);
+            ch_opt_print_usage("Option --%s (-%c) argument has unknown type (%s)\n", opt_def->long_opt, opt_def->short_opt, optarg);
             break;
         }
     }
@@ -498,7 +508,7 @@ void process_option(char c, const char* name) {
 
             opt_def->found++; //We found an option of this type
             if (opt_def->found > 1 && !is_vector(opt_def->type)) {
-                print_usage("Option --%s (-%c), only one instance expected but multiple found.\n", opt_def->long_opt, opt_def->short_opt);
+                ch_opt_print_usage("Option --%s (-%c), only one instance expected but multiple found.\n", opt_def->long_opt, opt_def->short_opt);
             }
 
             if (opt_def->mode == CH_OPTION_FLAG) {
@@ -583,13 +593,13 @@ int ch_opt_parse(int argc, char** argv){
     for(; c != EOF; c = getopt_long(argc, argv, short_opts_str, long_options, &option_index)){
 
         if( c == 'h' || opts.help){
-            print_usage(NULL);
+            ch_opt_print_usage(NULL);
             exit(0);
         }
 
         //Search through the options, find the option with the matching character
         if(c == '?'){
-            print_usage("Unknown option or option is missing an argument \"%s\"\n", argv[optind -1]);
+            ch_opt_print_usage("Unknown option or option is missing an argument \"%s\"\n", argv[optind -1]);
         }
 
         process_option(c, long_options[option_index].name);
@@ -609,7 +619,7 @@ int ch_opt_parse(int argc, char** argv){
 
         //None found
         if(opt_def >= opts.opt_defs->end){
-            print_usage("Unknown option \"%s\"\n", argv[optind]);
+            ch_opt_print_usage("Unknown option \"%s\"\n", argv[optind]);
         }
 
         //Parse the remaning options
@@ -627,7 +637,7 @@ int ch_opt_parse(int argc, char** argv){
                             opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
         if(opt_def->mode == CH_OPTION_REQUIRED && opt_def->found < 1){
             printf("Option --%s (-%c) is required but not supplied\n", opt_def->long_opt, opt_def->short_opt);
-            print_usage("Option --%s (-%c) is required but not supplied\n", opt_def->long_opt, opt_def->short_opt);
+            ch_opt_print_usage("Option --%s (-%c) is required but not supplied\n", opt_def->long_opt, opt_def->short_opt);
         }
     }
 

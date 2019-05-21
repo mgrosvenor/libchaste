@@ -19,8 +19,19 @@ typedef struct {
     CH_VECTOR(opts)* opt_defs;
     uint64_t count;
     ch_bool help;
+    unsigned int max_long_opt_len;
+    unsigned int max_descr_len;
     int unlimted_set;
     ch_bool done_init;
+
+    int noprint_short;
+    int print_mode;
+    int print_type;
+    int noprint_defualt;
+    int noprint_long;
+
+    int noexit;
+
 } ch_options_t;
 
 
@@ -75,6 +86,7 @@ int ch_opt_tail(char* description);
 int ch_opt_short_description(char* description);
 int ch_opt_long_description(char* description);
 int ch_opt_parse(int argc, char** argv);
+void ch_opt_print_usage(const char* err_tx_fmt, ...);
 
 
 #endif /* CH_OPTIONS_H_ */

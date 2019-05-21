@@ -23,6 +23,7 @@ struct {
 
 int main(int argc, char** argv)
 {
+    ch_opt_short_description("This is a demo application to show off options parsing");
     ch_opt_addfi(CH_OPTION_OPTIONAL,'e',"fifth","This is the 5th option", &options.opt5, 42.0);
     ch_opt_addxi(CH_OPTION_OPTIONAL,'i',"eighth","This is the 8th option", &options.opt8, 0xDEADBEEF);
     ch_opt_addSI(CH_OPTION_OPTIONAL, 0,"tenth","This is the 10th option", &options.opt6, "init strig vector");
@@ -34,6 +35,11 @@ int main(int argc, char** argv)
     ch_opt_addii(CH_OPTION_OPTIONAL,'b',"second","This is the 2nd option", &options.opt2, -42);
     ch_opt_addSI(CH_OPTION_OPTIONAL,'f',"sixth","This is the 6th option", &options.opt6, "init strig vector");
     ch_opt_addbi(CH_OPTION_FLAG, 0,"eleventh","This is the 9th option", &options.opt9, false);
+    ch_opt_long_description(
+            "This application shows of all the things that can be\n"
+            "done with ch_options. It shows how options modes can be\n"
+            "set, how default values are added, and how different\n"
+            "print options can be set.\n");
     ch_opt_parse(argc,argv);
 
     printf("a=%llu, b=%lli, c=%i, d=%s, e=%lf ", options.opt1, options.opt2, options.opt3, options.opt4, options.opt5);
@@ -48,6 +54,25 @@ int main(int argc, char** argv)
         printf("%lf,",*opt);
     }
     printf("]\n");
+
+    printf("------------------------------------------------------------\n");
+    opts.noexit = 1;
+    ch_opt_print_usage(NULL);
+
+    printf("------------------------------------------------------------\n");
+
+    opts.print_type = 1;
+    ch_opt_print_usage(NULL);
+
+    printf("------------------------------------------------------------\n");
+
+    opts.print_mode = 1;
+    ch_opt_print_usage(NULL);
+
+    printf("------------------------------------------------------------\n");
+
+    opts.noprint_defualt = 1;
+    ch_opt_print_usage(NULL);
 
 
     return 0;
