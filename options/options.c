@@ -43,8 +43,8 @@ void ch_opt_print_usage(const char* err_tx_fmt, ...){
 
     FILE* outfd = err_tx_fmt ? stderr : stdout;
 
-    if(!opts.noprint_short && opts.short_description){
-        fprintf(outfd, "\n%s:\n\n", opts.short_description);
+    if(!opts.noprint_short && !err_tx_fmt && opts.short_description){
+        fprintf(outfd, "%s\n", opts.short_description);
     }
 
     //opts.opt_defs->sort(opts.opt_defs);
@@ -116,12 +116,13 @@ void ch_opt_print_usage(const char* err_tx_fmt, ...){
         fprintf(outfd,"\n");
     }
 
-    if(!opts.noprint_long && opts.long_description)
-        fprintf(outfd,"\n%s\n\n", opts.long_description);
+    if(!opts.noprint_long && !err_tx_fmt && opts.long_description)
+        fprintf(outfd,"\n%s", opts.long_description);
 
     if(err_tx_fmt){
         va_list args;
         va_start(args, err_tx_fmt);
+        fprintf(stderr,"\n");
         vfprintf(stderr, err_tx_fmt,args);
         va_end(args);
         exit(-1);
@@ -640,7 +641,6 @@ int ch_opt_parse(int argc, char** argv){
                            opt_def < opts.opt_defs->end;
                             opt_def = opts.opt_defs->next(opts.opt_defs, opt_def) ) {
         if(opt_def->mode == CH_OPTION_REQUIRED && opt_def->found < 1){
-            printf("Option --%s (-%c) is required but not supplied\n", opt_def->long_opt, opt_def->short_opt);
             ch_opt_print_usage("Option --%s (-%c) is required but not supplied\n", opt_def->long_opt, opt_def->short_opt);
         }
     }

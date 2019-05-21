@@ -25,7 +25,9 @@ struct {
 
 int main(int argc, char** argv)
 {
-    ch_opt_short_description("This is a demo application to show off options parsing");
+
+    bzero(&options,sizeof(options));
+    ch_opt_short_description("This is a demo application to show off options parsing\n");
     ch_opt_addfi(CH_OPTION_OPTIONAL,'e',"fifth","This is the 5th option", &options.opt5, 42.0);
     ch_opt_addxi(CH_OPTION_OPTIONAL,'i',"eighth","This is the 8th option", &options.opt8, 0xDEADBEEF);
     ch_opt_addSI(CH_OPTION_OPTIONAL, 0,"tenth","This is the 10th option", &options.opt6, "init strig vector");
@@ -46,6 +48,10 @@ int main(int argc, char** argv)
             "set, how default values are added, and how different\n"
             "print options can be set.\n");
     ch_opt_parse(argc,argv);
+
+    if(options.opt10 < 10){
+        ch_opt_print_usage("Option --manual-no-default should be >= 10\n");
+    }
 
     printf("a=%llu, b=%lli, c=%i, d=%s, e=%lf ", options.opt1, options.opt2, options.opt3, options.opt4, options.opt5);
     printf("f=[");
