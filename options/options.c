@@ -562,8 +562,8 @@ void generate_unix_opts(char short_opts_str[1024], struct option* long_options) 
         if (opt_def->mode == CH_OPTION_FLAG) {
             long_options[i].name = opt_def->long_opt;
             long_options[i].has_arg = no_argument;
-            long_options[i].flag = opt_def->var;
-            long_options[i].val = true; //!(*(int*) opt_def->var);
+            long_options[i].flag = NULL;
+            long_options[i].val = opt_def->short_opt;
         } else {
             long_options[i].name = opt_def->long_opt;
             long_options[i].has_arg = required_argument;
